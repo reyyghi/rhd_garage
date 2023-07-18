@@ -7,7 +7,7 @@
 
 # Installation 
 ### ESX
-- edit database owned_vehicles anda seperti di bawah ini :
+- edit your owned_vehicles database as below :
 ```
     CREATE TABLE IF NOT EXISTS `owned_vehicles` (
     `owner` varchar(60) NOT NULL,
@@ -21,7 +21,7 @@
 ```
 
 ### QBCore
-- cari ini di qb-phone/server/main.lua di baris 230:
+- look for this in qb-phone/server/main.lua on line 230:
 ```
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
     if garageresult[1] ~= nil then
@@ -37,7 +37,7 @@
         PhoneData.Garage = garageresult
     end
 ```
-- lalu ganti dengan ini:
+- then replace with this:
 ```
     Config.Garages = exports['rhd-garage']:garageList()
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
@@ -54,13 +54,13 @@
     end
 ```
 
-- cari ini di qb-phone/client/main.lua
+- look for this in qb-phone/client/main.lua:
 ```
     QBCore.Functions.TriggerCallback('qb-garage:server:GetPlayerVehicles', function(vehicles)
         PhoneData.GarageVehicles = vehicles
     end)
 ```
-- lalu ganti dengan ini 
+- then replace with this: 
 ```
     PhoneData.GarageVehicles = exports['rhd-garage']:getDataVehicle()
 ```
