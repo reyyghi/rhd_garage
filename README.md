@@ -23,14 +23,14 @@
 # Exports 
 - open garage
 ```
-    exports['rhd-garage']:openMenu({
+    exports.rhd_garage:openMenu({
         garage = 'Garage Label',
         coords = 'location to get the vehicle out of the garage' type(vector4)
     })
 ```
 - store vehicle
 ```
-    exports['rhd-garage']:storeVehicle({
+    exports.rhd_garage:storeVehicle({
         garage = 'Garage Label',
         vehicle = veh
     })
@@ -42,7 +42,7 @@
         local plyCoords = GetEntityCoords(cache.ped)
         local plyHeading = GetEntityHeading(cache.ped)
         local coords = vec4(plyCoords.x, plyCoords.y, plyCoords.z, plyHeading)
-        exports['rhd-garage']:openMenu({
+        exports.rhd_garage:openMenu({
             garage = 'Garasi Kota',
             coords = coords
         })
@@ -53,7 +53,7 @@
         if not cache.vehicle then
             veh = lib.getClosestVehicle(GetEntityCoords(cache.ped))
         end
-        exports['rhd-garage']:storeVehicle({
+        exports.rhd_garage:storeVehicle({
             garage = 'Garasi Kota',
             vehicle = veh
         })
@@ -95,7 +95,7 @@
 ```
 - then replace with this:
 ```
-    Config.Garages = exports['rhd-garage']:garageList()
+    Config.Garages = exports.rhd_garage:garageList()
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
     if garageresult[1] ~= nil then
         for _, v in pairs(garageresult) do
@@ -119,7 +119,7 @@
 ```
 - then replace with this: 
 ```
-    PhoneData.GarageVehicles = exports['rhd-garage']:getDataVehicle()
+    PhoneData.GarageVehicles = exports.rhd_garage:getDataVehicle()
 ```
 
 
