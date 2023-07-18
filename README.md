@@ -109,6 +109,7 @@
     end
 ```
 
+
 - look for this in qb-phone/client/main.lua on line 302:
 ```
     QBCore.Functions.TriggerCallback('qb-garage:server:GetPlayerVehicles', function(vehicles)
@@ -118,4 +119,76 @@
 - then replace with this: 
 ```
     PhoneData.GarageVehicles = exports['rhd-garage']:getDataVehicle()
+```
+
+
+- look for this in qb-vehiclesales/client/main.lua on line 270 and 319:
+```
+    line 270:
+    QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
+        if owned then
+            if balance < 1 then
+                TriggerServerEvent('qb-occasions:server:sellVehicleBack', vehicleData)
+                QBCore.Functions.DeleteVehicle(vehicle)
+            else
+                QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+            end
+        else
+            QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+        end
+    end, vehicleData.plate)
+
+    line 319:
+    QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
+        if owned then
+            if balance < 1 then
+                QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
+                    if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
+                        openSellContract(true)
+                    else
+                        QBCore.Functions.Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
+                    end
+                end)
+            else
+                QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+            end
+        else
+            QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+        end
+    end, VehiclePlate)
+```
+- then replace with this: 
+```
+    - line 270:
+    exports['rhd-garage']:isPlyVeh(vehicleData.plate, function (owned, balance)
+        if owned then
+            if balance < 1 then
+                TriggerServerEvent('qb-occasions:server:sellVehicleBack', vehicleData)
+                QBCore.Functions.DeleteVehicle(vehicle)
+            else
+                QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+            end
+        else
+            QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+        end
+    end)
+
+    - line 319:
+    exports['rhd-garage']:isPlyVeh(VehiclePlate, function (owned, balance)
+        if owned then
+            if balance < 1 then
+                QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
+                    if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
+                        openSellContract(true)
+                    else
+                        QBCore.Functions.Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
+                    end
+                end)
+            else
+                QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+            end
+        else
+            QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+        end
+    end, VehiclePlate)
 ```
