@@ -159,7 +159,7 @@
 ```
 - then replace with this: 
 ```
-    - line 270:
+    line 270:
     exports['rhd-garage']:isPlyVeh(vehicleData.plate, function (owned, balance)
         if owned then
             if balance < 1 then
@@ -173,7 +173,7 @@
         end
     end)
 
-    - line 319:
+    line 319:
     exports['rhd-garage']:isPlyVeh(VehiclePlate, function (owned, balance)
         if owned then
             if balance < 1 then
