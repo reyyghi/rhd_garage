@@ -3,6 +3,8 @@
 # Dependencies 
 **[ox_lib](https://github.com/overextended/ox_lib/releases)**
 
+**[es_extended](https://github.com/esx-framework/esx_core/tree/main/%5Bcore%5D/es_extended) or [qb-core](https://github.com/qbcore-framework/qb-core)**
+
 # Installation 
 ### ESX
 - edit database owned_vehicles anda seperti di bawah ini :
