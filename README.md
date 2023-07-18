@@ -1,6 +1,6 @@
 # RHD-Garage For ESX or QBCore
 
-| Garage script By Reyghita Hafizh & Della Kholida |
+| Made with love By Reyghita Hafizh & Della Kholida |
 |----|
 
 # Dependencies 
