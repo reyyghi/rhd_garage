@@ -55,7 +55,7 @@
         PhoneData.GarageVehicles = vehicles
     end)
 ```
--- lalu ganti dengan ini 
+- lalu ganti dengan ini 
 ```
     PhoneData.GarageVehicles = exports['rhd-garage']:getDataVehicle()
 ```
