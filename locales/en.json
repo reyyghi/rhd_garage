@@ -1,0 +1,35 @@
+{
+    "rhd_garage:open_garage" : "Open Garage",
+    "rhd_garage:store_vehicle" : "Save Vehicle",
+    "rhd_garage:access_impound" : "Vehicle Insurance",
+    
+    "rhd_garage:not_vehicle_exist" : "No vehicles near you !",
+    "rhd_garage:invalid_vehicle_class" : "Vehicles with this class cannot be stored at %s !",
+    "rhd_garage:no_vehicles_in_garage" : "No vehicles",
+
+    "rhd_garage:take_out_veh" : "Use Vehicle",
+    "rhd_garage:no_parking_spot" : "Not enough parking space !",
+
+    "rhd_garage:veh_in_garage" : "Inside garage",
+    "rhd_garage:veh_out_garage" : "Outside garage",
+    "rhd_garage:veh_in_impound" : "In Insurance",
+    
+    "rhd_garage:phone_veh_in_garage" : "In Garage",
+    "rhd_garage:phone_veh_out_garage" : "Out Garage",
+    "rhd_garage:phone_veh_in_impound" : "In Insurance",
+
+    "rhd_garage:not_enough_cash" : "You don't have enough money in your pocket to pay for insurance!",
+    "rhd_garage:not_enough_bank" : "There is not enough money in your account to pay for insurance!",
+    "rhd_garage:impound_price" : "Insurance fee $%s",
+    "rhd_garage:success_pay_impound" : "Successfully paid the insurance fee !",
+    "rhd_garage:pay_impound" : "Pay insurance fees",
+    "rhd_garage:pay_methode" : "Select payment type",
+    "rhd_garage:pay_with_cash" : "Pay using the money in your pocket",
+    "rhd_garage:pay_with_bank" : "Pay using bank savings",
+    "rhd_garage:pay_methode_cash" : "use the money in your pocket",
+    "rhd_garage:pay_methode_bank" : "use credit card",
+    
+    "rhd_garage:not_owned" : "This vehicle is not yours!",
+
+    "rhd_garage:success_stored" : "The vehicle was successfully stored in the garage !"
+}

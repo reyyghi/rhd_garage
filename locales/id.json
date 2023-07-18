@@ -1,0 +1,35 @@
+{
+    "rhd_garage:open_garage" : "Buka Garasi",
+    "rhd_garage:store_vehicle" : "Simpan Kendaraan",
+    "rhd_garage:access_impound" : "Asuransi Kendaraan",
+    
+    "rhd_garage:not_vehicle_exist" : "Tidak ada kendaraan di dekat mu !",
+    "rhd_garage:invalid_vehicle_class" : "Kendaraan dengan class ini tidak dapat di simpan di %s !",
+    "rhd_garage:no_vehicles_in_garage" : "Tidak ada kendaran",
+
+    "rhd_garage:take_out_veh" : "Pakai Kendaraan",
+    "rhd_garage:no_parking_spot" : "Tidak cukup tempat untuk mengeluarkan kendaraan !",
+
+    "rhd_garage:veh_in_garage" : "Di dalam garasi",
+    "rhd_garage:veh_out_garage" : "Di luar garasi",
+    "rhd_garage:veh_in_impound" : "Di Asuransi",
+    
+    "rhd_garage:phone_veh_in_garage" : "Di Garasi",
+    "rhd_garage:phone_veh_out_garage" : "Di Luar Garasi",
+    "rhd_garage:phone_veh_in_impound" : "Di Asuransi",
+
+    "rhd_garage:not_enough_cash" : "Uang di kantong mu tidak cukup untuk membayar biaya asuransi !",
+    "rhd_garage:not_enough_bank" : "Uang di rekening mu tidak cukup untuk membayar biaya asuransi !",
+    "rhd_garage:impound_price" : "Biaya asuransi $%s",
+    "rhd_garage:success_pay_impound" : "Berhasil membayar biaya asuransi !",
+    "rhd_garage:pay_impound" : "Bayar biaya asuransi",
+    "rhd_garage:pay_methode" : "Pilih tipe pembayaran",
+    "rhd_garage:pay_with_cash" : "Bayar menggunakan uang di kantong mu",
+    "rhd_garage:pay_with_bank" : "Bayar menggunakan uang tabungan di bank",
+    "rhd_garage:pay_methode_cash" : "pakai uang di kantong",
+    "rhd_garage:pay_methode_bank" : "pakai kartu kredit",
+    
+    "rhd_garage:not_owned" : "Kendaraan ini bukan milik mu !",
+
+    "rhd_garage:success_stored" : "Kendaran berhasil di simpan ke dalam garasi !"
+}
