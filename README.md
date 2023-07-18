@@ -66,21 +66,23 @@
 1. edit your owned_vehicles database as below :
 
 ```
-CREATE TABLE IF NOT EXISTS `owned_vehicles` (
-    `owner` varchar(60) NOT NULL,
-    `plate` varchar(50) NOT NULL DEFAULT '',
-    `vehicle` longtext DEFAULT NULL,
-    `type` varchar(20) NOT NULL DEFAULT 'car',
-    `job` varchar(20) DEFAULT NULL,
-    `stored` bigint(20) NOT NULL DEFAULT 0,
-    `garage` longtext DEFAULT NULL,
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    CREATE TABLE IF NOT EXISTS `owned_vehicles` (
+        `owner` varchar(60) NOT NULL,
+        `plate` varchar(50) NOT NULL DEFAULT '',
+        `vehicle` longtext DEFAULT NULL,
+        `type` varchar(20) NOT NULL DEFAULT 'car',
+        `job` varchar(20) DEFAULT NULL,
+        `stored` bigint(20) NOT NULL DEFAULT 0,
+        `garage` longtext DEFAULT NULL,
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ```
 </td></tr></table>
 
-### QBCore
-- look for this in qb-phone/server/main.lua on line 230:
+<table><tr><td><h3 align='center'>QBCore Framework</h2></tr></td>
+<tr><td>
+1. You need to change some functions in qb-phone
+    **look for this in qb-phone/server/main.lua on line 230:**
 ```
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
     if garageresult[1] ~= nil then
@@ -96,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `owned_vehicles` (
         PhoneData.Garage = garageresult
     end
 ```
-- then replace with this:
+    **then repleace with this:**
 ```
     Config.Garages = exports['rhd-garage']:garageList()
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
@@ -110,25 +112,25 @@ CREATE TABLE IF NOT EXISTS `owned_vehicles` (
 
         end
         PhoneData.Garage = garageresult
-    end
+    end    
 ```
 
-
-- look for this in qb-phone/client/main.lua on line 302:
-```
+    **look for this in qb-phone/client/main.lua on line 302:**
+``` 
     QBCore.Functions.TriggerCallback('qb-garage:server:GetPlayerVehicles', function(vehicles)
         PhoneData.GarageVehicles = vehicles
     end)
 ```
-- then replace with this: 
-```
+    **then replace with this: **
+``` 
     PhoneData.GarageVehicles = exports['rhd-garage']:getDataVehicle()
 ```
 
-
-- look for this in qb-vehiclesales/client/main.lua on line 270 and 319:
-```
+2. You need to change some functions in qb-vehiclesales
+    **look for this in qb-vehiclesales/client/main.lua on line 270 and 319:**
+    
     line 270:
+```
     QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
         if owned then
             if balance < 1 then
@@ -141,8 +143,10 @@ CREATE TABLE IF NOT EXISTS `owned_vehicles` (
             QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
         end
     end, vehicleData.plate)
+```
 
-    line 319:
+    line 319: 
+```
     QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
         if owned then
             if balance < 1 then
@@ -161,9 +165,10 @@ CREATE TABLE IF NOT EXISTS `owned_vehicles` (
         end
     end, VehiclePlate)
 ```
-- then replace with this: 
-```
+    **then replace with this:**
+
     line 270:
+```
     exports['rhd-garage']:isPlyVeh(vehicleData.plate, function (owned, balance)
         if owned then
             if balance < 1 then
@@ -176,8 +181,10 @@ CREATE TABLE IF NOT EXISTS `owned_vehicles` (
             QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
         end
     end)
+``` 
 
     line 319:
+```
     exports['rhd-garage']:isPlyVeh(VehiclePlate, function (owned, balance)
         if owned then
             if balance < 1 then
@@ -196,3 +203,4 @@ CREATE TABLE IF NOT EXISTS `owned_vehicles` (
         end
     end, VehiclePlate)
 ```
+</td></tr></table>
