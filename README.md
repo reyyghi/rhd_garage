@@ -63,18 +63,18 @@
 # Installation 
 <table><tr><td><h3 align='center'>ESX Framework</h2></tr></td>
 <tr><td>
-edit your owned_vehicles database as below :
+1. edit your owned_vehicles database as below :
 
 ```
-    CREATE TABLE IF NOT EXISTS `owned_vehicles` (
-        `owner` varchar(60) NOT NULL,
-        `plate` varchar(50) NOT NULL DEFAULT '',
-        `vehicle` longtext DEFAULT NULL,
-        `type` varchar(20) NOT NULL DEFAULT 'car',
-        `job` varchar(20) DEFAULT NULL,
-        `stored` bigint(20) NOT NULL DEFAULT 0,
-        `garage` longtext DEFAULT NULL,
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS `owned_vehicles` (
+    `owner` varchar(60) NOT NULL,
+    `plate` varchar(50) NOT NULL DEFAULT '',
+    `vehicle` longtext DEFAULT NULL,
+    `type` varchar(20) NOT NULL DEFAULT 'car',
+    `job` varchar(20) DEFAULT NULL,
+    `stored` bigint(20) NOT NULL DEFAULT 0,
+    `garage` longtext DEFAULT NULL,
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 ```
 </td></tr></table>
