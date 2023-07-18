@@ -109,7 +109,7 @@
     end
 ```
 
-- look for this in qb-phone/client/main.lua:
+- look for this in qb-phone/client/main.lua on line 302:
 ```
     QBCore.Functions.TriggerCallback('qb-garage:server:GetPlayerVehicles', function(vehicles)
         PhoneData.GarageVehicles = vehicles
