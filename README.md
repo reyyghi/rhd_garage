@@ -1,5 +1,8 @@
 # RHD-Garage For ESX or QBCore
 
+# Dependencies 
+**[ox_lib](https://github.com/overextended/ox_lib/releases)**
+
 # Installation 
 ### ESX
 - edit database owned_vehicles anda seperti di bawah ini :
