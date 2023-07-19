@@ -78,25 +78,21 @@ Utils.JobCheck = function ( data )
 end
 
 Utils.createGarageZone = function ( data )
-    return lib.zones.sphere({
+    local zoneOptions = {
         coords = data.coords,
         radius = 2,
         debug = data.debug or false,
-        inside = function ()
-            if data.inside then
-                data.inside()
-            end
-            Wait(1000)
-        end,
-        onExit = function ()
-            Utils.drawtext('hide')
-            Zone.drawtext = false
-
-            if data.exit then
-                data.exit()
-            end
-        end
-    })
+    }
+    if data.inside then
+        zoneOptions.inside = data.inside
+    end
+    if data.exit then
+        zoneOptions.onExit = data.exit
+    end
+    if data.enter then
+        zoneOptions.onEnter = data.enter
+    end
+    return lib.zones.sphere(zoneOptions)
 end
 
 Utils.drawtext = function ( type, txt, icon )
@@ -121,6 +117,7 @@ Utils.createMenu = function ( data )
 end
 
 Utils.createGarageRadial = function ( data )
+    if Config.RadialMenu == 'qb-radialmenu' then return Framework.addRadial( data ) end
     if data.gType == 'garage' then
         lib.addRadialItem({
             id = 'open_garage',
@@ -173,6 +170,7 @@ Utils.createGarageRadial = function ( data )
 end
 
 Utils.removeRadial = function ( type )
+    if Config.RadialMenu == 'qb-radialmenu' then return Framework.removeRadial( type ) end
     if type == 'garage' then
         lib.removeRadialItem('open_garage')
         lib.removeRadialItem('store_vehicle')
