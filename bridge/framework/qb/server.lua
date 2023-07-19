@@ -5,6 +5,12 @@ local qb = exports['qb-core']:GetCoreObject()
 
 local outVeh = {}
 
+CreateThread(function()
+    if GlobalState.veh == nil then
+        GlobalState.veh = {}
+    end
+end)
+
 lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     local veh = {}
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
