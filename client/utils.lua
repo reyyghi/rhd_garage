@@ -14,11 +14,15 @@ Utils.getPlate = function ( number )
 end
 
 Utils.createPlyVeh = function ( model, coords, cb, network )
+    network = network == nil and true or network
     lib.requestModel(model)
-    local veh = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, network or true, false)
-    local netid = NetworkGetNetworkIdFromEntity(veh)
+    local veh = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, network, false)
+    if network then
+        local id = NetworkGetNetworkIdFromEntity(veh)
+        SetNetworkIdCanMigrate(id, true)
+        SetEntityAsMissionEntity(veh, true, true)
+    end
     SetVehicleHasBeenOwnedByPlayer(veh, true)
-    SetNetworkIdCanMigrate(netid, true)
     SetVehicleNeedsToBeHotwired(veh, false)
     SetVehRadioStation(veh, 'OFF')
     SetModelAsNoLongerNeeded(model)
