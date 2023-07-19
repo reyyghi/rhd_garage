@@ -2,6 +2,8 @@ lib.locale()
 
 Config = {}
 
+Config.RadialMenu = 'qb-radialmenu' --- ox_lib / qb-radialmenu
+
 Config.FuelScript = 'rhd_fuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 
 Config.ImpoundPrice = {
