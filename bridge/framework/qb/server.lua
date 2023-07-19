@@ -67,11 +67,14 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
             end
 
             if db.state == 0 then
-                if DoesEntityExist(GlobalState.veh[db.plate]) then
-                    db.state = locale('rhd_garage:phone_veh_in_garage')
-                else
-                    db.state = locale('rhd_garage:phone_veh_out_garage')
+                
+                db.state = locale('rhd_garage:phone_veh_out_garage')
+
+                local EntityExist = lib.callback.await('rhd_garage:cb:cekEntity', src, db.plate)
+                if not EntityExist then
+                    db.state = locale('rhd_garage:phone_veh_in_impound')
                 end
+                
             elseif db.state == 1 then
                 db.state = locale('rhd_garage:phone_veh_in_garage')
             end
