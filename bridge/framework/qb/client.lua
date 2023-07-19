@@ -5,6 +5,10 @@ local qb = exports['qb-core']:GetCoreObject()
 local lasthouse = nil
 local houseZone = {}
 
+local radialOpenGarage = nil
+local radialSaveGarage = nil
+local radialPublicImpound = nil
+
 Framework.playerJob = function ()
     return qb.Functions.GetPlayerData().job
 end
@@ -52,15 +56,95 @@ Framework.removeMoney = function ( type, amount )
     return lib.callback.await('rhd_garage:cb:removeMoney', false, type, amount)
 end
 
-
 --- for qb-vehiclesales
 exports('isPlyVeh', function ( plate, cb )
     return Framework.isPlyVeh( plate, cb)
 end)
 
 --- for qb-phone
+lib.callback.register('rhd_garage:cb:cekEntity', function (plate)
+    if DoesEntityExist(GlobalState.veh[plate]) then
+        return true
+    end
+    return false
+end)
+
 exports('getDataVehicle', function ()
     return lib.callback.await('rhd_garage:cb:getDataVehicle', false)
+end)
+
+--- for qb-radialmenu
+Framework.addRadial = function ( data )
+    if data.gType == 'garage' then
+        radialOpenGarage = exports['qb-radialmenu']:AddOption({
+            id = 'open_garage',
+            title = locale('rhd_garage:open_garage'),
+            icon = 'warehouse',
+            type = 'client',
+            event = 'rhd_garage:client:radialOpenGarage',
+            data = data,
+            shouldClose = true
+        }, radialOpenGarage)
+
+        radialSaveGarage = exports['qb-radialmenu']:AddOption({
+            id = 'store_vehicle',
+            title = locale('rhd_garage:store_vehicle'),
+            icon = 'square-parking',
+            type = 'client',
+            event = 'rhd_garage:client:radialSaveVehicle',
+            data = data,
+            shouldClose = true
+        }, radialSaveGarage)
+    elseif data.gType == 'impound' then
+        radialPublicImpound = exports['qb-radialmenu']:AddOption({
+            id = 'open_impound',
+            title = locale('rhd_garage:access_impound'),
+            icon = 'warehouse',
+            type = 'client',
+            event = 'rhd_garage:client:radialOpenGarage',
+            data = data,
+            shouldClose = true
+        }, radialPublicImpound)
+    end
+end
+
+Framework.removeRadial = function ( type )
+    if type == 'garage' then
+        exports['qb-radialmenu']:RemoveOption(radialOpenGarage)
+        exports['qb-radialmenu']:RemoveOption(radialSaveGarage)
+    elseif type == 'impound' then
+        exports['qb-radialmenu']:RemoveOption(radialPublicImpound)
+    end
+end
+
+RegisterNetEvent('rhd_garage:client:radialOpenGarage', function( self )
+    local data = self.data
+    if cache.vehicle then return end
+    Garage.openMenu( data )
+end)
+
+RegisterNetEvent('rhd_garage:client:radialSaveVehicle', function( self )
+    local data = self.data
+    local plyVeh = cache.vehicle
+    if not cache.vehicle then
+        plyVeh = lib.getClosestVehicle(GetEntityCoords(cache.ped))
+    end
+
+    if not Utils.VehicleCheck( data.vType, plyVeh ) then return Utils.notif(locale('rhd_garage:invalid_vehicle_class', string.lower(data.garage))) end
+
+    if DoesEntityExist(plyVeh) then
+        if cache.vehicle then
+            if cache.seat ~= -1 then return end
+            TaskLeaveAnyVehicle(cache.ped, true, 0)
+            Wait(1000)
+        end
+        Garage.storeVeh({
+            vehicle = plyVeh,
+            garage = data.garage,
+        })
+    else
+        Utils.notif(locale('rhd_garage:not_vehicle_exist'), 'error')
+    end
 end)
 
 --- for qb-houses
