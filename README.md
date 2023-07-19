@@ -3,6 +3,8 @@
 | Made with love By Reyghita Hafizh & Della Kholida |
 |----|
 
+**[Preview]([https://github.com/overextended/ox_lib/releases](https://cdn.discordapp.com/attachments/825361314279981077/1131060085850914917/2023-07-19_09-58-02.mp4))**
+
 # Dependencies 
 **[ox_lib](https://github.com/overextended/ox_lib/releases)**
 
