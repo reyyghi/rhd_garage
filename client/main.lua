@@ -180,15 +180,18 @@ Garage.storeVeh = function ( data )
     local prop = lib.getVehicleProperties(data.vehicle)
     local plate = Utils.getPlate(prop.plate)
     if not Framework.isPlyVeh(plate) then return Utils.notif(locale('rhd_garage:not_owned'), 'error') end
-    DeleteVehicle(data.vehicle)
-    Framework.updateState({
-        vehicle = nil,
-        prop = prop,
-        plate = plate,
-        state = 1,
-        garage = data.garage
-    })
-    Utils.notif(locale('rhd_garage:success_stored'), 'success')
+    if DoesEntityExist(data.vehicle) then
+        SetEntityAsMissionEntity(data.vehicle, true, true)
+        DeleteVehicle(data.vehicle)
+        Framework.updateState({
+            vehicle = nil,
+            prop = prop,
+            plate = plate,
+            state = 1,
+            garage = data.garage
+        })
+        Utils.notif(locale('rhd_garage:success_stored'), 'success')
+    end
 end
 
 --- exports 
