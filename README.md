@@ -164,7 +164,7 @@
 - then replace with this: 
 ```
     line 270:
-    exports['rhd-garage']:isPlyVeh(vehicleData.plate, function (owned, balance)
+    exports.rhd_garage:isPlyVeh(vehicleData.plate, function (owned, balance)
         if owned then
             if balance < 1 then
                 TriggerServerEvent('qb-occasions:server:sellVehicleBack', vehicleData)
@@ -178,7 +178,7 @@
     end)
 
     line 319:
-    exports['rhd-garage']:isPlyVeh(VehiclePlate, function (owned, balance)
+    exports.rhd_garage:isPlyVeh(VehiclePlate, function (owned, balance)
         if owned then
             if balance < 1 then
                 QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
