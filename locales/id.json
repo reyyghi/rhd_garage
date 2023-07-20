@@ -34,6 +34,7 @@
 
     "rhd_garage:success_stored" : "Kendaran berhasil di simpan ke dalam garasi !",
 
+    "rhd_garage:policeimpound_no_available_garage" : "Garasi penyitaan untuk kendaraan type ini belum tersedia",
     "rhd_garage:policeimpound_target" : "Sita Kendaraan",
     "rhd_garage:policeimpound_input_header" : "%s [ %s ]",
     "rhd_garage:policeimpound_input_label1" : "Nama Pemilik",
