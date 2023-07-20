@@ -47,8 +47,10 @@ Utils.GangCheck = function ( data )
     local configGang = Config.Garages[data.garage]['gang']
     local plyJob = Framework.playerGang()
     if type(configGang) == 'table' then
-        for job, grade in pairs(configGang) do
-            plyJob.grade = plyJob.grade.level or plyJob.grade
+        for job, grade in pairs(configGang) do      
+            if type(job.grade) == 'table' then
+                job.grade = job.grade.level
+            end
             if plyJob.name == job and plyJob.grade >= grade then
                 return true
             end
@@ -65,8 +67,10 @@ Utils.JobCheck = function ( data )
     local configJob = Config.Garages[data.garage]['job']
     local plyJob = Framework.playerJob()
     if type(configJob) == 'table' then
-        for job, grade in pairs(configJob) do
-            plyJob.grade = plyJob.grade.level or plyJob.grade
+        for job, grade in pairs(configJob) do         
+            if type(job.grade) == 'table' then
+                job.grade = job.grade.level
+            end
             if plyJob.name == job and plyJob.grade >= grade then
                 return true
             end
