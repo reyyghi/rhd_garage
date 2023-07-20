@@ -17,6 +17,7 @@
     "rhd_garage:phone_veh_in_garage" : "Di Garasi",
     "rhd_garage:phone_veh_out_garage" : "Di Luar Garasi",
     "rhd_garage:phone_veh_in_impound" : "Di Asuransi",
+    "rhd_garage:phone_veh_in_policeimpound" : "Di sita polisi",
 
     "rhd_garage:not_enough_cash" : "Uang di kantong mu tidak cukup untuk membayar biaya asuransi !",
     "rhd_garage:not_enough_bank" : "Uang di rekening mu tidak cukup untuk membayar biaya asuransi !",
@@ -31,5 +32,20 @@
     
     "rhd_garage:not_owned" : "Kendaraan ini bukan milik mu !",
 
-    "rhd_garage:success_stored" : "Kendaran berhasil di simpan ke dalam garasi !"
+    "rhd_garage:success_stored" : "Kendaran berhasil di simpan ke dalam garasi !",
+
+    "rhd_garage:policeimpound_target" : "Sita Kendaraan",
+    "rhd_garage:policeimpound_input_header" : "%s [ %s ]",
+    "rhd_garage:policeimpound_input_label1" : "Nama Pemilik",
+    "rhd_garage:policeimpound_input_label2" : "Alasan Penyitaan",
+    "rhd_garage:policeimpound_input_label3" : "Di Sita Sampai",
+    
+    "rhd_garage:policeimpound_progressbar_label" : "Menyita Kendaraan",
+    "rhd_garage:policeimpound_notif_success" : "Berhasil menyita kendaraan",
+    "rhd_garage:policeimpound_notif_not_vehicle" : "Tidak ada kendaraan yang di sita",
+
+    "rhd_garage:policeimpound_radial_impound" : "Penyitaan Polisi",
+    "rhd_garage:policeimpound_menu_description_owner" : "Pemilik: %s",
+    "rhd_garage:policeimpound_menu_description_date" : "Tanggal Ambil: %s",
+    "rhd_garage:policeimpound_menu_description_reason" : "Alasan Di Sita: %s"
 }
