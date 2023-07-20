@@ -48,6 +48,7 @@ Utils.GangCheck = function ( data )
     local plyJob = Framework.playerGang()
     if type(configGang) == 'table' then
         for job, grade in pairs(configGang) do
+            plyJob.grade = plyJob.grade.level or plyJob.grade
             if plyJob.name == job and plyJob.grade >= grade then
                 return true
             end
@@ -65,6 +66,7 @@ Utils.JobCheck = function ( data )
     local plyJob = Framework.playerJob()
     if type(configJob) == 'table' then
         for job, grade in pairs(configJob) do
+            plyJob.grade = plyJob.grade.level or plyJob.grade
             if plyJob.name == job and plyJob.grade >= grade then
                 return true
             end
@@ -164,6 +166,44 @@ Utils.createGarageRadial = function ( data )
             onSelect = function ()
                 if cache.vehicle then return end
                 Garage.openMenu( data )
+            end
+        })
+    elseif data.gType == 'PoliceImpound' then
+        lib.addRadialItem({
+            id = 'open_garage',
+            icon = 'warehouse',
+            label = locale('rhd_garage:open_garage'),
+            onSelect = function ()
+                if cache.vehicle then return end
+                PoliceImpound.openGarage( data )
+            end
+        })
+
+        lib.addRadialItem({
+            id = 'store_vehicle',
+            icon = 'parking',
+            label = locale('rhd_garage:store_vehicle'),
+            onSelect = function ()
+                local plyVeh = cache.vehicle
+                if not cache.vehicle then
+                    plyVeh = lib.getClosestVehicle(GetEntityCoords(cache.ped))
+                end
+
+                if not Utils.VehicleCheck( data.vType, plyVeh ) then return Utils.notif(locale('rhd_garage:invalid_vehicle_class', string.lower(data.garage))) end
+
+                if DoesEntityExist(plyVeh) then
+                    if cache.vehicle then
+                        if cache.seat ~= -1 then return end
+                        TaskLeaveAnyVehicle(cache.ped, true, 0)
+                        Wait(1000)
+                    end
+                    PoliceImpound.storeVeh({
+                        vehicle = plyVeh,
+                        garage = data.garage
+                    })
+                else
+                    Utils.notif(locale('rhd_garage:not_vehicle_exist'), 'error')
+                end
             end
         })
     end
