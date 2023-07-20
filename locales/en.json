@@ -34,6 +34,7 @@
 
     "rhd_garage:success_stored" : "The vehicle was successfully stored in the garage !",
     
+    "rhd_garage:policeimpound_no_available_garage" : "A foreclosure garage to accommodate this type of vehicle is not yet available",
     "rhd_garage:policeimpound_target" : "Impound Vehicle",
     "rhd_garage:policeimpound_input_header" : "%s [ %s ]",
     "rhd_garage:policeimpound_input_label1" : "Owner Name",
