@@ -67,4 +67,54 @@ CreateThread(function ()
     end
 end)
 
+CreateThread(function ()
+    for k, v in pairs(Config.policeImpound) do
+        if type(v.location) == 'table' then
+            for i=1, #v.location do
+                Utils.createGarageZone({
+                    coords = v.location[i].xyz,
+                    enter = function ()
+                        if not PoliceImpound.access(v.minGradeAccess) then return end
+                        Utils.drawtext('show', k:upper(), 'warehouse')
+                        Zone.drawtext = not Zone.drawtext
+        
+                        Utils.createGarageRadial({
+                            gType = 'PoliceImpound',
+                            vType = v.type or 'car',
+                            garage = k,
+                            coords = v.location[i]
+                        })
+                    end,
+                    exit = function ()
+                        Utils.drawtext('hide')
+                        Zone.drawtext = false
+                        Utils.removeRadial('garage')
+                    end
+                })
+            end
+        elseif type(v.location) == 'vector4' then
+            Utils.createGarageZone({
+                coords = v.location.xyz,
+                enter = function ()
+                    if not PoliceImpound.access(v.minGradeAccess) then return end
+                    Utils.drawtext('show', k:upper(), 'warehouse')
+                    Zone.drawtext = not Zone.drawtext
+    
+                    Utils.createGarageRadial({
+                        gType = 'PoliceImpound',
+                        vType = v.type or 'car',
+                        garage = k,
+                        coords = v.location
+                    })
+                    
+                    Utils.drawtext('hide')
+                    Zone.drawtext = false
+                    Utils.removeRadial('garage')
+                end
+            })
+        end
+        
+    end
+end)
+
 Zone.drawtext = drawtext
