@@ -5,12 +5,14 @@ version '1.0.1'
 
 client_scripts {
     'bridge/framework/**/client.lua',
-    'client/*.lua'
+    'client/*.lua',
+    'police/client.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'bridge/framework/**/server.lua'
+    'bridge/framework/**/server.lua',
+    'police/server.lua'
 }
 
 shared_scripts {
@@ -20,7 +22,8 @@ shared_scripts {
 }
 
 files {
-    'locales/*.json'
+    'locales/*.json',
+    'policeimpound.json'
 }
 
 dependencies {
