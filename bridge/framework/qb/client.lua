@@ -23,7 +23,8 @@ Framework.playerName = function ()
 end
 
 Framework.getVehName = function ( model )
-    return qb.Shared.Vehicles[model].name
+    local vehname =  qb.Shared.Vehicles[model] and qb.Shared.Vehicles[model].model or 'Vehicle Not Found'
+    return vehname
 end
 
 Framework.getVehOwnerName = function ( plate )
