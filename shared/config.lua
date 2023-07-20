@@ -3,6 +3,7 @@ lib.locale()
 Config = {}
 
 Config.RadialMenu = 'qb-radialmenu' --- ox_lib / qb-radialmenu
+Config.Target = 'qb-Target' --- ox_target / qb-target
 
 Config.FuelScript = 'rhd_fuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 
