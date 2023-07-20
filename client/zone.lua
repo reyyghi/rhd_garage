@@ -12,13 +12,14 @@ CreateThread(function ()
                     debug = false,
                     enter = function ()
                         if Zone.drawtext then return end
-                        Utils.drawtext('show', k:upper(), 'warehouse')
-                        Zone.drawtext = not Zone.drawtext
 
                         if not v.impound then
                             if v.gang then if not Utils.GangCheck({garage = k, gang = v.gang}) then Zone.drawtext = not Zone.drawtext return end end
                             if v.job then if not Utils.JobCheck({garage = k, job = v.job}) then Zone.drawtext = not Zone.drawtext return end end
                         end
+
+                        Utils.drawtext('show', k:upper(), 'warehouse')
+                        Zone.drawtext = not Zone.drawtext
 
                         Utils.createGarageRadial({
                             gType = v.impound and 'impound' or garageTipe,
@@ -40,12 +41,13 @@ CreateThread(function ()
                 debug = false,
                 enter = function ()
                     if Zone.drawtext then return end
-                    Utils.drawtext('show', k:upper(), 'warehouse')
-                    Zone.drawtext = not Zone.drawtext
 
                     if v.gang then if not Utils.GangCheck({garage = k, gang = v.gang}) then Zone.drawtext = not Zone.drawtext return end end
                     if v.job then if not Utils.JobCheck({garage = k, job = v.job}) then Zone.drawtext = not Zone.drawtext return end end
 
+                    Utils.drawtext('show', k:upper(), 'warehouse')
+                    Zone.drawtext = not Zone.drawtext
+                    
                     Utils.createGarageRadial({
                         gType = v.impound and 'impound' or garageTipe,
                         vType = v.type or 'car',
