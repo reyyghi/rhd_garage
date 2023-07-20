@@ -47,7 +47,7 @@ CreateThread(function ()
 
                     Utils.drawtext('show', k:upper(), 'warehouse')
                     Zone.drawtext = not Zone.drawtext
-                    
+
                     Utils.createGarageRadial({
                         gType = v.impound and 'impound' or garageTipe,
                         vType = v.type or 'car',
@@ -88,7 +88,7 @@ CreateThread(function ()
                     exit = function ()
                         Utils.drawtext('hide')
                         Zone.drawtext = false
-                        Utils.removeRadial('garage')
+                        Utils.removeRadial('PoliceImpound')
                     end
                 })
             end
@@ -109,7 +109,7 @@ CreateThread(function ()
                     
                     Utils.drawtext('hide')
                     Zone.drawtext = false
-                    Utils.removeRadial('garage')
+                    Utils.removeRadial('PoliceImpound')
                 end
             })
         end
