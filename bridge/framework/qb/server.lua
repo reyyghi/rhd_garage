@@ -45,6 +45,14 @@ lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate)
      return true, vehicle.balance
 end)
 
+lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
+    local owner = MySQL.single.await('SELECT citizenid, vehicle FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
+    if not owner then return false end
+    local player = qb.Functions.GetPlayerByCitizenId(owner.citizenid)
+    local fullname = player.PlayerData.charinfo.firstname .. ' ' .. player.PlayerData.charinfo.lastname
+    return fullname, owner.vehicle
+end)
+
 --Call from qb-phone
 lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
@@ -62,7 +70,13 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
                 if Config.Garages[db.garage] ~= nil then
                     VehicleGarage = db.garage
                 else
-                    VehicleGarage = 'House Garages'         -- HouseGarages[db.garage].label
+                    if db.state == 2 then
+                        VehicleGarage = 'None'
+                    elseif db.state == 0 then
+                        VehicleGarage = locale('rhd_garage:phone_veh_in_impound')
+                    else
+                        VehicleGarage = 'House Garages'  
+                    end
                 end
             end
 
@@ -77,6 +91,8 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
                 
             elseif db.state == 1 then
                 db.state = locale('rhd_garage:phone_veh_in_garage')
+            elseif db.state == 2 then
+                db.state = locale('rhd_garage:phone_veh_in_policeimpound')
             end
 
             local fullname
