@@ -66,6 +66,18 @@ Config.Garages = {
     }
 }
 
+Config.policeImpound = {
+    ['LSPD Impound'] = {
+        type = 'car',
+        blip = { type = 357, color = 3 },
+        location = {
+            vec4(827.9538, -1339.1812, 25.8267, 245.6593),
+            vec4(827.6714, -1345.0046, 25.8251, 243.7945)
+        },
+        minGradeAccess = 3
+    }
+}
+
 Config.HouseGarages = {}
 exports('garageList', function ()
     return Config.Garages
