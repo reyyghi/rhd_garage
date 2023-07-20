@@ -97,16 +97,31 @@ PoliceImpound.openGarage = function ( data )
     Utils.createMenu(impoundMenu)
 end
 
-PoliceImpound.access = function ( grade )
+PoliceImpound.access = function ( pangkat )
     local job = Framework.playerJob()
-    job.grade.level = job.grade.level or job.grade
-    if job.name == 'police' and job.grade.level >= grade then
+
+    if type(job.grade) == 'table' then
+        job.grade = job.grade.level
+    end
+
+    if job.name == 'police' and job.grade >= pangkat then
         return true
     end
     return false
 end
 
+PoliceImpound.availableGarageCheck = function ( vType )
+    for k,v in pairs(Config.policeImpound) do
+        if v.type == vType then
+            return true
+        end
+    end
+    return false
+end
+
 PoliceImpound.ImpoundVeh = function ( Vehicle )
+    local vehClass = GetVehicleClass(Vehicle)
+    if not PoliceImpound.availableGarageCheck( Utils.getVehType(vehClass)) then return Utils.notif(locale('rhd_garage:policeimpound_no_available_garage'), 'error') end
     local prop = lib.getVehicleProperties(Vehicle)
     local ownerName, vehname = Framework.getVehOwnerName(Utils.getPlate(prop.plate))
     
@@ -154,29 +169,44 @@ end
 
 
 CreateThread(function ()
+    local bones = {
+        'door_dside_f',
+        'seat_dside_f',
+        'door_pside_f',
+        'seat_pside_f',
+        'door_dside_r',
+        'seat_dside_r',
+        'door_pside_r',
+        'seat_pside_r',
+        'bonnet',
+        'boot'
+    }
     if Config.Target == 'qb-target' then
-        exports['qb-target']:AddGlobalVehicle({
+        exports['qb-target']:AddTargetBone(bones, {
             options = {
-                {
+                ["Police Impound"] = {
+                    icon = "fas fa-wrench",
                     label = locale('rhd_garage:policeimpound_target'),
-                    icon = 'fas fa-car',
-                    action = function (veh)
+                    action = function(veh)
                         PoliceImpound.ImpoundVeh(veh)
                     end,
-                    job = 'police'
+                    job = 'police',
+                    distance = 1.3
                 }
-            },
-            distance = 1,
+            }
         })
     elseif Config.Target == 'ox_target' then
         exports.ox_target:addGlobalVehicle({
-            label = locale('rhd_garage:policeimpound_target'),
-            icon = 'fas fa-car',
-            groups = 'police',
-            onSelect = function (data)
-                PoliceImpound.ImpoundVeh(data.entity)
-            end,
-            distance = 1
+            {
+                label = locale('rhd_garage:policeimpound_target'),
+                icon = 'fas fa-car',
+                bones = bones,
+                groups = 'police',
+                onSelect = function (data)
+                    PoliceImpound.ImpoundVeh(data.entity)
+                end,
+                distance = 1
+            }
         })
     end
 end)
