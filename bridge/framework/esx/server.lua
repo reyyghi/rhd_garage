@@ -43,6 +43,15 @@ lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate)
      return true
 end)
 
+lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
+    local owner = MySQL.single.await('SELECT owner, vehicle FROM owned_vehicles WHERE plate = ? LIMIT 1', { plate })
+    if not owner then return false end
+    local player = esx.GetPlayerFromIdentifier(owner.owner)
+    local vehicle = json.decode(owner.vehicle)
+    local fullname = player.getName()
+    return fullname, vehicle.model
+end)
+
 lib.callback.register('rhd_garage:cb:removeMoney', function(src, type, amount)
     local success = false
     local ply = esx.GetPlayerFromId(src)
