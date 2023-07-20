@@ -170,40 +170,12 @@ Utils.createGarageRadial = function ( data )
         })
     elseif data.gType == 'PoliceImpound' then
         lib.addRadialItem({
-            id = 'open_garage',
+            id = 'police_impound',
             icon = 'warehouse',
-            label = locale('rhd_garage:open_garage'),
+            label = locale('rhd_garage:policeimpound_radial_impound'),
             onSelect = function ()
                 if cache.vehicle then return end
                 PoliceImpound.openGarage( data )
-            end
-        })
-
-        lib.addRadialItem({
-            id = 'store_vehicle',
-            icon = 'parking',
-            label = locale('rhd_garage:store_vehicle'),
-            onSelect = function ()
-                local plyVeh = cache.vehicle
-                if not cache.vehicle then
-                    plyVeh = lib.getClosestVehicle(GetEntityCoords(cache.ped))
-                end
-
-                if not Utils.VehicleCheck( data.vType, plyVeh ) then return Utils.notif(locale('rhd_garage:invalid_vehicle_class', string.lower(data.garage))) end
-
-                if DoesEntityExist(plyVeh) then
-                    if cache.vehicle then
-                        if cache.seat ~= -1 then return end
-                        TaskLeaveAnyVehicle(cache.ped, true, 0)
-                        Wait(1000)
-                    end
-                    PoliceImpound.storeVeh({
-                        vehicle = plyVeh,
-                        garage = data.garage
-                    })
-                else
-                    Utils.notif(locale('rhd_garage:not_vehicle_exist'), 'error')
-                end
             end
         })
     end
@@ -216,5 +188,7 @@ Utils.removeRadial = function ( type )
         lib.removeRadialItem('store_vehicle')
     elseif type == 'impound' then
         lib.removeRadialItem('open_impound')
+    elseif type == 'PoliceImpound' then
+        lib.removeRadialItem('police_impound')
     end
 end
