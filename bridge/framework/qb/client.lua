@@ -8,6 +8,7 @@ local houseZone = {}
 local radialOpenGarage = nil
 local radialSaveGarage = nil
 local radialPublicImpound = nil
+local radialPoliceImpound = nil
 
 Framework.playerJob = function ()
     return qb.Functions.GetPlayerData().job
@@ -23,6 +24,11 @@ end
 
 Framework.getVehName = function ( model )
     return qb.Shared.Vehicles[model].name
+end
+
+Framework.getVehOwnerName = function ( plate )
+    local ownerName, vehicle = lib.callback.await('rhd_garage:cb:getVehOwnerName', false, plate)
+    return ownerName, Framework.getVehName(vehicle)
 end
 
 Framework.isPlyVeh = function ( plate, cb)
@@ -106,25 +112,15 @@ Framework.addRadial = function ( data )
             shouldClose = true
         }, radialPublicImpound)
     elseif data.gType == 'PoliceImpound' then
-        radialOpenGarage = exports['qb-radialmenu']:AddOption({
-            id = 'open_garage',
-            title = locale('rhd_garage:open_garage'),
+        radialPoliceImpound = exports['qb-radialmenu']:AddOption({
+            id = 'open_impound',
+            title = locale('rhd_garage:policeimpound_radial_impound'),
             icon = 'warehouse',
             type = 'client',
             event = 'rhd_garage:client:radialOpenPoliceImpound',
             data = data,
             shouldClose = true
-        }, radialOpenGarage)
-
-        radialSaveGarage = exports['qb-radialmenu']:AddOption({
-            id = 'store_vehicle',
-            title = locale('rhd_garage:store_vehicle'),
-            icon = 'square-parking',
-            type = 'client',
-            event = 'rhd_garage:client:radialSaveVehiclePoliceImpound',
-            data = data,
-            shouldClose = true
-        }, radialSaveGarage)
+        }, radialPoliceImpound)
     end
 end
 
@@ -138,6 +134,10 @@ Framework.removeRadial = function ( type )
         if radialSaveGarage then
             exports['qb-radialmenu']:RemoveOption(radialPublicImpound)
         end
+    elseif type == 'PoliceImpound' then
+        if radialPoliceImpound then
+            exports['qb-radialmenu']:RemoveOption(radialPoliceImpound)
+        end
     end
 end
 
@@ -145,6 +145,12 @@ RegisterNetEvent('rhd_garage:client:radialOpenGarage', function( self )
     local data = self.data
     if cache.vehicle then return end
     Garage.openMenu( data )
+end)
+
+RegisterNetEvent('rhd_garage:client:radialOpenPoliceImpound', function( self )
+    local data = self.data
+    if cache.vehicle then return end
+    PoliceImpound.openGarage( data )
 end)
 
 RegisterNetEvent('rhd_garage:client:radialSaveVehicle', function( self )
@@ -165,36 +171,6 @@ RegisterNetEvent('rhd_garage:client:radialSaveVehicle', function( self )
         Garage.storeVeh({
             vehicle = plyVeh,
             garage = data.garage,
-        })
-    else
-        Utils.notif(locale('rhd_garage:not_vehicle_exist'), 'error')
-    end
-end)
-
-RegisterNetEvent('rhd_garage:client:radialOpenPoliceImpound', function( self )
-    local data = self.data
-    if cache.vehicle then return end
-    PoliceImpound.openGarage( data )
-end)
-
-RegisterNetEvent('rhd_garage:client:radialSaveVehiclePoliceImpound', function( self )
-    local data = self.data
-    local plyVeh = cache.vehicle
-    if not cache.vehicle then
-        plyVeh = lib.getClosestVehicle(GetEntityCoords(cache.ped))
-    end
-
-    if not Utils.VehicleCheck( data.vType, plyVeh ) then return Utils.notif(locale('rhd_garage:invalid_vehicle_class', string.lower(data.garage))) end
-
-    if DoesEntityExist(plyVeh) then
-        if cache.vehicle then
-            if cache.seat ~= -1 then return end
-            TaskLeaveAnyVehicle(cache.ped, true, 0)
-            Wait(1000)
-        end
-        PoliceImpound.storeVeh({
-            vehicle = plyVeh,
-            garage = data.garage
         })
     else
         Utils.notif(locale('rhd_garage:not_vehicle_exist'), 'error')
