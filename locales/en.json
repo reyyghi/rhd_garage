@@ -17,6 +17,7 @@
     "rhd_garage:phone_veh_in_garage" : "In Garage",
     "rhd_garage:phone_veh_out_garage" : "Out Garage",
     "rhd_garage:phone_veh_in_impound" : "In Insurance",
+    "rhd_garage:phone_veh_in_policeimpound" : "Confiscated By The Police",
 
     "rhd_garage:not_enough_cash" : "You don't have enough money in your pocket to pay for insurance!",
     "rhd_garage:not_enough_bank" : "There is not enough money in your account to pay for insurance!",
@@ -31,5 +32,20 @@
     
     "rhd_garage:not_owned" : "This vehicle is not yours!",
 
-    "rhd_garage:success_stored" : "The vehicle was successfully stored in the garage !"
+    "rhd_garage:success_stored" : "The vehicle was successfully stored in the garage !",
+    
+    "rhd_garage:policeimpound_target" : "Impound Vehicle",
+    "rhd_garage:policeimpound_input_header" : "%s [ %s ]",
+    "rhd_garage:policeimpound_input_label1" : "Owner Name",
+    "rhd_garage:policeimpound_input_label2" : "Reason",
+    "rhd_garage:policeimpound_input_label3" : "Confiscated Until",
+    
+    "rhd_garage:policeimpound_progressbar_label" : "Confiscate The Vehicle",
+    "rhd_garage:policeimpound_notif_success" : "Managed to confiscate the vehicle",
+    "rhd_garage:policeimpound_notif_not_vehicle" : "No vehicles were impounded",
+
+    "rhd_garage:policeimpound_radial_impound" : "Police Impound",
+    "rhd_garage:policeimpound_menu_description_owner" : "Owner: %s",
+    "rhd_garage:policeimpound_menu_description_date" : "Pick Up Date: %s",
+    "rhd_garage:policeimpound_menu_description_reason" : "Reason: %s"
 }
