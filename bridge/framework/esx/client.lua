@@ -15,9 +15,14 @@ Framework.getVehName = function ( model )
     return GetDisplayNameFromVehicleModel( model )
 end
 
-Framework.isPlyVeh = function ( plate )
+Framework.getVehOwnerName = function ( plate )
+    local ownerName, vehicle = lib.callback.await('rhd_garage:cb:getVehOwnerName', false, plate)
+    return ownerName, Framework.getVehName(vehicle)
+end
+
+Framework.isPlyVeh = function ( plate, cb )
     local plyVeh = lib.callback.await('rhd_garage:cb:getVehOwner', false, plate)
-    return plyVeh
+    if cb then cb(plyVeh) else return plyVeh end
 end
 
 Framework.getdbVehicle = function ( garage )
