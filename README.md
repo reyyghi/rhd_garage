@@ -7,6 +7,17 @@
 **[Garage](https://youtu.be/SGB9riBBz-g)**
 **[Police Impound](https://youtu.be/YdUdLlCLJpg)**
 
+# Features
+- Public Garage
+- House Garage
+- Job & Gang Garage
+- Custom Blip
+- Depot Garage
+- Boat Garage
+- Aircraft Garage
+- Police Impound Garage
+- Vehicle confiscation for the police
+
 # Dependencies 
 **[ox_lib](https://github.com/overextended/ox_lib/releases)**
 
@@ -63,17 +74,6 @@
         })
     end)
 ```
-
-# Features
-- Public Garage
-- House Garage
-- Job & Gang Garage
-- Custom Blip
-- Depot Garage
-- Boat Garage
-- Aircraft Garage
-- Police Impound Garage
-- Vehicle confiscation for the police
 
 # Installation 
 
