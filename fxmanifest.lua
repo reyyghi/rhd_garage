@@ -1,7 +1,7 @@
 fx_version 'adamant'
 game 'gta5'
 author 'Reyghita Hafizh Firmanda'
-version '1.0.2'
+version '1.0.3'
 
 client_scripts {
     'bridge/framework/**/client.lua',
