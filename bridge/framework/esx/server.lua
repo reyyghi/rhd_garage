@@ -18,22 +18,22 @@ end
 
 Framework.server.GetVehOwnerName = function ( plate )
     local plate = Framework.server.GetVehPlate(plate)
-    local owner = MySQL.single.await('SELECT firstname, lastname FROM `users` LEFT JOIN `owned_vehicles` ON users.identifer = owned_vehicles.owner WHERE plate = ?', {plate})
+    local owner = MySQL.single.await('SELECT firstname, lastname FROM `users` LEFT JOIN `owned_vehicles` ON users.identifier = owned_vehicles.owner WHERE plate = ?', {plate})
     if not owner then return false end
     return owner.firstname .. ' ' .. owner.lastname
 end
 
 lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     local veh = {}
-    local identifer = esx.GetPlayerFromId(src).identifier
+    local identifier = esx.GetPlayerFromId(src).identifier
     local impound_garage = Config.Garages[garage] and Config.Garages[garage]['impound']
     local shared_garage = Config.Garages[garage] and Config.Garages[garage]['shared']
 
-    local data = MySQL.query.await('SELECT vehicle, stored FROM owned_vehicles WHERE garage = ? and owner = ?', { garage, identifer })
+    local data = MySQL.query.await('SELECT vehicle, stored FROM owned_vehicles WHERE garage = ? and owner = ?', { garage, identifier })
     
     if impound_garage then
         if shared_garage then return false end
-        data = MySQL.query.await('SELECT vehicle, stored FROM owned_vehicles WHERE stored = ? and owner = ?', { 0, identifer })
+        data = MySQL.query.await('SELECT vehicle, stored FROM owned_vehicles WHERE stored = ? and owner = ?', { 0, identifier })
     end
     
     if shared_garage then
@@ -59,8 +59,8 @@ lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
 end)
 
 lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate, shared)
-    local identifer = esx.GetPlayerFromId(src).identifier
-    local vehicle = MySQL.single.await('SELECT `vehicle` FROM `owned_vehicles` WHERE `owner` = ? and plate = ? LIMIT 1', { identifer, plate })
+    local identifier = esx.GetPlayerFromId(src).identifier
+    local vehicle = MySQL.single.await('SELECT `vehicle` FROM `owned_vehicles` WHERE `owner` = ? and plate = ? LIMIT 1', { identifier, plate })
     
     if shared then
         vehicle = MySQL.single.await('SELECT vehicle FROM owned_vehicles WHERE plate = ? LIMIT 1', { plate })
