@@ -179,7 +179,8 @@ end
 Garage.storeVeh = function ( data )
     local prop = lib.getVehicleProperties(data.vehicle)
     local plate = Utils.getPlate(prop.plate)
-    if not Framework.isPlyVeh(plate) then return Utils.notif(locale('rhd_garage:not_owned'), 'error') end
+    local shared = Config.Garages[data.garage] and Config.Garages[data.garage]['shared'] or false
+    if not Framework.isPlyVeh(plate, shared) then return Utils.notif(locale('rhd_garage:not_owned'), 'error') end
     if DoesEntityExist(data.vehicle) then
         SetEntityAsMissionEntity(data.vehicle, true, true)
         DeleteVehicle(data.vehicle)
