@@ -22,20 +22,30 @@ end
 lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     local veh = {}
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
+    local impound_garage = Config.Garages[garage] and Config.Garages[garage]['impound']
+    local shared_garage = Config.Garages[garage] and Config.Garages[garage]['shared']
 
     local data = MySQL.query.await('SELECT vehicle, mods, state FROM player_vehicles WHERE garage = ? and citizenid = ?', { garage, cid })
     
-    if Config.Garages[garage] and Config.Garages[garage]['impound'] then
+    if impound_garage then
+        if shared_garage then return false end
         data = MySQL.query.await('SELECT vehicle, mods, state FROM player_vehicles WHERE state = ? and citizenid = ?', { 0, cid })
+    end
+
+    if shared_garage then
+        if impound_garage then return false end
+        data = MySQL.query.await('SELECT vehicle, mods, state FROM player_vehicles WHERE garage = ?', { garage })
     end
 
     if data[1] then
         for i=1, #data do
             local vehicles = json.decode(data[i].mods)
+            local name = Framework.server.GetVehOwnerName(vehicles.plate)
             veh[#veh+1] = {
                 vehicle = vehicles,
                 state = data[i].state,
-                model = data[i].vehicle
+                model = data[i].vehicle,
+                owner = name
             }
         end
     end
