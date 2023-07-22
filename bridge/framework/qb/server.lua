@@ -1,4 +1,5 @@
 if not Framework.qb() then return end
+Framework.server = {}
 
 local qb = exports['qb-core']:GetCoreObject()
 
@@ -10,6 +11,13 @@ CreateThread(function()
         GlobalState.veh = {}
     end
 end)
+
+Framework.server.GetVehOwnerName = function ( plate )
+    local owner = MySQL.single.await('SELECT charinfo FROM `players` LEFT JOIN `player_vehicles` ON players.citizenid = player_vehicles.citizenid WHERE plate = ?', {plate})
+    if not owner then return false end
+    local info = json.decode(owner.charinfo)
+    return info.firstname .. ' ' .. info.lastname
+end
 
 lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     local veh = {}
@@ -46,11 +54,9 @@ lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate)
 end)
 
 lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
-    local owner = MySQL.single.await('SELECT citizenid, vehicle FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
-    if not owner then return false end
-    local player = qb.Functions.GetPlayerByCitizenId(owner.citizenid)
-    local fullname = player.PlayerData.charinfo.firstname .. ' ' .. player.PlayerData.charinfo.lastname
-    return fullname, owner.vehicle
+    local data = MySQL.single.await('SELECT vehicle FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
+    local fullname = Framework.server.GetVehOwnerName(plate)
+    return fullname, data.vehicle
 end)
 
 --Call from qb-phone
@@ -66,16 +72,17 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
             local mods = json.decode(db.mods)
 
             local VehicleGarage = 'None'
+            
+            local EntityExist = lib.callback.await('rhd_garage:cb:cekEntity', src, db.plate)
+
             if db.garage ~= nil then
                 if Config.Garages[db.garage] ~= nil then
-                    VehicleGarage = db.garage
+                    if db.state ~= 0 and db.state ~= 2 then
+                        VehicleGarage = db.garage
+                    end
                 else
-                    if db.state == 2 then
-                        VehicleGarage = 'None'
-                    elseif db.state == 0 then
-                        VehicleGarage = locale('rhd_garage:phone_veh_in_impound')
-                    else
-                        VehicleGarage = 'House Garages'  
+                    if db.state == 1 then
+                        VehicleGarage = 'House Garages'
                     end
                 end
             end
@@ -84,7 +91,6 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
                 
                 db.state = locale('rhd_garage:phone_veh_out_garage')
 
-                local EntityExist = lib.callback.await('rhd_garage:cb:cekEntity', src, db.plate)
                 if not EntityExist then
                     db.state = locale('rhd_garage:phone_veh_in_impound')
                 end
