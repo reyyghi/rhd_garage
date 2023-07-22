@@ -20,9 +20,9 @@ Framework.getVehOwnerName = function ( plate )
     return ownerName, Framework.getVehName(vehicle)
 end
 
-Framework.isPlyVeh = function ( plate, cb )
-    local plyVeh = lib.callback.await('rhd_garage:cb:getVehOwner', false, plate)
-    if cb then cb(plyVeh) else return plyVeh end
+Framework.isPlyVeh = function ( plate, shared )
+    local plyVeh = lib.callback.await('rhd_garage:cb:getVehOwner', false, plate, shared)
+    return plyVeh
 end
 
 Framework.getdbVehicle = function ( garage )
