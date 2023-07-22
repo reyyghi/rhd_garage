@@ -12,7 +12,13 @@ CreateThread(function()
     end
 end)
 
+Framework.server.GetVehPlate = function ( number )
+    if not number then return nil end
+    return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
+end
+
 Framework.server.GetVehOwnerName = function ( plate )
+    local plate = Framework.server.GetVehPlate(plate)
     local owner = MySQL.single.await('SELECT charinfo FROM `players` LEFT JOIN `player_vehicles` ON players.citizenid = player_vehicles.citizenid WHERE plate = ?', {plate})
     if not owner then return false end
     local info = json.decode(owner.charinfo)
@@ -55,9 +61,13 @@ lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     return veh
 end)
 
-lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate)
+lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate, shared)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
     local vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE citizenid = ? and plate = ? LIMIT 1', { cid, plate })
+
+    if shared then
+        vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
+    end
      
     if not vehicle then return false end
      return true, vehicle.balance
