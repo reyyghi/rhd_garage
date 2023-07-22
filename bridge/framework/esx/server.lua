@@ -11,7 +11,13 @@ CreateThread(function()
     end
 end)
 
+Framework.server.GetVehPlate = function ( number )
+    if not number then return nil end
+    return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
+end
+
 Framework.server.GetVehOwnerName = function ( plate )
+    local plate = Framework.server.GetVehPlate(plate)
     local owner = MySQL.single.await('SELECT firstname, lastname FROM `users` LEFT JOIN `owned_vehicles` ON users.identifer = owned_vehicles.owner WHERE plate = ?', {plate})
     if not owner then return false end
     return owner.firstname .. ' ' .. owner.lastname
@@ -20,19 +26,29 @@ end
 lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     local veh = {}
     local identifer = esx.GetPlayerFromId(src).identifier
+    local impound_garage = Config.Garages[garage] and Config.Garages[garage]['impound']
+    local shared_garage = Config.Garages[garage] and Config.Garages[garage]['shared']
 
     local data = MySQL.query.await('SELECT vehicle, stored FROM owned_vehicles WHERE garage = ? and owner = ?', { garage, identifer })
     
-    if Config.Garages[garage] and Config.Garages[garage]['impound'] then
+    if impound_garage then
+        if shared_garage then return false end
         data = MySQL.query.await('SELECT vehicle, stored FROM owned_vehicles WHERE stored = ? and owner = ?', { 0, identifer })
+    end
+    
+    if shared_garage then
+        if impound_garage then return false end
+        data = MySQL.query.await('SELECT vehicle, stored FROM owned_vehicles WHERE garage = ?', { garage })
     end
 
     if data[1] then
         for i=1, #data do
             local vehicles = json.decode(data[i].vehicle)
+            local name = Framework.server.GetVehOwnerName(vehicles.plate)
             veh[#veh+1] = {
                 vehicle = vehicles,
-                state = data[i].stored
+                state = data[i].stored,
+                owner = name
             }
         end
     end
@@ -42,10 +58,14 @@ lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     return veh
 end)
 
-lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate)
+lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate, shared)
     local identifer = esx.GetPlayerFromId(src).identifier
     local vehicle = MySQL.single.await('SELECT `vehicle` FROM `owned_vehicles` WHERE `owner` = ? and plate = ? LIMIT 1', { identifer, plate })
-     
+    
+    if shared then
+        vehicle = MySQL.single.await('SELECT vehicle FROM owned_vehicles WHERE plate = ? LIMIT 1', { plate })
+    end 
+
     if not vehicle then return false end
      return true
 end)
