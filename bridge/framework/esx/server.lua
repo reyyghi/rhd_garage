@@ -1,4 +1,5 @@
 if not Framework.esx() then return end
+Framework.server = {}
 
 local esx = exports.es_extended:getSharedObject()
 
@@ -9,6 +10,12 @@ CreateThread(function()
         GlobalState.veh = {}
     end
 end)
+
+Framework.server.GetVehOwnerName = function ( plate )
+    local owner = MySQL.single.await('SELECT firstname, lastname FROM `users` LEFT JOIN `owned_vehicles` ON users.identifer = owned_vehicles.owner WHERE plate = ?', {plate})
+    if not owner then return false end
+    return owner.firstname .. ' ' .. owner.lastname
+end
 
 lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     local veh = {}
@@ -44,11 +51,9 @@ lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate)
 end)
 
 lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
-    local owner = MySQL.single.await('SELECT owner, vehicle FROM owned_vehicles WHERE plate = ? LIMIT 1', { plate })
-    if not owner then return false end
-    local player = esx.GetPlayerFromIdentifier(owner.owner)
-    local vehicle = json.decode(owner.vehicle)
-    local fullname = player.getName()
+    local data = MySQL.single.await('SELECT vehicle FROM owned_vehicles WHERE plate = ? LIMIT 1', { plate })
+    local vehicle = json.decode(data.vehicle)
+    local fullname = Framework.server.GetVehOwnerName(plate)
     return fullname, vehicle.model
 end)
 
