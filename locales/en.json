@@ -48,5 +48,7 @@
     "rhd_garage:policeimpound_radial_impound" : "Police Impound",
     "rhd_garage:policeimpound_menu_description_owner" : "Owner: %s",
     "rhd_garage:policeimpound_menu_description_date" : "Pick Up Date: %s",
-    "rhd_garage:policeimpound_menu_description_reason" : "Reason: %s"
+    "rhd_garage:policeimpound_menu_description_reason" : "Reason: %s",
+    
+    "rhd_garage:shared_owner_label" : "Owner: %s"
 }
