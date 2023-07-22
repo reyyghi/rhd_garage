@@ -118,25 +118,47 @@ Garage.openMenu = function ( data )
     for i=1, #vehData do
         local vehProp = vehData[i].vehicle
         local gState = vehData[i].state
+        local pName = vehData[i].owner
         local engine = vehProp.engineHealth
         local body = vehProp.bodyHealth
         local fuel = vehProp.fuelLevel
         local plate = Utils.getPlate(vehProp.plate)
+        local shared_garage = Config.Garages[data.garage] and Config.Garages[data.garage]['shared']
+        local impound_garage = Config.Garages[data.garage] and Config.Garages[data.garage]['impound']
         local disabled = false
-        local description = locale('rhd_garage:veh_in_garage')
+        local description = ''
 
         if gState == 0 then
             if DoesEntityExist(GlobalState.veh[plate]) then
                 disabled = true
-                description = locale('rhd_garage:veh_out_garage')
+                description = 'STATUS: ' ..  locale('rhd_garage:veh_out_garage')
+                if shared_garage then
+                    description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:veh_out_garage')
+                end
             else
-                if Config.Garages[data.garage] and Config.Garages[data.garage]['impound'] then
+                if impound_garage then
                     local impoundPrice = Config.ImpoundPrice[GetVehicleClassFromName(vehProp.model)]
-                    description = locale('rhd_garage:impound_price', impoundPrice)
+                    description = 'STATUS: ' ..  locale('rhd_garage:impound_price', impoundPrice)
+                    if shared_garage then
+                        description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:impound_price', impoundPrice)
+                    end
                 else
                     disabled = true
-                    description = locale('rhd_garage:veh_in_impound')
+                    description = 'STATUS: ' ..  locale('rhd_garage:veh_in_impound')
+                    if shared_garage then
+                        description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:veh_in_impound')
+                    end
                 end
+            end
+        elseif gState == 1 then
+            description = 'STATUS: ' ..  locale('rhd_garage:veh_in_garage')
+            if shared_garage then
+                description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:veh_in_garage')
+            end
+        elseif gState == 2 then
+            description = 'STATUS: ' .. locale('rhd_garage:phone_veh_in_policeimpound')
+            if shared_garage then
+                description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:phone_veh_in_policeimpound')
             end
         end
 
