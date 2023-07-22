@@ -32,8 +32,8 @@ Framework.getVehOwnerName = function ( plate )
     return ownerName, Framework.getVehName(vehicle)
 end
 
-Framework.isPlyVeh = function ( plate, cb)
-    local plyVeh, balance = lib.callback.await('rhd_garage:cb:getVehOwner', false, plate)
+Framework.isPlyVeh = function ( plate, shared, cb)
+    local plyVeh, balance = lib.callback.await('rhd_garage:cb:getVehOwner', false, plate, shared)
     if cb then cb(plyVeh, balance) else return plyVeh, balance end
 end
 
@@ -132,7 +132,7 @@ Framework.removeRadial = function ( type )
             exports['qb-radialmenu']:RemoveOption(radialSaveGarage)
         end
     elseif type == 'impound' then
-        if radialSaveGarage then
+        if radialPublicImpound then
             exports['qb-radialmenu']:RemoveOption(radialPublicImpound)
         end
     elseif type == 'PoliceImpound' then
