@@ -48,5 +48,7 @@
     "rhd_garage:policeimpound_radial_impound" : "Penyitaan Polisi",
     "rhd_garage:policeimpound_menu_description_owner" : "Pemilik: %s",
     "rhd_garage:policeimpound_menu_description_date" : "Tanggal Ambil: %s",
-    "rhd_garage:policeimpound_menu_description_reason" : "Alasan Di Sita: %s"
+    "rhd_garage:policeimpound_menu_description_reason" : "Alasan Di Sita: %s",
+    
+    "rhd_garage:shared_owner_label" : "Pemilik: %s"
 }
