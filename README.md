@@ -18,6 +18,7 @@
 - Aircraft Garage
 - Police Impound Garage
 - Vehicle confiscation for the police
+- Shared Garage
 
 # Dependencies 
 **[ox_lib](https://github.com/overextended/ox_lib/releases)**
@@ -33,6 +34,7 @@
         impound = false --- change to true if this is impound garage,
         job = 'police' or {['police'] = 1} --- do not use this if it is a public garage, and it won't work if the impound is turned on
         gang = 'ballas' or {['ballas'] = 2} --- do not use this if it is a public garage, and it won't work if the impound is turned on
+        shared = false --- change to true if you want this garage to be a shared garage. not recommended for public garages
     }
 ```
 
