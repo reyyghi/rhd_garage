@@ -65,7 +65,7 @@ end
 
 --- for qb-vehiclesales
 exports('isPlyVeh', function ( plate, cb )
-    return Framework.isPlyVeh( plate, cb)
+    return Framework.isPlyVeh( plate, false, cb)
 end)
 
 --- for qb-phone
