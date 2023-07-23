@@ -44,6 +44,7 @@
     "rhd_garage:policeimpound_progressbar_label" : "Menyita Kendaraan",
     "rhd_garage:policeimpound_notif_success" : "Berhasil menyita kendaraan",
     "rhd_garage:policeimpound_notif_not_vehicle" : "Tidak ada kendaraan yang di sita",
+    "rhd_garage:policeimpound_notif_no_veh_owner" : "Tidak dapat mengambil data pemilik untuk kendaraan ini",
 
     "rhd_garage:policeimpound_radial_impound" : "Penyitaan Polisi",
     "rhd_garage:policeimpound_menu_description_owner" : "Pemilik: %s",

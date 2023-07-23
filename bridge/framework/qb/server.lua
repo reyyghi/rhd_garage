@@ -76,6 +76,7 @@ end)
 lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
     local data = MySQL.single.await('SELECT vehicle FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
     local fullname = Framework.server.GetVehOwnerName(plate)
+    if not data then return false end
     return fullname, data.vehicle
 end)
 

@@ -125,6 +125,8 @@ PoliceImpound.ImpoundVeh = function ( Vehicle )
     local prop = lib.getVehicleProperties(Vehicle)
     local ownerName, vehname = Framework.getVehOwnerName(Utils.getPlate(prop.plate))
     
+    if not ownerName then return Utils.notif(locale('rhd_garage:policeimpound_notif_no_veh_owner'), 'error') end
+    
     local input = lib.inputDialog(string.upper(locale('rhd_garage:policeimpound_input_header', vehname:upper(), Utils.getPlate(prop.plate))), {
         {type = 'input', label = string.upper(locale('rhd_garage:policeimpound_input_label1')), placeholder = ownerName, disabled = true},
         {type = 'input', label = string.upper(locale('rhd_garage:policeimpound_input_label2')), required = true},
