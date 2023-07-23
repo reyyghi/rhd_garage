@@ -44,6 +44,7 @@
     "rhd_garage:policeimpound_progressbar_label" : "Confiscate The Vehicle",
     "rhd_garage:policeimpound_notif_success" : "Managed to confiscate the vehicle",
     "rhd_garage:policeimpound_notif_not_vehicle" : "No vehicles were impounded",
+    "rhd_garage:policeimpound_notif_no_veh_owner" : "Unable to retrieve owner data for this vehicle",
 
     "rhd_garage:policeimpound_radial_impound" : "Police Impound",
     "rhd_garage:policeimpound_menu_description_owner" : "Owner: %s",
