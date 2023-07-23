@@ -43,6 +43,18 @@ Utils.VehicleCheck = function ( VehType, Vehicle )
     return false
 end
 
+Utils.getVehType = function ( class )
+    local type = 'car'
+    if class == 14 then
+        type = 'boat'
+    elseif class == 16 then
+        type = 'planes'
+    elseif class == 15 then
+        type = 'helicopter'
+    end
+    return type
+end
+
 Utils.GangCheck = function ( data )
     local configGang = Config.Garages[data.garage]['gang']
     local plyJob = Framework.playerGang()
