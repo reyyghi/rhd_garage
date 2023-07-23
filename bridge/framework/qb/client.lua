@@ -205,7 +205,9 @@ RegisterNetEvent('qb-garages:client:setHouseGarage', function(house, hasKey)
                         end
                     end,
                     exit = function ()
+                        Utils.drawtext('hide')
                         Utils.removeRadial('garage')
+                        Zone.drawtext = false
                     end
                 })
                 lasthouse = house
