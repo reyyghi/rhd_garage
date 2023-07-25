@@ -60,8 +60,8 @@ Utils.GangCheck = function ( data )
     local plyJob = Framework.playerGang()
     if type(configGang) == 'table' then
         for job, grade in pairs(configGang) do      
-            if type(job.grade) == 'table' then
-                job.grade = job.grade.level
+            if type(plyJob.grade) == 'table' then
+                plyJob.grade = plyJob.grade.level
             end
             if plyJob.name == job and plyJob.grade >= grade then
                 return true
@@ -80,9 +80,16 @@ Utils.JobCheck = function ( data )
     local plyJob = Framework.playerJob()
     if type(configJob) == 'table' then
         for job, grade in pairs(configJob) do         
-            if type(job.grade) == 'table' then
-                job.grade = job.grade.level
+            if type(plyJob.grade) == 'table' then
+                plyJob.grade = plyJob.grade.level
             end
+
+            if plyJob.type then
+                if plyJob.type == job and plyJob.grade >= grade then
+                    return true
+                end
+            end
+
             if plyJob.name == job and plyJob.grade >= grade then
                 return true
             end
