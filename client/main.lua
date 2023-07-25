@@ -119,14 +119,22 @@ Garage.openMenu = function ( data )
         local vehProp = vehData[i].vehicle
         local gState = vehData[i].state
         local pName = vehData[i].owner
+        local plate = vehData[i].plate
+        local fakeplate = vehData[i].fakeplate
         local engine = vehProp.engineHealth
         local body = vehProp.bodyHealth
         local fuel = vehProp.fuelLevel
-        local plate = Utils.getPlate(vehProp.plate)
+        
         local shared_garage = Config.Garages[data.garage] and Config.Garages[data.garage]['shared']
         local impound_garage = Config.Garages[data.garage] and Config.Garages[data.garage]['impound']
         local disabled = false
         local description = ''
+
+        if fakeplate ~= nil then
+            plate = Utils.getPlate(fakeplate)
+        else
+            plate = Utils.getPlate(plate)
+        end
 
         if gState == 0 then
             if DoesEntityExist(GlobalState.veh[plate]) then
