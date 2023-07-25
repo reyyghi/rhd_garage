@@ -178,7 +178,7 @@ RegisterNetEvent('rhd_garage:client:radialSaveVehicle', function( self )
     end
 end)
 
---- for qb-houses
+--- for qb-houses or ps-housing
 RegisterNetEvent('qb-garages:client:setHouseGarage', function(house, hasKey)
     if Config.HouseGarages[house] then
         if lasthouse ~= house then
@@ -187,21 +187,26 @@ RegisterNetEvent('qb-garages:client:setHouseGarage', function(house, hasKey)
             end
             if hasKey and Config.HouseGarages[house].takeVehicle.x then
                 local coords = Config.HouseGarages[house].takeVehicle
+                local label = Config.HouseGarages[house].label
                 local vec4 = vec4(coords.x, coords.y, coords.z, coords.w)
                 local vec3 = vec3(coords.x, coords.y, coords.z)
                 houseZone[house] = Utils.createGarageZone({
                     coords = vec3,
                     inside = function ()
                         if not Zone.drawtext then
-                            Utils.createGarageRadial({
-                                gType = 'garage',
-                                vType = 'car',
-                                garage = house,
-                                coords = vec4
-                            })
-
-                            Utils.drawtext('show', house:upper(), 'warehouse')
-                            Zone.drawtext = not Zone.drawtext
+                            lib.callback('rhd_garage:getOwnedHouse', false, function (key)
+                                if key then
+                                    Utils.createGarageRadial({
+                                        gType = 'garage',
+                                        vType = 'car',
+                                        garage = label,
+                                        coords = vec4
+                                    })
+        
+                                    Utils.drawtext('show', label:upper(), 'warehouse')
+                                    Zone.drawtext = not Zone.drawtext
+                                end
+                            end, house)
                         end
                     end,
                     exit = function ()
@@ -223,3 +228,9 @@ end)
 RegisterNetEvent('qb-garages:client:addHouseGarage', function(house, garageInfo)
     Config.HouseGarages[house] = garageInfo
 end)
+
+if GetResourceState("ps-housing") ~= "missing" then
+    RegisterNetEvent('qb-garages:client:removeHouseGarage', function(house)
+        Config.HouseGarages[house] = nil
+    end)
+end
