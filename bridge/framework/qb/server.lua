@@ -3,7 +3,6 @@ Framework.server = {}
 
 local qb = exports['qb-core']:GetCoreObject()
 
-
 local outVeh = {}
 
 CreateThread(function()
@@ -17,9 +16,23 @@ Framework.server.GetVehPlate = function ( number )
     return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
 end
 
+Framework.server.updatePlateOutsideVehicle = function (curPlate, newPlate)
+    local cP = Framework.server.GetVehPlate(curPlate)
+    local nP = Framework.server.GetVehPlate(newPlate)
+    local veh = outVeh[cP]
+    
+    outVeh[nP] = veh
+    GlobalState.veh = outVeh
+end exports('updatePlateOutsideVehicle', Framework.server.updatePlateOutsideVehicle)
+
 Framework.server.GetVehOwnerName = function ( plate )
     local plate = Framework.server.GetVehPlate(plate)
     local owner = MySQL.single.await('SELECT charinfo FROM `players` LEFT JOIN `player_vehicles` ON players.citizenid = player_vehicles.citizenid WHERE plate = ?', {plate})
+    
+    if not owner then 
+        owner = MySQL.single.await('SELECT charinfo FROM `players` LEFT JOIN `player_vehicles` ON players.citizenid = player_vehicles.citizenid WHERE fakeplate = ?', {plate})
+    end
+
     if not owner then return false end
     local info = json.decode(owner.charinfo)
     return info.firstname .. ' ' .. info.lastname
@@ -31,26 +44,33 @@ lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     local impound_garage = Config.Garages[garage] and Config.Garages[garage]['impound']
     local shared_garage = Config.Garages[garage] and Config.Garages[garage]['shared']
 
-    local data = MySQL.query.await('SELECT vehicle, mods, state FROM player_vehicles WHERE garage = ? and citizenid = ?', { garage, cid })
+    local data = MySQL.query.await('SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE garage = ? and citizenid = ?', { garage, cid })
     
     if impound_garage then
         if shared_garage then return false end
-        data = MySQL.query.await('SELECT vehicle, mods, state FROM player_vehicles WHERE state = ? and citizenid = ?', { 0, cid })
+        data = MySQL.query.await('SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE state = ? and citizenid = ?', { 0, cid })
     end
 
     if shared_garage then
         if impound_garage then return false end
-        data = MySQL.query.await('SELECT vehicle, mods, state FROM player_vehicles WHERE garage = ?', { garage })
+        data = MySQL.query.await('SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE garage = ?', { garage })
     end
 
     if data[1] then
         for i=1, #data do
             local vehicles = json.decode(data[i].mods)
             local name = Framework.server.GetVehOwnerName(vehicles.plate)
+            local state = data[i].state
+            local model = data[i].vehicle
+            local plate = data[i].plate
+            local fakeplate = data[i].fakeplate
+
             veh[#veh+1] = {
                 vehicle = vehicles,
-                state = data[i].state,
-                model = data[i].vehicle,
+                state = state,
+                model = model,
+                plate = plate,
+                fakeplate = fakeplate,
                 owner = name
             }
         end
@@ -69,12 +89,20 @@ lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate, shared)
         vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
     end
      
-    if not vehicle then return false end
-     return true, vehicle.balance
+    if not vehicle then 
+       vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE citizenid = ? and fakeplate = ? LIMIT 1', { cid, plate })
+    end
+
+    return true, vehicle.balance
 end)
 
 lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
     local data = MySQL.single.await('SELECT vehicle FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
+
+    if not data then 
+        data = MySQL.single.await('SELECT vehicle FROM player_vehicles WHERE fakeplate = ? LIMIT 1', { plate })
+    end
+
     local fullname = Framework.server.GetVehOwnerName(plate)
     if not data then return false end
     return fullname, data.vehicle
@@ -98,7 +126,7 @@ lib.callback.register('rhd_garage:getOwnedHouse', function(src, house)
     return key
 end)
 
---Call from qb-phone
+--- Call from qb-phone
 lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
     local Vehicles = {}
@@ -202,11 +230,17 @@ RegisterNetEvent('rhd_garage:server:updateVehState', function ( data )
     local garage = data.garage
     local plate = data.plate
     local update = MySQL.update.await('UPDATE player_vehicles SET state = ?, mods = ?, garage = ? WHERE plate = ?', { state, json.encode(prop), garage, plate })
-    if update then
+
+    if update == 0 then 
+        update = MySQL.update.await('UPDATE player_vehicles SET state = ?, mods = ?, garage = ? WHERE fakeplate = ?', { state, json.encode(prop), garage, plate })
+    end
+
+    if update == 1 then
         outVeh[plate] = vehicle
         GlobalState.veh = outVeh
     end
 end)
+
 
 CreateThread(function ()
     local resource = GetInvokingResource() or GetCurrentResourceName()
