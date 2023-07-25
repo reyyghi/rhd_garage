@@ -80,6 +80,24 @@ lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
     return fullname, data.vehicle
 end)
 
+--- check house owner
+lib.callback.register('rhd_garage:getOwnedHouse', function(src, house)
+    local key = false
+    local player = qb.Functions.GetPlayer(src)
+    local license = player.PlayerData.license
+    local cid = player.PlayerData.citizenid
+    local houseKey = false
+    
+    if GetResourceState("qb-houses") ~= "missing" then
+        houseKey = exports['qb-houses']:hasKey(license, cid, house)
+    elseif GetResourceState("ps-housing") ~= "missing" then
+        houseKey = exports['ps-housing']:IsOwner(src, house)
+    end
+
+    if houseKey then key = not key end
+    return key
+end)
+
 --Call from qb-phone
 lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
