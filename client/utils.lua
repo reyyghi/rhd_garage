@@ -13,6 +13,19 @@ Utils.getPlate = function ( number )
     return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
 end
 
+Utils.trackOutVeh = function ( plateNumber )
+    local coords = nil
+    local plate = Utils.getPlate(plateNumber)
+    local vehExist = GlobalState.veh[plate]
+    
+    if DoesEntityExist(vehExist) then
+        coords = GetEntityCoords(vehExist)
+        SetNewWaypoint(coords.x, coords.y)
+        return true
+    end
+    return false
+end
+
 Utils.createPlyVeh = function ( model, coords, cb, network )
     network = network == nil and true or network
     lib.requestModel(model)
