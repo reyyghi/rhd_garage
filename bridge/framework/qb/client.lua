@@ -76,6 +76,10 @@ lib.callback.register('rhd_garage:cb:cekEntity', function (plate)
     return false
 end)
 
+exports('trackOutVeh', function (plate)
+   return Utils.trackOutVeh( plate )
+end)
+
 exports('getDataVehicle', function ()
     return lib.callback.await('rhd_garage:cb:getDataVehicle', false)
 end)
@@ -218,8 +222,10 @@ end)
 
 RegisterNetEvent('qb-garages:client:houseGarageConfig', function(garageConfig)
     Config.HouseGarages = garageConfig
+    TriggerServerEvent('rhd_garage:server:houseGarageConfig', Config.HouseGarages)
 end)
 
 RegisterNetEvent('qb-garages:client:addHouseGarage', function(house, garageInfo)
     Config.HouseGarages[house] = garageInfo
+    TriggerServerEvent('rhd_garage:server:addHouseGarage', house, garageInfo)
 end)
