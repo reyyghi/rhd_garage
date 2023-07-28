@@ -192,6 +192,7 @@
     
         cb("ok")
     end)
+```
 
 #### qb-vehiclesales
 - look for this in qb-vehiclesales/client/main.lua on line 270 and 319:
