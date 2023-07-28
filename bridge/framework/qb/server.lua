@@ -127,7 +127,15 @@ lib.callback.register('rhd_garage:getOwnedHouse', function(src, house)
 end)
 
 --- Call from qb-phone
-lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
+RegisterNetEvent('rhd_garage:server:houseGarageConfig', function(data)
+    Config.HouseGarages = data
+end)
+
+RegisterNetEvent('rhd_garage:server:addHouseGarage', function(house, garageInfo)
+    Config.HouseGarages[house] = garageInfo
+end)
+
+lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
     local Vehicles = {}
 
@@ -137,19 +145,44 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
             local db = result[i]
             local VehicleData = qb.Shared.Vehicles[db.vehicle]
             local mods = json.decode(db.mods)
-
             local VehicleGarage = 'None'
-            
+            local garageLocation = nil
             local EntityExist = lib.callback.await('rhd_garage:cb:cekEntity', src, db.plate)
+            local inPoliceImpound, inInsurance = false, false
+            
+            local body = math.ceil(mods.bodyHealth)
+            local engine = math.ceil(mods.engineHealth)
 
             if db.garage ~= nil then
                 if Config.Garages[db.garage] ~= nil then
                     if db.state ~= 0 and db.state ~= 2 then
                         VehicleGarage = db.garage
+
+                        local L = Config.Garages[db.garage]['location']
+
+                        if type(L) == 'table' then
+                            for loc=1, #L do
+                                garageLocation = L[loc].xyz
+                            end
+                        elseif type(L) == 'vector4' then
+                            garageLocation = L
+                        end
                     end
+                    
                 else
                     if db.state == 1 then
-                        VehicleGarage = 'House Garages'
+                        local HouseGarage = Config.HouseGarages
+
+                        for k, v in pairs(HouseGarage) do
+                            
+                            if v.label == db.garage then
+                                VehicleGarage = db.garage
+                                
+                                local L = v.takeVehicle
+    
+                                garageLocation = vec3(L.x, L.y, L.z)
+                            end
+                        end
                     end
                 end
             end
@@ -160,12 +193,16 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
 
                 if not EntityExist then
                     db.state = locale('rhd_garage:phone_veh_in_impound')
+
+                    inInsurance = true
                 end
-                
             elseif db.state == 1 then
                 db.state = locale('rhd_garage:phone_veh_in_garage')
+
             elseif db.state == 2 then
                 db.state = locale('rhd_garage:phone_veh_in_policeimpound')
+
+                inPoliceImpound = true
             end
 
             local fullname
@@ -174,9 +211,6 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
             else
                 fullname = VehicleData["name"]
             end
-
-            local body = math.ceil(mods.bodyHealth)
-            local engine = math.ceil(mods.engineHealth)
 
             if body > 1000 then
                 body = 1000
@@ -194,8 +228,13 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src)
                 state = db.state,
                 fuel = mods.fuelLevel,
                 engine = engine,
-                body = body
+                body = body,
+                paymentsleft = db.paymentsleft,
+                garageLocation = json.encode(garageLocation),
+                inInsurance = inInsurance,
+                inPoliceImpound = inPoliceImpound
             }
+            
         end
     end
     return Vehicles
