@@ -143,7 +143,57 @@
     PhoneData.GarageVehicles = exports.rhd_garage:getDataVehicle()
 ```
 
+#### qb-phone (Renewed-Scripts) 
+- look for this in qb-phone/client/garage.lua on line 21 - 40:
+```
+    RegisterNUICallback('SetupGarageVehicles', function(_, cb)
+        QBCore.Functions.TriggerCallback('qb-phone:server:GetGarageVehicles', function(vehicles)
+            cb(vehicles)
+        end)
+    end)
+    
+    RegisterNUICallback('gps-vehicle-garage', function(data, cb)
+        local veh = data.veh
+        if veh.state == 'In' then
+            if veh.parkingspot then
+                SetNewWaypoint(veh.parkingspot.x, veh.parkingspot.y)
+                QBCore.Functions.Notify("Your vehicle has been marked", "success")
+            end
+        elseif veh.state == 'Out' and findVehFromPlateAndLocate(veh.plate) then
+            QBCore.Functions.Notify("Your vehicle has been marked", "success")
+        else
+            QBCore.Functions.Notify("This vehicle cannot be located", "error")
+        end
+        cb("ok")
+    end)
+```
+- then replace with this:
+```
+    RegisterNUICallback('SetupGarageVehicles', function(_, cb)
+        local veh = exports.rhd_garage:getDataVehicle()
+        cb(veh)
+    end)
+    
+    RegisterNUICallback('gps-vehicle-garage', function(data, cb)
+        local veh = data.veh
+        if veh.inInsurance then return QBCore.Functions.Notify("This vehicle cannot be located", "error") end
+        if veh.inPoliceImpound then return QBCore.Functions.Notify("This vehicle cannot be located", "error") end
+        local location = json.decode(veh.garageLocation)
+        if location then
+            SetNewWaypoint(vec2(location.x, location.y))
+            QBCore.Functions.Notify("Your vehicle has been marked", "success")
+        else
+            if exports.rhd_garage:trackOutVeh( veh.plate ) then
+                QBCore.Functions.Notify("Your vehicle has been marked", "success")
+            else
+                QBCore.Functions.Notify("This vehicle cannot be located", "error")
+            end
+        end
+    
+        cb("ok")
+    end)
 
+#### qb-vehiclesales
 - look for this in qb-vehiclesales/client/main.lua on line 270 and 319:
 ```
     line 270:
