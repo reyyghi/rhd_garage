@@ -97,6 +97,7 @@
 ```
 
 ### QBCore
+#### qb-phone
 - look for this in qb-phone/server/main.lua on line 230:
 ```
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
