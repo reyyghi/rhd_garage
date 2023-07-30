@@ -7,6 +7,7 @@ local spawn = function ( data )
     Utils.createPlyVeh(data.prop.model, data.coords, function (veh)
         NetworkFadeInEntity(veh, true, false)
         lib.setVehicleProperties(veh, data.prop)
+        SetVehicleNumberPlateText(veh, data.plate)
         
         if Config.FuelScript == 'ox_fuel' then
             Entity(veh).state.fuel = data.prop.fuelLevel
@@ -17,7 +18,7 @@ local spawn = function ( data )
         Framework.updateState({
             vehicle = veh,
             prop = data.prop,
-            plate = Utils.getPlate(data.prop.plate),
+            plate = data.plate,
             state = 0,
             garage = data.garage
         })
@@ -196,6 +197,7 @@ Garage.openMenu = function ( data )
 
                 Garage.actionMenu({
                     prop = vehProp,
+                    plate = plate,
                     coords = data.coords,
                     garage = data.garage
                 })
