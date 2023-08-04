@@ -3,9 +3,12 @@ lib.locale()
 Config = {}
 
 Config.RadialMenu = 'qb-radialmenu' --- ox_lib / qb-radialmenu
-Config.Target = 'qb-Target' --- ox_target / qb-target
+Config.Target = 'qb-target' --- ox_target / qb-target
+Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 
-Config.FuelScript = 'rhd_fuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
+Config.serverName = 'RHD SCRIPTS' --- Your server name
+Config.changeNamePrice = 15000 --- $
+Config.saveDataInterval = 1 --- hours
 
 Config.ImpoundPrice = {
     [0] = 15000, -- Compacts
@@ -51,7 +54,7 @@ Config.Garages = {
     },
     ['LSPD Garage'] = {
         type = 'car',
-        job = 'police',
+        job = {['leo'] = 2, ['ems'] = 4},
         location = {
             vec4(446.2076, -1025.0396, 28.2305, 182.7990),
             vec4(442.5884, -1025.7180, 28.3066, 182.4678),
