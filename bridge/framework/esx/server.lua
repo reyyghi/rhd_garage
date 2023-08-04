@@ -16,6 +16,23 @@ Framework.server.GetVehPlate = function ( number )
     return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
 end
 
+Framework.server.removeMoney = function (type, amount)
+    local src = source
+    local ply = esx.GetPlayerFromId(src)
+    if string.lower(type) == 'cash' then
+        type = 'money'
+    elseif string.lower(type) == 'bank' then
+        type = 'bank'
+    else
+        return false
+    end
+    if ply and ply ~= nil then
+        ply.removeAccountMoney(type, amount, '')
+        return true
+    end
+    return false
+end
+
 Framework.server.updatePlateOutsideVehicle = function (curPlate, newPlate)
     local cP = Framework.server.GetVehPlate(curPlate)
     local nP = Framework.server.GetVehPlate(newPlate)
@@ -86,7 +103,8 @@ lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
     if not data then return false end
     local vehicle = json.decode(data.vehicle)
     local fullname = Framework.server.GetVehOwnerName(plate)
-    return fullname, vehicle.model
+    local CNV = Framework.server.getCNV(plate)
+    return fullname, CNV, vehicle.model
 end)
 
 lib.callback.register('rhd_garage:cb:removeMoney', function(src, type, amount)
