@@ -16,8 +16,8 @@ Framework.getVehName = function ( model )
 end
 
 Framework.getVehOwnerName = function ( plate )
-    local ownerName, vehicle = lib.callback.await('rhd_garage:cb:getVehOwnerName', false, plate)
-    return ownerName, Framework.getVehName(vehicle)
+    local ownerName, CNV, vehicle = lib.callback.await('rhd_garage:cb:getVehOwnerName', false, plate)
+    return ownerName, (CNV or Framework.getVehName(vehicle))
 end
 
 Framework.isPlyVeh = function ( plate, shared )
