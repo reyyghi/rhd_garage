@@ -2,7 +2,7 @@ Utils = {}
 
 Utils.notif = function ( txt, type )
     return lib.notify({
-        title = 'RHD GARAGE',
+        title = Config.serverName,
         description = txt,
         type = type
     })
