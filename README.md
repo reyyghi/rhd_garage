@@ -9,7 +9,7 @@
 
 
 # Preview
-[![Youtube](https://cdn.discordapp.com/attachments/1110235570627686500/1136985365018837002/LogoYoutube.png)](https://youtu.be/xmqxjJOF-Jg)
+https://youtu.be/xmqxjJOF-Jg
 
 # Features
 - Public Garage
