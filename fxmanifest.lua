@@ -1,7 +1,7 @@
 fx_version 'adamant'
 game 'gta5'
 author 'Reyghita Hafizh Firmanda'
-version '1.0.8'
+version '1.1.0'
 
 client_scripts {
     'bridge/framework/**/client.lua',
@@ -12,7 +12,8 @@ client_scripts {
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'bridge/framework/**/server.lua',
-    'police/server.lua'
+    'police/server.lua',
+    'server/*.lua'
 }
 
 shared_scripts {
@@ -23,7 +24,8 @@ shared_scripts {
 
 files {
     'locales/*.json',
-    'policeimpound.json'
+    'policeimpound.json',
+    'vehname.json'
 }
 
 dependencies {
