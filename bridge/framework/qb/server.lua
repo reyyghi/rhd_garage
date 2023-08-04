@@ -16,6 +16,24 @@ Framework.server.GetVehPlate = function ( number )
     return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
 end
 
+Framework.server.removeMoney = function (type, amount)
+    local src = source
+    local ply = qb.Functions.GetPlayer(src)
+    if string.lower(type) == 'cash' then
+        type = 'cash'
+    elseif string.lower(type) == 'bank' then
+        type = 'bank'
+    else
+        return false
+    end
+    if ply and ply ~= nil then
+        ply.Functions.RemoveMoney(type, amount, '')
+        return true
+    end
+    return false
+end
+
+
 Framework.server.updatePlateOutsideVehicle = function (curPlate, newPlate)
     local cP = Framework.server.GetVehPlate(curPlate)
     local nP = Framework.server.GetVehPlate(newPlate)
@@ -104,8 +122,9 @@ lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
     end
 
     local fullname = Framework.server.GetVehOwnerName(plate)
+    local CNV = Framework.server.getCNV(plate)
     if not data then return false end
-    return fullname, data.vehicle
+    return fullname, CNV, data.vehicle
 end)
 
 --- check house owner
@@ -145,9 +164,10 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
             local db = result[i]
             local VehicleData = qb.Shared.Vehicles[db.vehicle]
             local mods = json.decode(db.mods)
+            local plate = Framework.server.GetVehPlate(db.plate)
             local VehicleGarage = 'None'
             local garageLocation = nil
-            local EntityExist = lib.callback.await('rhd_garage:cb:cekEntity', src, db.plate)
+            local EntityExist = lib.callback.await('rhd_garage:cb:cekEntity', src, plate)
             local inPoliceImpound, inInsurance = false, false
             
             local body = math.ceil(mods.bodyHealth)
@@ -186,7 +206,7 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
                     end
                 end
             end
-
+            
             if db.state == 0 then
                 
                 db.state = locale('rhd_garage:phone_veh_out_garage')
@@ -220,10 +240,10 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
             end
 
             Vehicles[#Vehicles+1] = {
-                fullname = fullname,
+                fullname = Framework.server.getCNV(plate) or fullname,
                 brand = VehicleData["brand"],
                 model = VehicleData["name"],
-                plate = db.plate,
+                plate = plate,
                 garage = VehicleGarage,
                 state = db.state,
                 fuel = mods.fuelLevel,
