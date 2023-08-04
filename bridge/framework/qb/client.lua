@@ -23,17 +23,17 @@ Framework.playerName = function ()
 end
 
 Framework.getVehName = function ( model )
-    local vehname =  qb.Shared.Vehicles[model] and qb.Shared.Vehicles[model].model or 'Vehicle Not Found'
+    local vehname =  qb.Shared.Vehicles[model] and qb.Shared.Vehicles[model].name or 'Vehicle Not Found'
     return vehname
 end
 
 Framework.getVehOwnerName = function ( plate )
-    local ownerName, vehicle = lib.callback.await('rhd_garage:cb:getVehOwnerName', false, plate)
-    return ownerName, Framework.getVehName(vehicle)
+    local ownerName, CNV, vehicle = lib.callback.await('rhd_garage:cb:getVehOwnerName', false, plate)
+    return ownerName, (CNV or Framework.getVehName(vehicle))
 end
 
 Framework.isPlyVeh = function ( plate, shared, cb)
-    local plyVeh, balance = lib.callback.await('rhd_garage:cb:getVehOwner', false, plate, shared)
+    local plyVeh, balance = lib.callback.await('rhd_garage:cb:getVehOwner', false, Utils.getPlate(plate), shared)
     if cb then cb(plyVeh, balance) else return plyVeh, balance end
 end
 
@@ -234,7 +234,6 @@ RegisterNetEvent('qb-garages:client:addHouseGarage', function(house, garageInfo)
     Config.HouseGarages[house] = garageInfo
     TriggerServerEvent('rhd_garage:server:addHouseGarage', house, garageInfo)
 end)
-
 
 if GetResourceState("ps-housing") ~= "missing" then
     RegisterNetEvent('qb-garages:client:removeHouseGarage', function(house)
