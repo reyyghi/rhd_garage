@@ -2,7 +2,6 @@ Garage = {}
 Garage.showVeh = nil
 local pay = false
 
-
 local spawn = function ( data )
     Utils.createPlyVeh(data.prop.model, data.coords, function (veh)
         NetworkFadeInEntity(veh, true, false)
@@ -90,12 +89,41 @@ Garage.actionMenu = function ( data )
 
                     spawn( data )
                 end
-            }
+            },
+            
         }
     }
 
+    
+    if Config.Garages[data.garage] and not Config.Garages[data.garage]['impound'] then
+        actionData.options[#actionData.options+1] = {
+            title = locale('rhd_garage:change_veh_name'),
+            description = locale('rhd_garage:change_veh_name_price', lib.math.groupdigits(Config.changeNamePrice)),
+            icon = 'pencil',
+            onSelect = function ()
+                DeleteVehicle(Garage.showVeh)
+                Garage.showVeh = nil
+                
+                local input = lib.inputDialog(data.vehName, {
+                    { type = 'input', label = '', placeholder = locale('rhd_garage:change_veh_name_input'), required = true, max = 20 },
+                })
+                
+                if input then
+                    if Framework.getMoney('cash') < Config.changeNamePrice then return Utils.notif(locale('rhd_garage:change_veh_name_nocash'), 'error') end
+
+                    local CNV = {}
+                    CNV.plate = data.plate
+                    CNV.vehName = input[1]
+
+                    TriggerServerEvent('rhd_garage:server:saveDataName', CNV)
+                end
+            end
+        }
+    end
+
     Utils.createMenu(actionData)
 end
+
 
 Garage.openMenu = function ( data )
     if not data then return end
@@ -171,8 +199,11 @@ Garage.openMenu = function ( data )
             end
         end
 
+        local CNV = lib.callback.await('getCNV', false, plate)
+        local vehicleLabel = string.format('%s [ %s ]', CNV or Framework.getVehName( vehData[i].model or vehProp.model ), plate)
+        
         menuData.options[#menuData.options+1] = {
-            title = string.format('%s [ %s ]', Framework.getVehName( vehData[i].model or vehProp.model ), plate),
+            title = vehicleLabel,
             icon = 'car',
             disabled = disabled,
             description = description:upper(),
@@ -199,7 +230,8 @@ Garage.openMenu = function ( data )
                     prop = vehProp,
                     plate = plate,
                     coords = data.coords,
-                    garage = data.garage
+                    garage = data.garage,
+                    vehName = vehicleLabel
                 })
             end,
         }
