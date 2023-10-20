@@ -8,9 +8,6 @@
 [![Buy Us a Coffee](https://www.buymeacoffee.com/assets/img/guidelines/download-assets-sm-2.svg)](https://www.buymeacoffee.com/reyhafizh)
 
 
-# Preview
-https://youtu.be/xmqxjJOF-Jg
-
 # Features
 - Public Garage
 - House Garage
@@ -19,14 +16,27 @@ https://youtu.be/xmqxjJOF-Jg
 - Depot Garage
 - Boat Garage
 - Aircraft Garage
-- Police Impound Garage
-- Vehicle confiscation for the police
 - Shared Garage
+- Garage Creator (In Game) ```/creategarage (Admin Only)```
+- Garage Editor (In Game) ```/listgarage (Admin Only)```
+- Custom Vehicle Name
+
+# Preview
+## Garage Creator
+![image](https://cdn.discordapp.com/attachments/1027084565602373693/1164986504196673566/image.png?ex=6545353b&is=6532c03b&hm=c15c28f989f64119621201d700bf58e7aca6ee03dfed155d9676f60f1e7951a8&)
+![image](https://cdn.discordapp.com/attachments/1027084565602373693/1164986595003346954/image.png?ex=65453550&is=6532c050&hm=be651a6f1bb4109b57665327e36ff8e4b9c78e64565deb6beff881c40d8bfb04&)
+
+## Garage Editor
+![image](https://cdn.discordapp.com/attachments/1027084565602373693/1164987595277742110/image.png?ex=6545363f&is=6532c13f&hm=1217bcbf2d335b2dac8d053be7dbb8b9a222e7ce927ca4632d754149937e42ff&)
+![image](https://cdn.discordapp.com/attachments/1027084565602373693/1164987705080414218/image.png?ex=65453659&is=6532c159&hm=f9eca35d2609f6fdac5cf7731112f286221dc16ef7f4310f9b407cfafc146281&)
+
 
 # Dependencies 
 **[ox_lib](https://github.com/overextended/ox_lib/releases)**
 
 **[es_extended](https://github.com/esx-framework/esx_core/tree/main/%5Bcore%5D/es_extended) or [qb-core](https://github.com/qbcore-framework/qb-core)**
+
+**[fivem-freecam](https://github.com/Deltanic/fivem-freecam)**
 
 # Configuration
 ```
@@ -46,26 +56,26 @@ https://youtu.be/xmqxjJOF-Jg
 ```
     exports.rhd_garage:openMenu({
         garage = 'Garage Label',
-        coords = 'location to get the vehicle out of the garage' type(vector4)
+        impound = false,
+        shared = false
     })
 ```
 - store vehicle
 ```
     exports.rhd_garage:storeVehicle({
+        vehicle = cache.vehicle,
         garage = 'Garage Label',
-        vehicle = veh
+        shared = false
     })
 ```
 
 ### Example
 ```
     RegisterCommand('opengarage', function (src, args)
-        local plyCoords = GetEntityCoords(cache.ped)
-        local plyHeading = GetEntityHeading(cache.ped)
-        local coords = vec4(plyCoords.x, plyCoords.y, plyCoords.z, plyHeading)
         exports.rhd_garage:openMenu({
-            garage = 'Garasi Kota',
-            coords = coords
+            garage = 'Garage Label',
+            impound = false,
+            shared = false
         })
     end)
 
@@ -75,8 +85,9 @@ https://youtu.be/xmqxjJOF-Jg
             veh = lib.getClosestVehicle(GetEntityCoords(cache.ped))
         end
         exports.rhd_garage:storeVehicle({
-            garage = 'Garasi Kota',
-            vehicle = veh
+            vehicle = veh,
+            garage = 'Garage Label',
+            shared = false
         })
     end)
 ```
