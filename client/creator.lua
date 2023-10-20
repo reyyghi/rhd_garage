@@ -26,7 +26,6 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
                     type = input[2],
                     blip = { type = 357, color = 3 },
                     zones = zones,
-                    job = {},
                     impound = not input[5] and input[4] or false,
                     shared = input[5]
                 }
@@ -46,7 +45,6 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
                         type = newData.type,
                         blip = newData.blip,
                         zones = newData.zones,
-                        job = newData.job,
                         impound = newData.impound,
                         shared = newData.shared
                     }
@@ -59,7 +57,6 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
                     type = newData.type,
                     blip = newData.blip,
                     zones = newData.zones,
-                    job = newData.job,
                     impound = newData.impound,
                     shared = newData.shared
                 }
@@ -85,5 +82,11 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                 
             end
         }   
+    end
+end)
+
+CreateThread(function ()
+    if LocalPlayer.state.isLoggedIn then
+        Zones.refresh()
     end
 end)
