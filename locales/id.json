@@ -51,5 +51,18 @@
     "rhd_garage:policeimpound_menu_description_date" : "Tanggal Ambil: %s",
     "rhd_garage:policeimpound_menu_description_reason" : "Alasan Di Sita: %s",
     
-    "rhd_garage:shared_owner_label" : "Pemilik: %s"
+    "rhd_garage:shared_owner_label" : "Pemilik: %s",
+    
+    "rhd_garage:change_veh_name" : "Ganti Nama Kendaraan",
+    "rhd_garage:change_veh_name_price" : "Harga: $%s",
+    "rhd_garage:change_veh_name_input" : "Masukkan Nama Baru",
+    "rhd_garage:change_veh_name_nocash" : "Kamu tidak memiliki cukup uang untuk membayar biaya penggantian nama kendaraan !",
+
+    "rhd_garage:command.admin.CreateGarage": "buatgarasi",
+    "rhd_garage:command.admin.CreateGarageHelp": "Buat Garasi Baru (Hanya Admin)",
+    
+    "rhd_garage:command.admin.listgarage": "daftargarasi",
+    "rhd_garage:command.admin.listgaragehelp": "Lihat daftar semua garasi (Hanya Admin)",
+    
+    "rhd_garage:context.admin.listgarage_title": "Daftar Garasi"
 }

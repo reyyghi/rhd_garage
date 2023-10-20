@@ -51,5 +51,16 @@
     "rhd_garage:policeimpound_menu_description_date" : "Pick Up Date: %s",
     "rhd_garage:policeimpound_menu_description_reason" : "Reason: %s",
     
-    "rhd_garage:shared_owner_label" : "Owner: %s"
+    "rhd_garage:shared_owner_label" : "Owner: %s",
+
+    "rhd_garage:change_veh_name" : "Change Vehicle Name",
+    "rhd_garage:change_veh_name_price" : "Price: $%s",
+    "rhd_garage:change_veh_name_input" : "Enter New Name",
+    "rhd_garage:change_veh_name_nocash" : "You do not have enough money to pay the vehicle name change fee!",
+
+    "rhd_garage:command.admin.CreateGarage": "creategarage",
+    "rhd_garage:command.admin.CreateGarageHelp": "Create New Garage (Admin Only)",
+    
+    "rhd_garage:command.admin.listgarage": "listgarage",
+    "rhd_garage:command.admin.listgaragehelp": "View list of all garages (Admin Only)"
 }
