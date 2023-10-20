@@ -101,7 +101,7 @@ RegisterNetEvent('qb-garages:client:setHouseGarage', function(house, hasKey)
                                         if not Utils.classCheck( "car", vehicle ) then return Utils.notify(locale('rhd_garage:invalid_vehicle_class', label:lower())) end
                         
                                         if DoesEntityExist(vehicle) then
-                                            if vehicle then
+                                            if cache.vehicle then
                                                 if cache.seat ~= -1 then return end
                                                 TaskLeaveAnyVehicle(cache.ped, true, 0)
                                                 Wait(1000)
