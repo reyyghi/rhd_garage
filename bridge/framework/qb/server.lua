@@ -1,6 +1,7 @@
 if not Framework.qb() then return end
 Framework.server = {}
 
+local Utils = require "modules.utils"
 local qb = exports['qb-core']:GetCoreObject()
 
 Framework.server.GetPlayer = qb.Functions.GetPlayer
@@ -129,7 +130,7 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
             local db = result[i]
             local VehicleData = qb.Shared.Vehicles[db.vehicle]
             local mods = json.decode(db.mods)
-            local plate = Framework.server.GetVehPlate(db.plate)
+            local plate = db.plate:trim()
             local VehicleGarage = 'None'
             local garageLocation = nil
             local EntityExist = lib.callback.await('rhd_garage:cb:cekEntity', src, plate)
@@ -205,7 +206,7 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
             end
 
             Vehicles[#Vehicles+1] = {
-                fullname = Framework.server.getCNV(plate) or fullname,
+                fullname = CNV[plate] and CNV[plate].name or fullname,
                 brand = VehicleData["brand"],
                 model = VehicleData["name"],
                 plate = plate,
