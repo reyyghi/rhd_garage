@@ -3,22 +3,15 @@ Framework.server = {}
 
 local qb = exports['qb-core']:GetCoreObject()
 
-local outVeh = {}
-
-CreateThread(function()
-    if GlobalState.veh == nil then
-        GlobalState.veh = {}
-    end
-end)
+Framework.server.GetPlayer = qb.Functions.GetPlayer
 
 Framework.server.GetVehPlate = function ( number )
     if not number then return nil end
     return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
 end
 
-Framework.server.removeMoney = function (type, amount)
-    local src = source
-    local ply = qb.Functions.GetPlayer(src)
+Framework.server.removeMoney = function (source, type, amount)
+    local ply = qb.Functions.GetPlayer(source)
     if string.lower(type) == 'cash' then
         type = 'cash'
     elseif string.lower(type) == 'bank' then
@@ -33,34 +26,11 @@ Framework.server.removeMoney = function (type, amount)
     return false
 end
 
-
-Framework.server.updatePlateOutsideVehicle = function (curPlate, newPlate)
-    local cP = Framework.server.GetVehPlate(curPlate)
-    local nP = Framework.server.GetVehPlate(newPlate)
-    local veh = outVeh[cP]
-    
-    outVeh[nP] = veh
-    GlobalState.veh = outVeh
-end exports('updatePlateOutsideVehicle', Framework.server.updatePlateOutsideVehicle)
-
-Framework.server.GetVehOwnerName = function ( plate )
-    local plate = Framework.server.GetVehPlate(plate)
-    local owner = MySQL.single.await('SELECT charinfo FROM `players` LEFT JOIN `player_vehicles` ON players.citizenid = player_vehicles.citizenid WHERE plate = ?', {plate})
-    
-    if not owner then 
-        owner = MySQL.single.await('SELECT charinfo FROM `players` LEFT JOIN `player_vehicles` ON players.citizenid = player_vehicles.citizenid WHERE fakeplate = ?', {plate})
-    end
-
-    if not owner then return false end
-    local info = json.decode(owner.charinfo)
-    return info.firstname .. ' ' .. info.lastname
-end
-
-lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
+lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage, impound, shared)
     local veh = {}
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
-    local impound_garage = Config.Garages[garage] and Config.Garages[garage]['impound']
-    local shared_garage = Config.Garages[garage] and Config.Garages[garage]['shared']
+    local impound_garage = impound
+    local shared_garage = shared
 
     local data = MySQL.query.await('SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE garage = ? and citizenid = ?', { garage, cid })
     
@@ -71,13 +41,13 @@ lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
 
     if shared_garage then
         if impound_garage then return false end
-        data = MySQL.query.await('SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE garage = ?', { garage })
+        data = MySQL.query.await('SELECT player_vehicles.vehicle, player_vehicles.mods, player_vehicles.state, player_vehicles.plate, player_vehicles.fakeplate, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE player_vehicles.garage = ?', { garage })
     end
 
     if data[1] then
         for i=1, #data do
             local vehicles = json.decode(data[i].mods)
-            local name = Framework.server.GetVehOwnerName(vehicles.plate)
+            local name = data[i].charinfo and ("%s %s"):format(json.decode(data[i].charinfo).firstname, json.decode(data[i].charinfo).lastname)
             local state = data[i].state
             local model = data[i].vehicle
             local plate = data[i].plate
@@ -115,16 +85,11 @@ lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate, shared)
 end)
 
 lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
-    local data = MySQL.single.await('SELECT vehicle FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
+    local data = MySQL.single.await('SELECT player_vehicles.vehicle, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE plate = ? OR fakeplate = ? LIMIT 1', { plate })
 
-    if not data then 
-        data = MySQL.single.await('SELECT vehicle FROM player_vehicles WHERE fakeplate = ? LIMIT 1', { plate })
-    end
-
-    local fullname = Framework.server.GetVehOwnerName(plate)
-    local CNV = Framework.server.getCNV(plate)
+    local fullname = data.charinfo and ("%s %s"):format(json.decode(data.charinfo).firstname, json.decode(data.charinfo).lastname)
     if not data then return false end
-    return fullname, CNV, data.vehicle
+    return fullname, data.vehicle
 end)
 
 --- check house owner
@@ -174,11 +139,11 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
             local engine = math.ceil(mods.engineHealth)
 
             if db.garage ~= nil then
-                if Config.Garages[db.garage] ~= nil then
+                if GarageZone[db.garage] ~= nil then
                     if db.state ~= 0 and db.state ~= 2 then
                         VehicleGarage = db.garage
 
-                        local L = Config.Garages[db.garage]['location']
+                        local L = GarageZone[db.garage]['location']
 
                         if type(L) == 'table' then
                             for loc=1, #L do
@@ -258,82 +223,4 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
         end
     end
     return Vehicles
-end)
-
-lib.callback.register('rhd_garage:cb:removeMoney', function(src, type, amount)
-    local success = false
-    local ply = qb.Functions.GetPlayer(source)
-    if type == 'cash' then
-        ply.Functions.RemoveMoney('cash', amount)
-        success = not success
-    elseif type == 'bank' then
-        ply.Functions.RemoveMoney('bank', amount)
-        success = not success
-    end
-    return success
-end)
-
-RegisterNetEvent('rhd_garage:removeMoney', function ( type, amount )
-    local ply = qb.Functions.GetPlayer(source)
-    if type == 'cash' then
-        ply.Functions.RemoveMoney('cash', amount)
-    elseif type == 'bank' then
-        ply.Functions.RemoveMoney('bank', amount)
-    end
-end)
-
-RegisterNetEvent('rhd_garage:server:updateVehState', function ( data )
-    local prop = data.prop
-    local state = data.state
-    local vehicle = data.vehicle
-    local garage = data.garage
-    local plate = data.plate
-    local update = MySQL.update.await('UPDATE player_vehicles SET state = ?, mods = ?, garage = ? WHERE plate = ?', { state, json.encode(prop), garage, plate })
-
-    if update == 0 then 
-        update = MySQL.update.await('UPDATE player_vehicles SET state = ?, mods = ?, garage = ? WHERE fakeplate = ?', { state, json.encode(prop), garage, plate })
-    end
-
-    if update == 1 then
-        outVeh[plate] = vehicle
-        GlobalState.veh = outVeh
-    end
-end)
-
-
-CreateThread(function ()
-    local resource = GetInvokingResource() or GetCurrentResourceName()
-
-    local currentVersion = GetResourceMetadata(resource, 'version', 0)
-
-    if currentVersion then
-        currentVersion = currentVersion:match('%d+%.%d+%.%d+')
-    end
-
-    if not currentVersion then return print(("^1Unable to determine current resource version for '%s' ^0"):format(resource)) end
-
-    SetTimeout(1000, function()
-        PerformHttpRequest('https://api.github.com/repos/reyyghi/rhd_garage/releases/latest', function(status, response)
-            if status ~= 200 then return end
-
-            response = json.decode(response)
-            if response.prerelease then return end
-
-            local latestVersion = response.tag_name:match('%d+%.%d+%.%d+')
-            if not latestVersion or latestVersion == currentVersion then return end
-
-            local cv = { string.strsplit('.', currentVersion) }
-            local lv = { string.strsplit('.', latestVersion) }
-
-            for i = 1, #cv do
-                local current, minimum = tonumber(cv[i]), tonumber(lv[i])
-
-                if current ~= minimum then
-                    if current < minimum then
-                        return print(('^3An update is available for %s (current version: %s)\r\n%s^0'):format(resource, currentVersion, response.html_url))
-                    else break end
-                end
-            end
-        end, 'GET')
-    end)
 end)
