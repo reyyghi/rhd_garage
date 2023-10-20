@@ -1,5 +1,6 @@
 local utils = {}
 local isServer = IsDuplicityVersion()
+local QBRadial = {}
 
 ---@param string string
 ---@return string?
@@ -181,15 +182,15 @@ end
 ---@param data table
 function utils.createRadial ( data )
     if Config.RadialMenu == "qb-radialmenu" then
-        exports['qb-radialmenu']:AddOption({
+        QBRadial[data.id] = exports['qb-radialmenu']:AddOption({
             id = data.id,
             title = data.label,
-            icon = data.icon,
+            icon = data.icon == "parking" and "square-parking" or data.icon,
             type = 'client',
             event = data.event,
-            action = data.action,
+            garage = data.garage,
             shouldClose = true
-        }, data.id)
+        }, QBRadial[data.id])
     elseif Config.RadialMenu == "ox_lib" then
         lib.addRadialItem({
             {
@@ -197,7 +198,7 @@ function utils.createRadial ( data )
                 label = data.label,
                 icon = data.icon,
                 onSelect = function ()
-                    TriggerEvent(data.event, {action = data.action})
+                    TriggerEvent(data.event, {garage = data.garage})
                 end
             },
         })
@@ -207,7 +208,9 @@ end
 ---@param id string
 function utils.removeRadial ( id )
     if Config.RadialMenu == "qb-radialmenu" then
-        exports['qb-radialmenu']:RemoveOption(id)
+        if QBRadial[id] then
+            exports['qb-radialmenu']:RemoveOption(QBRadial[id])
+        end
     elseif Config.RadialMenu == "ox_lib" then
         lib.removeRadialItem(id)
     end
@@ -215,17 +218,32 @@ end
 
 ---@param self table
 RegisterNetEvent("rhd_garage:radial:open", function (self)
-    self.action()
+    if not cache.vehicle then
+        Garage.openMenu( {garage = self.garage.label, impound = self.garage.impound, shared = self.garage.shared} )
+    end
 end)
 
 ---@param self table
 RegisterNetEvent("rhd_garage:radial:store", function (self)
-    self.action()
-end)
+    local vehicle = cache.vehicle
+    if not vehicle then
+        vehicle = lib.getClosestVehicle(GetEntityCoords(cache.ped))
+    end
+    if not utils.classCheck( self.garage.type, vehicle ) then return utils.notify(locale('rhd_garage:invalid_vehicle_class', self.garage.label:lower())) end
+    if DoesEntityExist(vehicle) then
+        if cache.vehicle then
+            if cache.seat ~= -1 then return end
+            TaskLeaveAnyVehicle(cache.ped, true, 0)
+            Wait(1000)
+        end
 
----@param self table
-RegisterNetEvent("rhd_garage:radial:policeImpound", function (self)
-    self.action()
+        Garage.storeVeh({
+            vehicle = vehicle,
+            garage = self.garage.label,
+        })
+    else
+        utils.notify(locale('rhd_garage:not_vehicle_exist'), 'error')
+    end
 end)
 
 if isServer then
