@@ -119,12 +119,12 @@ https://youtu.be/xmqxjJOF-Jg
 ```
 - then replace with this:
 ```
-    Config.Garages = exports.rhd_garage:garageList()
+    local Garages = exports.rhd_garage:Garage()
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
     if garageresult[1] ~= nil then
         for _, v in pairs(garageresult) do
             local vehicleModel = v.vehicle
-            if (QBCore.Shared.Vehicles[vehicleModel] ~= nil) and (Config.Garages[v.garage] ~= nil) then
+            if (QBCore.Shared.Vehicles[vehicleModel] ~= nil) and (Garages[v.garage] ~= nil) then
                 v.vehicle = QBCore.Shared.Vehicles[vehicleModel].name
                 v.brand = QBCore.Shared.Vehicles[vehicleModel].brand
             end
