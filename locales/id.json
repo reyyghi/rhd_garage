@@ -2,23 +2,18 @@
     "rhd_garage:open_garage" : "Buka Garasi",
     "rhd_garage:store_vehicle" : "Simpan Kendaraan",
     "rhd_garage:access_impound" : "Asuransi Kendaraan",
-    
     "rhd_garage:not_vehicle_exist" : "Tidak ada kendaraan di dekat mu !",
     "rhd_garage:invalid_vehicle_class" : "Kendaraan dengan class ini tidak dapat di simpan di %s !",
     "rhd_garage:no_vehicles_in_garage" : "Tidak ada kendaran",
-
     "rhd_garage:take_out_veh" : "Pakai Kendaraan",
     "rhd_garage:no_parking_spot" : "Tidak cukup tempat untuk mengeluarkan kendaraan !",
-
     "rhd_garage:veh_in_garage" : "Di dalam garasi",
     "rhd_garage:veh_out_garage" : "Di luar garasi",
     "rhd_garage:veh_in_impound" : "Di Asuransi",
-    
     "rhd_garage:phone_veh_in_garage" : "Di Garasi",
     "rhd_garage:phone_veh_out_garage" : "Di Luar Garasi",
     "rhd_garage:phone_veh_in_impound" : "Di Asuransi",
     "rhd_garage:phone_veh_in_policeimpound" : "Di sita polisi",
-
     "rhd_garage:not_enough_cash" : "Uang di kantong mu tidak cukup untuk membayar biaya asuransi !",
     "rhd_garage:not_enough_bank" : "Uang di rekening mu tidak cukup untuk membayar biaya asuransi !",
     "rhd_garage:impound_price" : "Biaya asuransi $%s",
@@ -29,40 +24,39 @@
     "rhd_garage:pay_with_bank" : "Bayar menggunakan uang tabungan di bank",
     "rhd_garage:pay_methode_cash" : "pakai uang di kantong",
     "rhd_garage:pay_methode_bank" : "pakai kartu kredit",
-    
     "rhd_garage:not_owned" : "Kendaraan ini bukan milik mu !",
-
     "rhd_garage:success_stored" : "Kendaran berhasil di simpan ke dalam garasi !",
-
-    "rhd_garage:policeimpound_no_available_garage" : "Garasi penyitaan untuk kendaraan type ini belum tersedia",
-    "rhd_garage:policeimpound_target" : "Sita Kendaraan",
-    "rhd_garage:policeimpound_input_header" : "%s [ %s ]",
-    "rhd_garage:policeimpound_input_label1" : "Nama Pemilik",
-    "rhd_garage:policeimpound_input_label2" : "Alasan Penyitaan",
-    "rhd_garage:policeimpound_input_label3" : "Di Sita Sampai",
-    
-    "rhd_garage:policeimpound_progressbar_label" : "Menyita Kendaraan",
-    "rhd_garage:policeimpound_notif_success" : "Berhasil menyita kendaraan",
-    "rhd_garage:policeimpound_notif_not_vehicle" : "Tidak ada kendaraan yang di sita",
-    "rhd_garage:policeimpound_notif_no_veh_owner" : "Tidak dapat mengambil data pemilik untuk kendaraan ini",
-
-    "rhd_garage:policeimpound_radial_impound" : "Penyitaan Polisi",
-    "rhd_garage:policeimpound_menu_description_owner" : "Pemilik: %s",
-    "rhd_garage:policeimpound_menu_description_date" : "Tanggal Ambil: %s",
-    "rhd_garage:policeimpound_menu_description_reason" : "Alasan Di Sita: %s",
-    
     "rhd_garage:shared_owner_label" : "Pemilik: %s",
-    
     "rhd_garage:change_veh_name" : "Ganti Nama Kendaraan",
     "rhd_garage:change_veh_name_price" : "Harga: $%s",
     "rhd_garage:change_veh_name_input" : "Masukkan Nama Baru",
     "rhd_garage:change_veh_name_nocash" : "Kamu tidak memiliki cukup uang untuk membayar biaya penggantian nama kendaraan !",
-
     "rhd_garage:command.admin.CreateGarage": "buatgarasi",
     "rhd_garage:command.admin.CreateGarageHelp": "Buat Garasi Baru (Hanya Admin)",
-    
     "rhd_garage:command.admin.listgarage": "daftargarasi",
-    "rhd_garage:command.admin.listgaragehelp": "Lihat daftar semua garasi (Hanya Admin)",
-    
-    "rhd_garage:context.admin.listgarage_title": "Daftar Garasi"
+    "rhd_garage:command.admin.listgarageHelp": "Lihat daftar semua garasi (Hanya Admin)",
+    "rhd_garage:context.admin.listgarage_title": "Daftar Garasi",
+    "rhd_garage:context.admin.listgarage_description": "Tipe Garasi: %s | Tipe Klas: %s",
+    "rhd_garage:context.admin.options_delete": "Hapus Garasi",
+    "rhd_garage:context.admin.options_changelocation": "Edit Lokasi Garasi",
+    "rhd_garage:context.admin.options_changelabel": "Edit Label Garasi",
+    "rhd_garage:context.admin.job_title": "Pekerjaan",
+    "rhd_garage:context.admin.gang_title": "Gang",
+    "rhd_garage:context.admin.job_description": "Nama: %s | Pangkat: %s",
+    "rhd_garage:context.admin.gang_description": "Nama: %s | Pangkat: %s",
+    "rhd_garage:context.admin.delete": "Hapus",
+    "rhd_garage:context.admin.add_job": "Tambah Pekerjaan",
+    "rhd_garage:context.admin.add_gang": "Tambah Pekerjaan",
+    "rhd_garage:input.admin.creator_labelgarage": "Label Garasi",
+    "rhd_garage:input.admin.creator_typevehicle": "Tipe Kendaraan",
+    "rhd_garage:input.admin.creator_bliptype": "Tipe Blip",
+    "rhd_garage:input.admin.creator_blipcolor": "Warna Blip",
+    "rhd_garage:input.admin.header_changelabel": "Label Garasi",
+    "rhd_garage:input.admin.label_changelabel": "Label Baru",
+    "rhd_garage:input.admin.garage_access": "Akses Garasi",
+    "rhd_garage:input.admin.garage_access_job": "Nama Pekerjaan",
+    "rhd_garage:input.admin.garage_access_grade_job": "Pangkat Pekerjaan",
+    "rhd_garage:input.admin.garage_access_gang": "Nama Gang",
+    "rhd_garage:input.admin.garage_access_grade_gang": "Pangkat Gang"
+
 }
