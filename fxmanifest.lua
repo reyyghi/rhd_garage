@@ -30,7 +30,6 @@ files {
     'data/garage.lua',
 
     'locales/*.json',
-    'policeimpound.json',
 }
 
 ox_lib "locale"
