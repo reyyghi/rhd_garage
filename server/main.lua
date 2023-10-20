@@ -42,13 +42,24 @@ RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
                     groupsStr = 'nil'
                 end
 
+                local gangStr = ''
+                if data.gang and table.type(data.gang) ~= "empty" then
+                    gangStr = '{'
+                    for group, level in pairs(data.gang) do
+                        gangStr = gangStr .. string.format('["%s"] = %s,', group, level)
+                    end
+                    gangStr = gangStr .. '}'
+                else
+                    gangStr = 'nil'
+                end
+
                 local blip = 'nil'
                 if data.blip then
                     blip = ('{ type = %s, color = %s }'):format(data.blip.type, data.blip.color)
                 end
     
-                result[#result + 1] = ('\t["%s"] = {\n\t    type = "%s",\n\t    blip = %s,\n\t    zones = {\n\t        points = {\n\t            %s\n\t        },\n\t        thickness = "%s"\n\t    },\n\t    job = %s,\n\t    impound = %s,\n\t    shared = %s,\n\t},\n'):format(
-                key, data.type, blip, table.concat(points), data.zones.thickness, groupsStr, data.impound, data.shared)
+                result[#result + 1] = ('\t["%s"] = {\n\t    type = "%s",\n\t    blip = %s,\n\t    zones = {\n\t        points = {\n\t            %s\n\t        },\n\t        thickness = "%s"\n\t    },\n\t    job = %s,\n\t    gang = %s,\n\t    impound = %s,\n\t    shared = %s,\n\t},\n'):format(
+                key, data.type, blip, table.concat(points), data.zones.thickness, groupsStr, gangStr, data.impound, data.shared)
             end
         end
     
