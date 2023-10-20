@@ -6,13 +6,11 @@ version '1.1.0'
 client_scripts {
     'bridge/framework/**/client.lua',
     'client/*.lua',
-    'police/client.lua'
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'bridge/framework/**/server.lua',
-    'police/server.lua',
     'server/*.lua'
 }
 
