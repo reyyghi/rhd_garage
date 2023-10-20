@@ -1,4 +1,4 @@
-local Zones = require "zone"
+local Zones = require "client.zone"
 local Zones_Creator = require "modules.zone"
 
 AddEventHandler('QBCore:Client:OnPlayerLoaded', Zones.refresh)
