@@ -66,6 +66,7 @@ RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
         return table.concat(result, "\n")
     end
 
+    GarageZone = fileData
     TriggerClientEvent("rhd_garage:client:refreshZone", -1, fileData)
     local serializedData = ('return {\n%s\n}'):format(getData(fileData))
     SaveResourceFile(GetCurrentResourceName(), 'data/garage.lua', serializedData, -1)
@@ -85,6 +86,11 @@ RegisterNetEvent("rhd_garage:server:saveCustomVehicleName", function (fileData)
         return table.concat(result, "\n")
     end
 
+    CNV = fileData
     local serializedData = ('return {\n%s\n}'):format(getData(fileData))
     SaveResourceFile(GetCurrentResourceName(), 'data/customname.lua', serializedData, -1)
+end)
+
+exports("Garage", function ()
+    return GarageZone
 end)
