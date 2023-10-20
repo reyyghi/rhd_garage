@@ -240,6 +240,7 @@ RegisterNetEvent("rhd_garage:radial:store", function (self)
         Garage.storeVeh({
             vehicle = vehicle,
             garage = self.garage.label,
+            shared = self.garage.shared
         })
     else
         utils.notify(locale('rhd_garage:not_vehicle_exist'), 'error')
