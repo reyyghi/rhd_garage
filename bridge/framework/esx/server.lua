@@ -21,13 +21,6 @@ Framework.server.removeMoney = function (source, type, amount)
     return false
 end
 
-Framework.server.GetVehOwnerName = function ( plate )
-    local plate = plate:trim()
-    local owner = MySQL.single.await('SELECT firstname, lastname FROM `users` LEFT JOIN `owned_vehicles` ON users.identifier = owned_vehicles.owner WHERE plate = ?', {plate})
-    if not owner then return false end
-    return owner.firstname .. ' ' .. owner.lastname
-end
-
 lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage, impound, shared)
     local veh = {}
     local identifier = esx.GetPlayerFromId(src).identifier
