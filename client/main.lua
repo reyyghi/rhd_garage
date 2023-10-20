@@ -248,7 +248,7 @@ end
 Garage.storeVeh = function ( data )
     local prop = lib.getVehicleProperties(data.vehicle)
     local plate = prop.plate:trim()
-    local shared = GarageZone[data.garage] and GarageZone[data.garage]['shared'] or false
+    local shared = data.shared
     local isOwned = lib.callback.await('rhd_garage:cb:getVehOwner', false, plate, shared)
     if not isOwned then return Utils.notify(locale('rhd_garage:not_owned'), 'error') end
     if DoesEntityExist(data.vehicle) then
