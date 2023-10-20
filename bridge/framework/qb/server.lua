@@ -72,17 +72,17 @@ end)
 
 lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate, shared)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
-    local vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE citizenid = ? and plate = ? LIMIT 1', { cid, plate })
+    local vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE citizenid = ? AND plate = ? OR fakeplate = ? LIMIT 1', { cid, plate })
 
     if shared then
-        vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE plate = ? LIMIT 1', { plate })
+        vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE plate = ? OR fakeplate = ? LIMIT 1', { plate })
     end
      
     if not vehicle then 
-       vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE citizenid = ? and fakeplate = ? LIMIT 1', { cid, plate })
+        return false, nil
     end
 
-    return true, vehicle.balance
+    return true, vehicle and vehicle.balance
 end)
 
 lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
