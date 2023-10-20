@@ -32,11 +32,12 @@ function zone.refresh ( data )
                     label = locale("rhd_garage:open_garage"),
                     icon = "warehouse",
                     event = "rhd_garage:radial:open",
-                    action = function ()
-                        if not cache.vehicle then
-                            Garage.openMenu( {garage = k, impound = v.impound, shared = v.shared} )
-                        end
-                    end
+                    garage = {
+                        label = k,
+                        impound = v.impound,
+                        shared = v.shared,
+                        type = v.type
+                    }
                 })
 
                 if not v.impound then
@@ -45,27 +46,12 @@ function zone.refresh ( data )
                         label = locale("rhd_garage:store_vehicle"),
                         icon = "parking",
                         event = "rhd_garage:radial:store",
-                        action = function ()
-                            local vehicle = cache.vehicle
-                            if not vehicle then
-                                vehicle = lib.getClosestVehicle(GetEntityCoords(cache.ped))
-                            end
-                            if not Utils.classCheck( v.type, vehicle ) then return Utils.notify(locale('rhd_garage:invalid_vehicle_class', k:lower())) end
-                            if DoesEntityExist(vehicle) then
-                                if cache.vehicle then
-                                    if cache.seat ~= -1 then return end
-                                    TaskLeaveAnyVehicle(cache.ped, true, 0)
-                                    Wait(1000)
-                                end
-    
-                                Garage.storeVeh({
-                                    vehicle = vehicle,
-                                    garage = k,
-                                })
-                            else
-                                Utils.notify(locale('rhd_garage:not_vehicle_exist'), 'error')
-                            end
-                        end
+                        garage = {
+                            label = k,
+                            impound = v.impound,
+                            shared = v.shared,
+                            type = v.type
+                        }
                     }) 
                 end
             end,
