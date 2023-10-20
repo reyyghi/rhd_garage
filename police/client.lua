@@ -1,9 +1,11 @@
+local Utils = require "modules.utils"
+
 PoliceImpound = {}
 
 PoliceImpound.actionGarage = function ( data )
     local actionData = {
         id = 'impound_action',
-        title = string.upper( data.garage ),
+        title = data.garage:upper(),
         menu = 'impoundMenu',
         onBack = function ()
             if DoesEntityExist(Garage.showVeh) then
@@ -37,15 +39,18 @@ PoliceImpound.actionGarage = function ( data )
                             exports[Config.FuelScript]:SetFuel(veh, data.prop.fuelLevel)
                         end
                         
-                        Framework.updateState({
+                        local plate = data.prop.plate:trim()
+
+                        TriggerServerEvent("rhd_garage:server:updateState", {
                             vehicle = veh,
                             prop = data.prop,
-                            plate = Utils.getPlate(data.prop.plate),
+                            plate = plate,
                             state = 0,
                             garage = data.garage
                         })
-                        TriggerEvent("vehiclekeys:client:SetOwner", Utils.getPlate(data.prop.plate))
-                        TriggerServerEvent('rhd_garage:server:removeData', Utils.getPlate(data.prop.plate))
+
+                        TriggerEvent("vehiclekeys:client:SetOwner", plate)
+                        TriggerServerEvent('rhd_garage:server:removeData', plate)
                     end)
                 end
             }
@@ -57,10 +62,10 @@ end
 
 PoliceImpound.openGarage = function ( data )
     local vehData = lib.callback.await('rhd_garage:cb:getDataPoliceImpound', false)
-    if not vehData then return Utils.notif(locale('rhd_garage:policeimpound_notif_not_vehicle')) end
+    if not vehData then return Utils.notify(locale('rhd_garage:policeimpound_notif_not_vehicle')) end
     local impoundMenu = {
         id = 'impoundMenu',
-        title = string.upper(data.garage),
+        title = data.garage:upper(),
         options = {}
     }
     for i=1, #vehData do
@@ -78,7 +83,7 @@ PoliceImpound.openGarage = function ( data )
             description = locale('rhd_garage:policeimpound_menu_description_owner', vehData[i].owner) .. ' \n' .. locale('rhd_garage:policeimpound_menu_description_date', vehData[i].date) .. ' \n' .. locale('rhd_garage:policeimpound_menu_description_reason', vehData[i].reason),
             onSelect = function ()
                 local vehInArea = lib.getClosestVehicle(data.coords.xyz)
-                if DoesEntityExist(vehInArea) then return Utils.notif(locale('rhd_garage:no_parking_spot'), 'error') end
+                if DoesEntityExist(vehInArea) then return Utils.notify(locale('rhd_garage:no_parking_spot'), 'error') end
 
                 Garage.showVeh = Utils.createPlyVeh(prop.model, data.coords)
                 NetworkFadeInEntity(Garage.showVeh, true, false)
@@ -121,13 +126,15 @@ end
 
 PoliceImpound.ImpoundVeh = function ( Vehicle )
     local vehClass = GetVehicleClass(Vehicle)
-    if not PoliceImpound.availableGarageCheck( Utils.getVehType(vehClass)) then return Utils.notif(locale('rhd_garage:policeimpound_no_available_garage'), 'error') end
+    if not PoliceImpound.availableGarageCheck( Utils.getTypeByClass(vehClass)) then return Utils.notify(locale('rhd_garage:policeimpound_no_available_garage'), 'error') end
     local prop = lib.getVehicleProperties(Vehicle)
-    local ownerName, vehname = Framework.getVehOwnerName(Utils.getPlate(prop.plate))
+    local plate = prop.plate:trimt()
+    local ownerName, vehmodel = lib.callback.await('rhd_garage:cb:getVehOwnerName', false, plate)
     
-    if not ownerName then return Utils.notif(locale('rhd_garage:policeimpound_notif_no_veh_owner'), 'error') end
+    local vehname = CNV[plate] and CNV[plate].name or Framework.getVehName(vehmodel)
+    if not ownerName then return Utils.notify(locale('rhd_garage:policeimpound_notif_no_veh_owner'), 'error') end
     
-    local input = lib.inputDialog(string.upper(locale('rhd_garage:policeimpound_input_header', vehname:upper(), Utils.getPlate(prop.plate))), {
+    local input = lib.inputDialog(string.upper(locale('rhd_garage:policeimpound_input_header', vehname:upper(), plate)), {
         {type = 'input', label = string.upper(locale('rhd_garage:policeimpound_input_label1')), placeholder = ownerName, disabled = true},
         {type = 'input', label = string.upper(locale('rhd_garage:policeimpound_input_label2')), required = true},
         {type = 'date', label = string.upper(locale('rhd_garage:policeimpound_input_label3')), icon = {'far', 'calendar'}, default = true, format = "DD/MM/YYYY"}
@@ -135,7 +142,7 @@ PoliceImpound.ImpoundVeh = function ( Vehicle )
     
     if input then
         local data = {}
-        data.plate = Utils.getPlate(prop.plate)
+        data.plate = plate
         data.vehName = vehname
         data.owner = ownerName
         data.reason = input[2]
@@ -154,15 +161,17 @@ PoliceImpound.ImpoundVeh = function ( Vehicle )
         }) then
             SetEntityAsMissionEntity(Vehicle, true, true)
             DeleteVehicle(Vehicle)
-            Framework.updateState({
+
+            TriggerServerEvent("rhd_garage:server:updateState", {
                 vehicle = nil,
                 prop = prop,
                 plate = data.plate,
                 state = 2,
                 garage = 'Police Impound'
             })
+            
             TriggerServerEvent('rhd_garage:policeimpound:saveData', data)
-            Utils.notif(locale('rhd_garage:policeimpound_notif_success'), 'success')
+            Utils.notify(locale('rhd_garage:policeimpound_notif_success'), 'success')
         else
             print('cancel')
         end
