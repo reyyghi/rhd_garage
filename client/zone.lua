@@ -18,8 +18,6 @@ function zone.refresh ( data )
 
                 Utils.drawtext('show', k:upper(), 'warehouse')
 
-                print(v.impound)
-
                 Utils.createRadial({
                     id = "open_garage",
                     label = locale("rhd_garage:open_garage"),
@@ -75,12 +73,5 @@ end
 function zone.save ( data )
     TriggerServerEvent("rhd_garage:server:saveGarageZone", data)
 end
-
-CreateThread(function ()
-    if LocalPlayer.state.isLoggedIn then
-        zone.refresh()
-        blips.refresh()
-    end
-end)
 
 return zone
