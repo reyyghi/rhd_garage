@@ -3,22 +3,10 @@ Framework.server = {}
 
 local esx = exports.es_extended:getSharedObject()
 
-local outVeh = {}
+Framework.server.GetPlayer = esx.GetPlayerFromId
 
-CreateThread(function()
-    if GlobalState.veh == nil then
-        GlobalState.veh = {}
-    end
-end)
-
-Framework.server.GetVehPlate = function ( number )
-    if not number then return nil end
-    return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
-end
-
-Framework.server.removeMoney = function (type, amount)
-    local src = source
-    local ply = esx.GetPlayerFromId(src)
+Framework.server.removeMoney = function (source, type, amount)
+    local ply = esx.GetPlayerFromId(source)
     if string.lower(type) == 'cash' then
         type = 'money'
     elseif string.lower(type) == 'bank' then
@@ -33,27 +21,18 @@ Framework.server.removeMoney = function (type, amount)
     return false
 end
 
-Framework.server.updatePlateOutsideVehicle = function (curPlate, newPlate)
-    local cP = Framework.server.GetVehPlate(curPlate)
-    local nP = Framework.server.GetVehPlate(newPlate)
-    local veh = outVeh[cP]
-    
-    outVeh[nP] = veh
-    GlobalState.veh = outVeh
-end exports('updatePlateOutsideVehicle', Framework.server.updatePlateOutsideVehicle)
-
 Framework.server.GetVehOwnerName = function ( plate )
-    local plate = Framework.server.GetVehPlate(plate)
+    local plate = plate:trim()
     local owner = MySQL.single.await('SELECT firstname, lastname FROM `users` LEFT JOIN `owned_vehicles` ON users.identifier = owned_vehicles.owner WHERE plate = ?', {plate})
     if not owner then return false end
     return owner.firstname .. ' ' .. owner.lastname
 end
 
-lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
+lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage, impound, shared)
     local veh = {}
     local identifier = esx.GetPlayerFromId(src).identifier
-    local impound_garage = Config.Garages[garage] and Config.Garages[garage]['impound']
-    local shared_garage = Config.Garages[garage] and Config.Garages[garage]['shared']
+    local impound_garage = impound
+    local shared_garage = shared
 
     local data = MySQL.query.await('SELECT vehicle, plate, stored FROM owned_vehicles WHERE garage = ? and owner = ?', { garage, identifier })
     
@@ -64,13 +43,13 @@ lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage)
     
     if shared_garage then
         if impound_garage then return false end
-        data = MySQL.query.await('SELECT vehicle, plate, stored FROM owned_vehicles WHERE garage = ?', { garage })
+        data = MySQL.query.await('SELECT owned_vehicles.vehicle, owned_vehicles.plate, owned_vehicles.stored, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE owned_vehicles.garage = ?', { garage }) 
     end
 
     if data[1] then
         for i=1, #data do
             local vehicles = json.decode(data[i].vehicle)
-            local name = Framework.server.GetVehOwnerName(vehicles.plate)
+            local name = ("%s %s"):format(data[i].firstname, data[i].lastname)
             local plate = data[i].plate
             veh[#veh+1] = {
                 vehicle = vehicles,
@@ -99,74 +78,9 @@ lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate, shared)
 end)
 
 lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
-    local data = MySQL.single.await('SELECT vehicle FROM owned_vehicles WHERE plate = ? LIMIT 1', { plate })
+    local data = MySQL.single.await('SELECT owned_vehicles.vehicle, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE owned_vehicles.plate = ? LIMIT 1', { plate })
     if not data then return false end
     local vehicle = json.decode(data.vehicle)
-    local fullname = Framework.server.GetVehOwnerName(plate)
-    local CNV = Framework.server.getCNV(plate)
-    return fullname, CNV, vehicle.model
-end)
-
-lib.callback.register('rhd_garage:cb:removeMoney', function(src, type, amount)
-    local success = false
-    local ply = esx.GetPlayerFromId(src)
-    if type == 'cash' then
-        ply.removeAccountMoney('money', amount)
-        success = not success
-    elseif type == 'bank' then
-        ply.removeAccountMoney('bank', amount)
-        success = not success
-    end
-    return success
-end)
-
-RegisterNetEvent('rhd_garage:server:updateVehState', function ( data )
-    local prop = data.prop
-    local state = data.state
-    local vehicle = data.vehicle
-    local garage = data.garage
-    local plate = data.plate
-    local update = MySQL.update.await('UPDATE owned_vehicles SET stored = ?, vehicle = ?, garage = ? WHERE plate = ?', { state, json.encode(prop), garage, plate })
-    if update then
-        outVeh[plate] = vehicle
-        GlobalState.veh = outVeh
-    end
-end)
-
-
-CreateThread(function ()
-    local resource = GetInvokingResource() or GetCurrentResourceName()
-
-    local currentVersion = GetResourceMetadata(resource, 'version', 0)
-
-    if currentVersion then
-        currentVersion = currentVersion:match('%d+%.%d+%.%d+')
-    end
-
-    if not currentVersion then return print(("^1Unable to determine current resource version for '%s' ^0"):format(resource)) end
-
-    SetTimeout(1000, function()
-        PerformHttpRequest('https://api.github.com/repos/reyyghi/rhd_garage/releases/latest', function(status, response)
-            if status ~= 200 then return end
-
-            response = json.decode(response)
-            if response.prerelease then return end
-
-            local latestVersion = response.tag_name:match('%d+%.%d+%.%d+')
-            if not latestVersion or latestVersion == currentVersion then return end
-
-            local cv = { string.strsplit('.', currentVersion) }
-            local lv = { string.strsplit('.', latestVersion) }
-
-            for i = 1, #cv do
-                local current, minimum = tonumber(cv[i]), tonumber(lv[i])
-
-                if current ~= minimum then
-                    if current < minimum then
-                        return print(('^3An update is available for %s (current version: %s)\r\n%s^0'):format(resource, currentVersion, response.html_url))
-                    else break end
-                end
-            end
-        end, 'GET')
-    end)
+    local fullname = ("%s %s"):format(data.firstname, data.lastname)
+    return fullname, vehicle.model
 end)
