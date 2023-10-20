@@ -44,7 +44,7 @@ end)
 
 --- for qb-phone
 lib.callback.register('rhd_garage:cb:cekEntity', function (plate)
-    if Utils.getoutsidevehicleByPlate(plate:tim()) then
+    if Utils.getoutsidevehicleByPlate(plate:trim()) then
         return true
     end
     return false
