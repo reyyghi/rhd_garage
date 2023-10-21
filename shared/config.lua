@@ -7,9 +7,7 @@ Config.RadialMenu = 'ox_lib' --- ox_lib / qb-radialmenu
 Config.Target = 'ox_target' --- ox_target / qb-target
 Config.FuelScript = 'rhd_fuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 
-Config.serverName = 'RHD SCRIPTS' --- Your server name
 Config.changeNamePrice = 15000 --- $
-Config.saveDataInterval = 1 --- hours
 
 Config.ImpoundPrice = {
     [0] = 15000, -- Compacts
