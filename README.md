@@ -40,15 +40,26 @@
 
 # Configuration
 ```
-    ['Garage Label'] = {
-        type = 'car' --- type of vehicle, can be a car, boat, planes, helicopter
-        blip = { type = 357, color 3 } --- you can find it here (https://docs.fivem.net/docs/game-references/blips/), don't use it if you don't want to use the blip 
-        location = vec4(-285.6967, -887.9977, 30.8099, 347.6774) or {vec4(-285.6967, -887.9977, 30.8099, 347.6774)} --- this is the location for entering and removing vehicles from the garage 
-        impound = false --- change to true if this is impound garage,
-        job = 'police' or {['police'] = 1} --- do not use this if it is a public garage, and it won't work if the impound is turned on
-        gang = 'ballas' or {['ballas'] = 2} --- do not use this if it is a public garage, and it won't work if the impound is turned on
-        shared = false --- change to true if you want this garage to be a shared garage. not recommended for public garages
-    }
+return {
+	["Alta Garage"] = { --- Garage Label
+	    type = "car", --- Type of vehicle
+	    blip = { type = 357, color = 3 }, --- Garage Blip
+	    zones = { --- Garage Zone (Use ox_lib zone)
+	        points = {
+	            vec3(-307.01000976562, -894.86999511719, 31.0),
+				vec3(-308.20001220703, -901.0, 31.0),
+				vec3(-315.57998657227, -899.45001220703, 31.0),
+				vec3(-314.23999023438, -893.32000732422, 31.0),
+				
+	        },
+	        thickness = "4.0"
+	    },
+	    job = nil, --- Jobs Access
+	    gang = nil, --- Gang Access
+	    impound = false, --- Change it to true if you want to make it insurance
+	    shared = false, --- Change it to true if you want to make it a shared garage
+	},
+}
 ```
 
 # Exports 
