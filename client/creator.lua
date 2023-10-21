@@ -2,7 +2,7 @@ local Zones = require "client.zone"
 local Zones_Creator = require "modules.zone"
 local Utils = require "modules.utils"
 
-AddEventHandler('QBCore:Client:OnPlayerLoaded', Zones.refresh)
+RegisterNetEvent("rhd_garage:client:loadedZone", Zones.refresh)
 RegisterNetEvent("rhd_garage:client:refreshZone", Zones.refresh)
 RegisterNetEvent("rhd_garage:client:createGarage", function ()
     Zones_Creator.startCreator({

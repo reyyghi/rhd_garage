@@ -77,3 +77,7 @@ lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
     local fullname = ("%s %s"):format(data.firstname, data.lastname)
     return fullname, vehicle.model
 end)
+
+RegisterNetEvent('esx:playerLoaded', function(player, xPlayer, isNew)
+    TriggerClientEvent("rhd_garage:client:loadedZone", xPlayer.source, GarageZone)
+end)

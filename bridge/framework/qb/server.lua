@@ -225,3 +225,7 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
     end
     return Vehicles
 end)
+
+AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
+    TriggerClientEvent("rhd_garage:client:loadedZone", Player.PlayerData.source, GarageZone)
+end)
