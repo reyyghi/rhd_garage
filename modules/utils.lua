@@ -247,6 +247,18 @@ RegisterNetEvent("rhd_garage:radial:store", function (self)
     end
 end)
 
+AddEventHandler('onResourceStop', function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then
+      return
+    end
+    
+    if Config.RadialMenu == "qb-radialmenu" then
+        for k,v in pairs(QBRadial) do
+            exports['qb-radialmenu']:RemoveOption(v)
+        end
+    end
+end)
+
 if isServer then
     
 end
