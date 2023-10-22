@@ -8,9 +8,9 @@ function zone.refresh ( data )
     data = data or GarageZone
     blips.refresh(data)
 
-    for k, v in pairs(data) do
-        if CreatedZone[k] then
-            CreatedZone[k]:remove()
+    if next(CreatedZone) then
+        for k, v in pairs(CreatedZone) do
+            v:remove()
         end
     end
 
@@ -19,7 +19,6 @@ function zone.refresh ( data )
             points = v.zones.points,
             thickness = v.zones.thickness,
             onEnter = function ()
-                print(json.encode(v.job))
                 if not v.impound then
                     if v.gang then if not Utils.GangCheck({garage = k, gang = v.gang}) then return end end
                     if v.job then if not Utils.JobCheck({garage = k, job = v.job}) then return end end
