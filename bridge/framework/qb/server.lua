@@ -6,11 +6,6 @@ local qb = exports['qb-core']:GetCoreObject()
 
 Framework.server.GetPlayer = qb.Functions.GetPlayer
 
-Framework.server.GetVehPlate = function ( number )
-    if not number then return nil end
-    return (string.gsub(number, '^%s*(.-)%s*$', '%1'))
-end
-
 Framework.server.removeMoney = function (source, type, amount)
     local ply = qb.Functions.GetPlayer(source)
     if string.lower(type) == 'cash' then
