@@ -9,6 +9,45 @@ Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel /
 
 Config.changeNamePrice = 15000 --- $
 
+Config.defaultBlip = {
+    garage = {
+        car = {
+            type = 357,
+            color = 3
+        },
+        boat = {
+            type = 356,
+            color = 3
+        },
+        helicopter = {
+            type = 360,
+            color = 3
+        },
+        planes = {
+            type = 359,
+            color = 3
+        }
+    },
+    insurance = {
+        car = {
+            type = 473,
+            color = 60
+        },
+        boat = {
+            type = 529,
+            color = 60
+        },
+        helicopter = {
+            type = 557,
+            color = 60
+        },
+        planes = {
+            type = 557,
+            color = 60
+        }
+    }
+}
+
 Config.ImpoundPrice = {
     [0] = 15000, -- Compacts
     [1] = 15000, -- Sedans
