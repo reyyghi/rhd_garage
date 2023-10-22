@@ -219,7 +219,7 @@ end
 ---@param self table
 RegisterNetEvent("rhd_garage:radial:open", function (self)
     if not cache.vehicle then
-        Garage.openMenu( {garage = self.garage.label, impound = self.garage.impound, shared = self.garage.shared} )
+        Garage.openMenu( {garage = self.garage.label, impound = self.garage.impound, shared = self.garage.shared, type = self.garage.type} )
     end
 end)
 
