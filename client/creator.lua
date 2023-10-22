@@ -22,12 +22,23 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
             })
             
             if input then
+
+                local Impound = not input[5] and input[4] or false
+                local defaultBlip = {}
+                if not Impound then
+                    defaultBlip.type = Config.defaultBlip.garage[input[2]].type
+                    defaultBlip.color = Config.defaultBlip.garage[input[2]].color
+                else
+                    defaultBlip.type = Config.defaultBlip.insurance[input[2]].type
+                    defaultBlip.color = Config.defaultBlip.insurance[input[2]].color
+                end
+
                 local newData = {
                     label = input[1],
                     type = input[2],
-                    blip = { type = 357, color = 3 },
+                    blip = { type = defaultBlip.type, color = defaultBlip.color },
                     zones = zones,
-                    impound = not input[5] and input[4] or false,
+                    impound = Impound,
                     shared = input[5]
                 }
 
@@ -38,8 +49,8 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
                     })
 
                     if blipinput then
-                        newData.blip.type = blipinput[1] or 357
-                        newData.blip.color = blipinput[2] or 3
+                        newData.blip.type = blipinput[1] or defaultBlip.type
+                        newData.blip.color = blipinput[2] or defaultBlip.color
                     end
 
                     GarageZone[newData.label] = {
@@ -50,6 +61,7 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
                         shared = newData.shared
                     }
                     
+                    Utils.notify(locale("rhd_garage:notify.admin.success_create", newData.label:upper()), "success")
                     Zones.save( GarageZone )
                     return
                 end
@@ -62,6 +74,7 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
                     shared = newData.shared
                 }
                 
+                Utils.notify(locale("rhd_garage:notify.admin.success_create", newData.label:upper()), "success")
                 Zones.save( GarageZone )
             end
             
@@ -90,6 +103,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                             icon = "trash",
                             onSelect = function ()
                                 GarageZone[k] = nil
+                                Utils.notify(locale("rhd_garage:notify.admin.success_deleted", k), "success")
                                 Zones.save( GarageZone )
                             end
                         },
@@ -101,6 +115,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                                     type = "poly",
                                     onCreated = function (zones)
                                         GarageZone[k].zones = zones
+                                        Utils.notify(locale("rhd_garage:notify.admin.success_changelocation"), "success")
                                         Zones.save( GarageZone )
                                     end
                                 })
@@ -117,6 +132,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                                 if inputLabel and #inputLabel[1] > 0 then
                                     GarageZone[inputLabel[1]] = v
                                     GarageZone[k] = nil
+                                    Utils.notify(locale("rhd_garage:notify.admin.success_changelabel", inputLabel[1]))
                                     Zones.save( GarageZone )
                                 end
                             end
@@ -155,6 +171,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                                                                 v.job = nil
                                                             end
 
+                                                            Utils.notify(locale("rhd_garage:notify.admin.success_deleted_access"), "success")
                                                             Zones.save( GarageZone )
                                                         end
                                                     }
@@ -178,6 +195,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                                     if input then
                                         if not v.job then v.job = {} end
                                         v.job[input[1]] = tonumber(input[2])
+                                        Utils.notify(locale("rhd_garage:notify.admin.success_added_access", input[1]))
                                         Zones.save( GarageZone )
                                     end
                                 end
@@ -219,6 +237,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                                                                 v.gang = nil
                                                             end
                                                             
+                                                            Utils.notify(locale("rhd_garage:notify.admin.success_deleted_access"), "success")
                                                             Zones.save( GarageZone )
                                                         end
                                                     }
@@ -242,6 +261,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                                     if input then
                                         if not v.gang then v.gang = {} end
                                         v.gang[input[1]] = tonumber(input[2])
+                                        Utils.notify(locale("rhd_garage:notify.admin.success_added_access", input[1]))
                                         Zones.save( GarageZone )
                                     end
                                 end
