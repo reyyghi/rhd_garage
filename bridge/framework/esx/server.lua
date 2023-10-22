@@ -53,8 +53,6 @@ lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage, impo
         end
     end
 
-    if veh[1] == nil then return false end
-
     return veh
 end)
 
