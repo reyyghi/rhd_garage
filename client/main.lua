@@ -134,6 +134,8 @@ end
 
 Garage.openMenu = function ( data )
     if not data then return end
+
+    data.type = data.type or "car"
     
     local menuData = {
         id = 'garage_menu',
@@ -142,15 +144,6 @@ Garage.openMenu = function ( data )
     }
 
     local vehData = lib.callback.await('rhd_garage:cb:getVehicleList', false, data.garage, data.impound, data.shared)
-
-    if not vehData then 
-        menuData.options[#menuData.options+1] = {
-            title = locale('rhd_garage:no_vehicles_in_garage'):upper(),
-            disabled = true
-        }
-        return Utils.createMenu(menuData)
-    end
-
     for i=1, #vehData do
         local vehProp = vehData[i].vehicle
         local gState = vehData[i].state
@@ -161,8 +154,8 @@ Garage.openMenu = function ( data )
         local body = vehProp.bodyHealth
         local fuel = vehProp.fuelLevel
         
-        local shared_garage = GarageZone[data.garage] and GarageZone[data.garage]['shared']
-        local impound_garage = GarageZone[data.garage] and GarageZone[data.garage]['impound']
+        local shared_garage = data.shared
+        local impound_garage = data.impound
         local disabled = false
         local description = ''
 
@@ -170,6 +163,18 @@ Garage.openMenu = function ( data )
             plate = fakeplate:trim()
         else
             plate = plate:trim()
+        end
+
+        local icon = "car"
+        local vehicleClass = GetVehicleClassFromName(vehProp.model)
+        local vehicleType = Utils.classCheck(vehicleClass)
+
+        if vehicleType == "planes" then
+            icon = "plane"
+        elseif vehicleType == "boat" then
+            icon = "sailboat"
+        elseif vehicleType == "helicopter" then
+            icon = "helicopter"
         end
 
         if gState == 0 then
@@ -181,11 +186,8 @@ Garage.openMenu = function ( data )
                 end
             else
                 if impound_garage then
-                    local impoundPrice = Config.ImpoundPrice[GetVehicleClassFromName(vehProp.model)]
-                    description = 'STATUS: ' ..  locale('rhd_garage:impound_price', impoundPrice)
-                    if shared_garage then
-                        description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:impound_price', impoundPrice)
-                    end
+                    local impoundPrice = Config.ImpoundPrice[vehicleClass]
+                    description = locale('rhd_garage:impound_price', impoundPrice)
                 else
                     disabled = true
                     description = 'STATUS: ' ..  locale('rhd_garage:veh_in_impound')
@@ -207,38 +209,47 @@ Garage.openMenu = function ( data )
         end
 
         local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehData[i].model or vehProp.model ), plate)
-        
+
+        if Utils.getTypeByClass(vehicleClass) == data.type then
+            menuData.options[#menuData.options+1] = {
+                title = vehicleLabel,
+                icon = icon,
+                disabled = disabled,
+                description = description:upper(),
+                metadata = {
+                    { label = 'Fuel', value = math.ceil(fuel) .. '%', progress = math.ceil(fuel) },
+                    { label = 'Body', value = math.ceil(body / 10) .. '%', progress = math.ceil(body) },
+                    { label = 'Engine', value = math.ceil(engine/ 10) .. '%', progress = math.ceil(engine) }
+                },
+                onSelect = function ()
+                    local coords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5), GetEntityHeading(cache.ped)+90)
+                    local vehInArea = lib.getClosestVehicle(coords.xyz)
+                    if DoesEntityExist(vehInArea) then return Utils.notify(locale('rhd_garage:no_parking_spot'), 'error') end
+    
+                    VehicleShow = Utils.createPlyVeh(vehProp.model, coords)
+                    NetworkFadeInEntity(VehicleShow, true, false)
+                    FreezeEntityPosition(VehicleShow, true)
+                    SetVehicleDoorsLocked(VehicleShow, 2)
+                    lib.setVehicleProperties(VehicleShow, vehProp)
+    
+                    Garage.actionMenu({
+                        prop = vehProp,
+                        plate = plate,
+                        coords = coords,
+                        garage = data.garage,
+                        vehName = vehicleLabel,
+                        impound = data.impound,
+                        shared = data.shared
+                    })
+                end,
+            }
+        end
+    end
+
+    if #menuData.options < 1 then 
         menuData.options[#menuData.options+1] = {
-            title = vehicleLabel,
-            icon = 'car',
-            disabled = disabled,
-            description = description:upper(),
-            metadata = {
-                { label = 'Fuel', value = math.ceil(fuel) .. '%', progress = math.ceil(fuel) },
-                { label = 'Body', value = math.ceil(body / 10) .. '%', progress = math.ceil(body) },
-                { label = 'Engine', value = math.ceil(engine/ 10) .. '%', progress = math.ceil(engine) }
-            },
-            onSelect = function ()
-                local coords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5), GetEntityHeading(cache.ped)+90)
-                local vehInArea = lib.getClosestVehicle(coords.xyz)
-                if DoesEntityExist(vehInArea) then return Utils.notify(locale('rhd_garage:no_parking_spot'), 'error') end
-
-                VehicleShow = Utils.createPlyVeh(vehProp.model, coords)
-                NetworkFadeInEntity(VehicleShow, true, false)
-                FreezeEntityPosition(VehicleShow, true)
-                SetVehicleDoorsLocked(VehicleShow, 2)
-                lib.setVehicleProperties(VehicleShow, vehProp)
-
-                Garage.actionMenu({
-                    prop = vehProp,
-                    plate = plate,
-                    coords = coords,
-                    garage = data.garage,
-                    vehName = vehicleLabel,
-                    impound = data.impound,
-                    shared = data.shared
-                })
-            end,
+            title = locale('rhd_garage:no_vehicles_in_garage'):upper(),
+            disabled = true
         }
     end
 
