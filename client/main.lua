@@ -209,7 +209,7 @@ Garage.openMenu = function ( data )
         end
 
         local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehData[i].model or vehProp.model ), plate)
-
+        
         if Utils.getTypeByClass(vehicleClass) == data.type then
             menuData.options[#menuData.options+1] = {
                 title = vehicleLabel,
