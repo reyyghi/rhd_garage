@@ -57,6 +57,13 @@
     "rhd_garage:input.admin.garage_access_job": "Nama Pekerjaan",
     "rhd_garage:input.admin.garage_access_grade_job": "Pangkat Pekerjaan",
     "rhd_garage:input.admin.garage_access_gang": "Nama Gang",
-    "rhd_garage:input.admin.garage_access_grade_gang": "Pangkat Gang"
+    "rhd_garage:input.admin.garage_access_grade_gang": "Pangkat Gang",
+    
+    "rhd_garage:notify.admin.success_create": "Berhasil membuat garasi baru dengan label %s",
+    "rhd_garage:notify.admin.success_deleted": "Garasi dengan label %s berhasil di hapus",
+    "rhd_garage:notify.admin.success_changelocation": "Lokasi garasi berhasil di perbarui",
+    "rhd_garage:notify.admin.success_changelabel": "Label garasi berhasil di rubah menjadi %s",
+    "rhd_garage:notify.admin.success_deleted_access": "Akses berhasil di hapus",
+    "rhd_garage:notify.admin.success_added_access": "Berhasil menambah akses untuk %s"
 
 }
