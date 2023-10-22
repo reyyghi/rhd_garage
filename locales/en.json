@@ -57,5 +57,12 @@
     "rhd_garage:input.admin.garage_access_job": "Job Name",
     "rhd_garage:input.admin.garage_access_grade_job": "Job Rank",
     "rhd_garage:input.admin.garage_access_gang": "Gang Name",
-    "rhd_garage:input.admin.garage_access_grade_gang": "Gang Rank"
+    "rhd_garage:input.admin.garage_access_grade_gang": "Gang Rank",
+
+    "rhd_garage:notify.admin.success_create": "Successfully created a new garage with the label %s",
+    "rhd_garage:notify.admin.success_deleted": "Garage with the label %s has been successfully deleted",
+    "rhd_garage:notify.admin.success_changelocation": "Garage location has been successfully updated",
+    "rhd_garage:notify.admin.success_changelabel": "Garage label has been changed to %s",
+    "rhd_garage:notify.admin.success_deleted_access": "Access has been successfully removed",
+    "rhd_garage:notify.admin.success_added_access": "Successfully added access for %s"
 }
