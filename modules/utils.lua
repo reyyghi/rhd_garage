@@ -39,18 +39,6 @@ function utils.getoutsidevehicleByPlate( plate )
     return nil
 end
 
----@param plate string
-function utils.trackOutVeh ( plate )
-    local coords = nil
-    local plate = plate:trim()
-    local vehExist = utils.getoutsidevehicleByPlate(plate)
-    
-    if DoesEntityExist(vehExist) then
-        coords = GetEntityCoords(vehExist)
-        SetNewWaypoint(coords.x, coords.y)
-    end
-end
-
 ---@param model string | integer
 ---@param coords vector4
 ---@param cb fun(veh: integer)
