@@ -1,93 +1,22 @@
 if not Framework.qb() then return end
-Framework.server = {}
 
 local Utils = require "modules.utils"
 local qb = exports['qb-core']:GetCoreObject()
 
+Framework.server = {}
 Framework.server.GetPlayer = qb.Functions.GetPlayer
-
 Framework.server.removeMoney = function (source, type, amount)
     local ply = qb.Functions.GetPlayer(source)
-    if string.lower(type) == 'cash' then
-        type = 'cash'
-    elseif string.lower(type) == 'bank' then
-        type = 'bank'
-    else
-        return false
-    end
+
     if ply and ply ~= nil then
-        ply.Functions.RemoveMoney(type, amount, '')
-        return true
+        return ply.Functions.RemoveMoney(type:lower(), amount, '')
     end
+
     return false
 end
 
-lib.callback.register('rhd_garage:cb:getVehicleList', function(src, garage, impound, shared)
-    local veh = {}
-    local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
-    local impound_garage = impound
-    local shared_garage = shared
-
-    local data = MySQL.query.await('SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE garage = ? and citizenid = ?', { garage, cid })
-    
-    if impound_garage then
-        if shared_garage then return false end
-        data = MySQL.query.await('SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE state = ? and citizenid = ?', { 0, cid })
-    end
-
-    if shared_garage then
-        if impound_garage then return false end
-        data = MySQL.query.await('SELECT player_vehicles.vehicle, player_vehicles.mods, player_vehicles.state, player_vehicles.plate, player_vehicles.fakeplate, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE player_vehicles.garage = ?', { garage })
-    end
-
-    if data[1] then
-        for i=1, #data do
-            local vehicles = json.decode(data[i].mods)
-            local name = data[i].charinfo and ("%s %s"):format(json.decode(data[i].charinfo).firstname, json.decode(data[i].charinfo).lastname)
-            local state = data[i].state
-            local model = data[i].vehicle
-            local plate = data[i].plate
-            local fakeplate = data[i].fakeplate
-
-            veh[#veh+1] = {
-                vehicle = vehicles,
-                state = state,
-                model = model,
-                plate = plate,
-                fakeplate = fakeplate,
-                owner = name
-            }
-        end
-    end
-
-    return veh
-end)
-
-lib.callback.register('rhd_garage:cb:getVehOwner', function (src, plate, shared)
-    local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
-    local vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE citizenid = ? AND plate = ? OR fakeplate = ? LIMIT 1', { cid, plate })
-
-    if shared then
-        vehicle = MySQL.single.await('SELECT balance FROM player_vehicles WHERE plate = ? OR fakeplate = ? LIMIT 1', { plate })
-    end
-     
-    if not vehicle then 
-        return false, nil
-    end
-
-    return true, vehicle and vehicle.balance
-end)
-
-lib.callback.register('rhd_garage:cb:getVehOwnerName', function(_, plate)
-    local data = MySQL.single.await('SELECT player_vehicles.vehicle, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE plate = ? OR fakeplate = ? LIMIT 1', { plate })
-
-    local fullname = data.charinfo and ("%s %s"):format(json.decode(data.charinfo).firstname, json.decode(data.charinfo).lastname)
-    if not data then return false end
-    return fullname, data.vehicle
-end)
-
 --- check house owner
-lib.callback.register('rhd_garage:getOwnedHouse', function(src, house)
+lib.callback.register('rhd_garage:cb_server:getOwnedHouse', function(src, house)
     local key = false
     local player = qb.Functions.GetPlayer(src)
     local license = player.PlayerData.license
@@ -113,7 +42,7 @@ RegisterNetEvent('rhd_garage:server:addHouseGarage', function(house, garageInfo)
     Config.HouseGarages[house] = garageInfo
 end)
 
-lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
+lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src, phoneType)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
     local Vehicles = {}
 
@@ -126,7 +55,7 @@ lib.callback.register('rhd_garage:cb:getDataVehicle', function(src, phoneType)
             local plate = db.plate:trim()
             local VehicleGarage = 'None'
             local garageLocation = nil
-            local EntityExist = lib.callback.await('rhd_garage:cb:cekEntity', src, plate)
+            local EntityExist = lib.callback.await('rhd_garage:cb_client:cekEntityVeh', src, plate)
             local inPoliceImpound, inInsurance = false, false
             
             local body = math.ceil(mods.bodyHealth)

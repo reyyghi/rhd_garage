@@ -14,49 +14,13 @@ Framework.playerGang = function ()
     return qb.Functions.GetPlayerData().gang
 end
 
-Framework.playerName = function ()
-    return qb.Functions.GetPlayerData().charinfo.firstname .. ' ' .. qb.Functions.GetPlayerData().charinfo.lastname
-end
-
 Framework.getVehName = function ( model )
-    local vehname =  qb.Shared.Vehicles[model] and qb.Shared.Vehicles[model].name or 'Vehicle Not Found'
-    return vehname
+    return qb.Shared.Vehicles[model] and qb.Shared.Vehicles[model].name or 'Vehicle Not Found'
 end
 
 Framework.getMoney = function ( type )
-    local amount = 0
-    local plyMoney = qb.Functions.GetPlayerData().money
-
-    if type == 'cash' then
-        amount = plyMoney['cash']
-    elseif type == 'bank' then
-        amount = plyMoney['bank']
-    end
-
-    return amount
+    return qb.Functions.GetPlayerData().money[type:lower()]
 end
-
---- for qb-vehiclesales
-exports('isPlyVeh', function ( plate, cb )
-    local plyVeh, balance = lib.callback.await('rhd_garage:cb:getVehOwner', false, plate:trim(), false)
-    if cb then cb(plyVeh, balance) else return plyVeh, balance end
-end)
-
---- for qb-phone
-lib.callback.register('rhd_garage:cb:cekEntity', function (plate)
-    if Utils.getoutsidevehicleByPlate(plate:trim()) then
-        return true
-    end
-    return false
-end)
-
-exports('trackOutVeh', function (plate)
-   return Utils.trackOutVeh( plate:trim() )
-end)
-
-exports('getDataVehicle', function ()
-    return lib.callback.await('rhd_garage:cb:getDataVehicle', false)
-end)
 
 --- for qb-houses or ps-housing
 RegisterNetEvent('qb-garages:client:setHouseGarage', function(house, hasKey)
@@ -73,7 +37,7 @@ RegisterNetEvent('qb-garages:client:setHouseGarage', function(house, hasKey)
                 houseZone[house] = lib.zones.sphere({
                     coords = vec3,
                     onEnter = function ()
-                        lib.callback('rhd_garage:getOwnedHouse', false, function (key)
+                        lib.callback('rhd_garage:cb_server:getOwnedHouse', false, function (key)
                             if key then
                                 Utils.createRadial({
                                     id = "open_garage",
