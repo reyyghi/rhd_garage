@@ -16,7 +16,7 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
                     {value = "helicopter", label = "Helicopter"},
                     {value = "planes", label = "Planes"}
                 }, required = true},
-                { type = 'checkbox', label = "Blip"},
+                { type = 'checkbox', label = "Custom Blip"},
                 { type = 'checkbox', label = "Impound"},
                 { type = 'checkbox', label = "Shared"},
             })
