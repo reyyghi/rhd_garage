@@ -36,26 +36,25 @@
 
 # Configuration
 ```
-return {
-	["Alta Garage"] = { --- Garage Label
-	    type = "car", --- Type of vehicle
-	    blip = { type = 357, color = 3 }, --- Garage Blip
-	    zones = { --- Garage Zone (Use ox_lib zone)
-	        points = {
-	            vec3(-307.01000976562, -894.86999511719, 31.0),
-				vec3(-308.20001220703, -901.0, 31.0),
-				vec3(-315.57998657227, -899.45001220703, 31.0),
-				vec3(-314.23999023438, -893.32000732422, 31.0),
-				
-	        },
-	        thickness = "4.0"
-	    },
-	    job = nil, --- Jobs Access
-	    gang = nil, --- Gang Access
-	    impound = false, --- Change it to true if you want to make it insurance
-	    shared = false, --- Change it to true if you want to make it a shared garage
-	},
-}
+    return {
+        ["Alta Garage"] = { --- Garage Label
+            type = "car", --- Type of vehicle
+            blip = { type = 357, color = 3 }, --- Garage Blip
+            zones = { --- Garage Zone (Use ox_lib zone)
+                points = {
+                    vec3(-307.01000976562, -894.86999511719, 31.0),
+                    vec3(-308.20001220703, -901.0, 31.0),
+                    vec3(-315.57998657227, -899.45001220703, 31.0),
+                    vec3(-314.23999023438, -893.32000732422, 31.0),
+                },
+                thickness = "4.0"
+            },
+            job = nil, --- Jobs Access
+            gang = nil, --- Gang Access
+            impound = false, --- Change it to true if you want to make it insurance
+            shared = false, --- Change it to true if you want to make it a shared garage
+        },
+    }
 ```
 
 # Exports 
@@ -64,7 +63,8 @@ return {
     exports.rhd_garage:openMenu({
         garage = 'Garage Label',
         impound = false,
-        shared = false
+        shared = false,
+        type = "car"
     })
 ```
 - store vehicle
@@ -72,7 +72,8 @@ return {
     exports.rhd_garage:storeVehicle({
         vehicle = cache.vehicle,
         garage = 'Garage Label',
-        shared = false
+        shared = false,
+        type = "car"
     })
 ```
 
@@ -82,7 +83,8 @@ return {
         exports.rhd_garage:openMenu({
             garage = 'Garage Label',
             impound = false,
-            shared = false
+            shared = false,
+            type = "car"
         })
     end)
 
@@ -94,7 +96,8 @@ return {
         exports.rhd_garage:storeVehicle({
             vehicle = veh,
             garage = 'Garage Label',
-            shared = false
+            shared = false,
+            type = "car"
         })
     end)
 ```
@@ -161,7 +164,7 @@ return {
 ```
 - then replace with this: 
 ```
-    PhoneData.GarageVehicles = exports.rhd_garage:getDataVehicle()
+    PhoneData.GarageVehicles = exports.rhd_garage:getvehdataForPhone()
 ```
 
 #### qb-phone (Renewed-Scripts)
@@ -191,7 +194,7 @@ return {
 - then replace with this:
 ```
     RegisterNUICallback('SetupGarageVehicles', function(_, cb)
-        local veh = exports.rhd_garage:getDataVehicle()
+        local veh = exports.rhd_garage:getvehdataForPhone()
         cb(veh)
     end)
     
@@ -254,35 +257,37 @@ return {
 - then replace with this: 
 ```
     line 270:
-    exports.rhd_garage:isPlyVeh(vehicleData.plate, function (owned, balance)
-        if owned then
-            if balance < 1 then
-                TriggerServerEvent('qb-occasions:server:sellVehicleBack', vehicleData)
-                QBCore.Functions.DeleteVehicle(vehicle)
-            else
-                QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
-            end
-        else
-            QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
-        end
-    end)
+
+    local ownerData = exports.rhd_garage:getvehdataByPlate( vehicleData.plate )
+    if not ownerData then
+        QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+        return
+    end
+
+    if ownerData.balance < 1 then
+        TriggerServerEvent('qb-occasions:server:sellVehicleBack', vehicleData)
+        QBCore.Functions.DeleteVehicle(vehicle)
+    else
+        QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+    end
 
     line 319:
-    exports.rhd_garage:isPlyVeh(VehiclePlate, function (owned, balance)
-        if owned then
-            if balance < 1 then
-                QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
-                    if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
-                        openSellContract(true)
-                    else
-                        QBCore.Functions.Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
-                    end
-                end)
+
+    local ownerData = exports.rhd_garage:getvehdataByPlate( VehiclePlate )
+    if not ownerData then
+        QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
+        return
+    end
+
+    if ownerData.balance < 1 then
+        QBCore.Functions.TriggerCallback('qb-occasions:server:getVehicles', function(vehicles)
+            if vehicles == nil or #vehicles < #Config.Zones[Zone].VehicleSpots then
+                openSellContract(true)
             else
-                QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+                QBCore.Functions.Notify(Lang:t('error.no_space_on_lot'), 'error', 3500)
             end
-        else
-            QBCore.Functions.Notify(Lang:t('error.not_your_vehicle'), 'error', 3500)
-        end
-    end, VehiclePlate)
+        end)
+    else
+        QBCore.Functions.Notify(Lang:t('error.finish_payments'), 'error', 3500)
+    end
 ```
