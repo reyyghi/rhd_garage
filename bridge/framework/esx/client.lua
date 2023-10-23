@@ -9,8 +9,6 @@ Framework.playerGang = function ()
     return esx.GetPlayerData().job
 end
 
-Framework.playerName = LocalPlayer.state.name
-
 Framework.getVehName = function ( model )
     return GetDisplayNameFromVehicleModel( model )
 end
