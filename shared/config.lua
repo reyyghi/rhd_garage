@@ -3,8 +3,7 @@ CNV = require "data.customname"
 
 Config = {}
 
-Config.RadialMenu = 'qb-radialmenu' --- ox_lib / qb-radialmenu
-Config.Target = 'qb-target' --- ox_target / qb-target
+Config.RadialMenu = 'rhd' --- ox / qb / rhd
 Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 
 Config.changeNamePrice = 15000 --- $
