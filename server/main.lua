@@ -3,6 +3,10 @@ lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, am
     return Framework.server.removeMoney(src, type, amount)
 end)
 
+lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicleData )
+    return SpawnVehicle(_, vehicleData.model, vehicleData.coords, false)
+end)
+
 lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared)
     local vehicledata = {}
     local isQB = Framework.qb()
