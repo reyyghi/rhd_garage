@@ -5,27 +5,38 @@ Garage = {}
 local VehicleShow = nil
 
 local spawn = function ( data )
-    Utils.createPlyVeh(data.prop.model, data.coords, function (veh)
-        NetworkFadeInEntity(veh, true, false)
-        lib.setVehicleProperties(veh, data.prop)
-        SetVehicleNumberPlateText(veh, data.plate)
+    local netId = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {model = data.prop.model, coords = data.coords})
+
+    if netId < 1 then
+        return
+    end
+
+    local veh = NetToVeh(netId)
+
+    if not DoesEntityExist(veh) then
+        return
+    end
+
+    NetworkFadeInEntity(veh, true, false)
+    lib.setVehicleProperties(veh, data.prop)
+    SetVehicleNumberPlateText(veh, data.plate)
+    SetVehicleOnGroundProperly(veh)
+
+    if Config.FuelScript == 'ox_fuel' then
+        Entity(veh).state.fuel = data.prop.fuelLevel
+    else
+        exports[Config.FuelScript]:SetFuel(veh, data.prop.fuelLevel)
+    end
         
-        if Config.FuelScript == 'ox_fuel' then
-            Entity(veh).state.fuel = data.prop.fuelLevel
-        else
-            exports[Config.FuelScript]:SetFuel(veh, data.prop.fuelLevel)
-        end
-        
-        TriggerServerEvent("rhd_garage:server:updateState", {
-            vehicle = veh,
-            prop = data.prop,
-            plate = data.plate,
-            state = 0,
-            garage = data.garage
-        })
-        
-        TriggerEvent("vehiclekeys:client:SetOwner", data.prop.plate:trim())
-    end)
+    TriggerServerEvent("rhd_garage:server:updateState", {
+        vehicle = veh,
+        prop = data.prop,
+        plate = data.plate,
+        state = 0,
+        garage = data.garage
+    })
+    
+    TriggerEvent("vehiclekeys:client:SetOwner", data.prop.plate:trim())
 end
 
 Garage.actionMenu = function ( data )
