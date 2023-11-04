@@ -1,10 +1,12 @@
+local functions = require "modules.utils"
+
 --- callback
 lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, amount)
     return Framework.server.removeMoney(src, type, amount)
 end)
 
 lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicleData )
-    return SpawnVehicle(_, vehicleData.model, vehicleData.coords, false)
+    return functions.SpawnVehicle(_, vehicleData.model, vehicleData.coords, false)
 end)
 
 lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared)
@@ -14,20 +16,20 @@ lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, 
     if isQB then
         vehicledata.cid = Framework.server.GetPlayer(src).PlayerData.citizenid
         vehicledata.dbtable = "SELECT 1 FROM `player_vehicles` WHERE `citizenid` = ? and plate = ?"
-        vehicledata.dbvalue = {vehicledata.cid, plate}
+        vehicledata.dbvalue = {vehicledata.cid, plate:trim()}
 
         if shared then
             vehicledata.dbtable = "SELECT 1 FROM `player_vehicles` WHERE plate = ? OR fakeplate = ?"
-            vehicledata.dbvalue = { plate }
+            vehicledata.dbvalue = { plate:trim() }
         end
     else
         vehicledata.cid = Framework.server.GetPlayer(src).identifier
         vehicledata.dbtable = "SELECT `vehicle` FROM `owned_vehicles` WHERE `owner` = ? and plate = ?"
-        vehicledata.dbvalue = { vehicledata.cid, plate }
+        vehicledata.dbvalue = { vehicledata.cid, plate:trim() }
 
         if shared then
-            vehicledata.dbtable = "'SELECT vehicle FROM owned_vehicles WHERE plate = ?"
-            vehicledata.dbvalue = { plate }
+            vehicledata.dbtable = "SELECT vehicle FROM owned_vehicles WHERE plate = ?"
+            vehicledata.dbvalue = { plate:trim() }
         end
     end
 
