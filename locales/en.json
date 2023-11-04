@@ -47,6 +47,9 @@
     "rhd_garage:context.admin.delete": "Delete",
     "rhd_garage:context.admin.add_job": "Add Job",
     "rhd_garage:context.admin.add_gang": "Add Gang",
+    "rhd_garage:context.admin.blip_setting": "Blip Setting",
+    "rhd_garage:context.admin.blip_edit": "Edit Blip",
+    "rhd_garage:context.admin.blip_remove": "Remove Blip",
     "rhd_garage:input.admin.creator_labelgarage": "Garage Label",
     "rhd_garage:input.admin.creator_typevehicle": "Vehicle Type",
     "rhd_garage:input.admin.creator_bliptype": "Blip Type",
@@ -58,11 +61,12 @@
     "rhd_garage:input.admin.garage_access_grade_job": "Job Rank",
     "rhd_garage:input.admin.garage_access_gang": "Gang Name",
     "rhd_garage:input.admin.garage_access_grade_gang": "Gang Rank",
-
     "rhd_garage:notify.admin.success_create": "Successfully created a new garage with the label %s",
     "rhd_garage:notify.admin.success_deleted": "Garage with the label %s has been successfully deleted",
     "rhd_garage:notify.admin.success_changelocation": "Garage location has been successfully updated",
     "rhd_garage:notify.admin.success_changelabel": "Garage label has been changed to %s",
     "rhd_garage:notify.admin.success_deleted_access": "Access has been successfully removed",
-    "rhd_garage:notify.admin.success_added_access": "Successfully added access for %s"
+    "rhd_garage:notify.admin.success_added_access": "Successfully added access for %s",
+    "rhd_garage:notify.admin.success_editblip": "Blip updated successfully",
+    "rhd_garage:notify.admin.success_deletedBlip": "blip successfully deleted"
 }
