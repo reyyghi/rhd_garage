@@ -17,7 +17,7 @@ Framework.getMoney = function ( type )
     local amount = 0
     local plyMoney = esx.GetPlayerData().accounts
 
-    type = type or type == "cash" and "money"
+    type = type == "cash" and "money" or type
     for i=1, #plyMoney do
         if plyMoney[i].name == type:lower() then
             amount = plyMoney[i].money

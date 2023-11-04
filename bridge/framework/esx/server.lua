@@ -5,8 +5,8 @@ local esx = exports.es_extended:getSharedObject()
 Framework.server = {}
 Framework.server.GetPlayer = esx.GetPlayerFromId
 Framework.server.removeMoney = function (source, type, amount)
+    type = type == "cash" and "money" or type
     local ply = esx.GetPlayerFromId(source)
-
     if ply and ply ~= nil then
         ply.removeAccountMoney(type:lower(), amount, '')
         return true
