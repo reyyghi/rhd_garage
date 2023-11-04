@@ -47,6 +47,9 @@
     "rhd_garage:context.admin.delete": "Hapus",
     "rhd_garage:context.admin.add_job": "Tambah Pekerjaan",
     "rhd_garage:context.admin.add_gang": "Tambah Pekerjaan",
+    "rhd_garage:context.admin.blip_setting": "Pengaturan Blip",
+    "rhd_garage:context.admin.blip_edit": "Atur Blip",
+    "rhd_garage:context.admin.blip_remove": "Hapus Blip",
     "rhd_garage:input.admin.creator_labelgarage": "Label Garasi",
     "rhd_garage:input.admin.creator_typevehicle": "Tipe Kendaraan",
     "rhd_garage:input.admin.creator_bliptype": "Tipe Blip",
@@ -58,12 +61,12 @@
     "rhd_garage:input.admin.garage_access_grade_job": "Pangkat Pekerjaan",
     "rhd_garage:input.admin.garage_access_gang": "Nama Gang",
     "rhd_garage:input.admin.garage_access_grade_gang": "Pangkat Gang",
-    
     "rhd_garage:notify.admin.success_create": "Berhasil membuat garasi baru dengan label %s",
     "rhd_garage:notify.admin.success_deleted": "Garasi dengan label %s berhasil di hapus",
     "rhd_garage:notify.admin.success_changelocation": "Lokasi garasi berhasil di perbarui",
     "rhd_garage:notify.admin.success_changelabel": "Label garasi berhasil di rubah menjadi %s",
     "rhd_garage:notify.admin.success_deleted_access": "Akses berhasil di hapus",
-    "rhd_garage:notify.admin.success_added_access": "Berhasil menambah akses untuk %s"
-
+    "rhd_garage:notify.admin.success_added_access": "Berhasil menambah akses untuk %s",
+    "rhd_garage:notify.admin.success_editblip": "Blip berhasil di perbarui",
+    "rhd_garage:notify.admin.success_deletedBlip": "Blip berhasil di hapus"
 }
