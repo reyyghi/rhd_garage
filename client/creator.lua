@@ -97,6 +97,10 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                 local context2 = {
                     id = "rhd:action_garage",
                     title = k:upper(),
+                    menu = "rhd:list_garage",
+                    onBack = function()
+
+                    end,
                     options = {
                         {
                             title = locale("rhd_garage:context.admin.options_delete"),
@@ -105,6 +109,51 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                                 GarageZone[k] = nil
                                 Utils.notify(locale("rhd_garage:notify.admin.success_deleted", k), "success")
                                 Zones.save( GarageZone )
+                            end
+                        },
+                        {
+                            title = locale("rhd_garage:context.admin.blip_setting"),
+                            icon = "map",
+                            onSelect = function()
+                                local blipContext = {
+                                    id = "blip_setting",
+                                    title = locale("rhd_garage:context.admin.blip_setting"),
+                                    menu = "rhd:action_garage",
+                                    onBack = function()
+
+                                    end,
+                                    options = {
+                                        {
+                                            title = locale("rhd_garage:context.admin.blip_edit"),
+                                            icon = "pen-to-square",
+                                            onSelect = function ()
+                                                local blipinput = lib.inputDialog('BLIP', {
+                                                    { type = 'number', label = locale("rhd_garage:input.admin.creator_bliptype") },
+                                                    { type = 'number', label = locale("rhd_garage:input.admin.creator_blipcolor") },
+                                                })
+                            
+                                                if blipinput then
+                                                    GarageZone[k].blip = {
+                                                        type = blipinput[1] or Config.defaultBlip.garage[GarageZone[k].type].type,
+                                                        color = blipinput[2] or Config.defaultBlip.garage[GarageZone[k].type].color
+                                                    }
+                                                    Utils.notify(locale("rhd_garage:notify.admin.success_editblip"), "success")
+                                                    Zones.save( GarageZone )
+                                                end
+                                            end
+                                        },
+                                        {
+                                            title = locale("rhd_garage:context.admin.blip_remove"),
+                                            icon = "trash",
+                                            onSelect = function()
+                                                GarageZone[k].blip = nil
+                                                Utils.notify("Blip berhasil di hapus", "success")
+                                                Zones.save( GarageZone )
+                                            end
+                                        }
+                                    }
+                                }
+                                Utils.createMenu(blipContext)
                             end
                         },
                         {
@@ -148,6 +197,10 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                             local contextJob = {
                                 id = "rhd_contextJob",
                                 title = k:upper(),
+                                menu = "rhd:action_garage",
+                                onBack = function()
+
+                                end,
                                 options = {}
                             }
 
@@ -214,6 +267,10 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                             local contextGang = {
                                 id = "rhd_contextGang",
                                 title = k:upper(),
+                                menu = "rhd:action_garage",
+                                onBack = function()
+
+                                end,
                                 options = {}
                             }
 
