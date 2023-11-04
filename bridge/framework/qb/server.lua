@@ -66,14 +66,12 @@ lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src, p
                     if db.state ~= 0 and db.state ~= 2 then
                         VehicleGarage = db.garage
 
-                        local L = GarageZone[db.garage]['location']
+                        local L = GarageZone[db.garage]?.zones.points
 
-                        if type(L) == 'table' then
+                        if L and #L > 1 then
                             for loc=1, #L do
                                 garageLocation = L[loc].xyz
                             end
-                        elseif type(L) == 'vector4' then
-                            garageLocation = L
                         end
                     end
                     
