@@ -268,7 +268,7 @@ if isServer then
     ---@param coords? vector4 defaults to player's position
     ---@param warp? boolean
     ---@return integer? netId
-    function SpawnVehicle(source, model, coords, warp) -- luacheck: ignore
+    function utils.SpawnVehicle(source, model, coords, warp)
         model = type(model) == 'string' and joaat(model) or model
 
         if not CreateVehicleServerSetter then
