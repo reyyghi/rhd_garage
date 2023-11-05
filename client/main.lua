@@ -213,6 +213,7 @@ Garage.openMenu = function ( data )
                 description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:veh_in_garage')
             end
         elseif gState == 2 then
+            disabled = true
             description = 'STATUS: ' .. locale('rhd_garage:phone_veh_in_policeimpound')
             if shared_garage then
                 description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:phone_veh_in_policeimpound')
