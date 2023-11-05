@@ -5,6 +5,8 @@ local qb = exports['qb-core']:GetCoreObject()
 
 Framework.server = {}
 Framework.server.GetPlayer = qb.Functions.GetPlayer
+Framework.server.GetPlayerFromCitizenid = qb.Functions.GetPlayerByCitizenId
+
 Framework.server.removeMoney = function (source, type, amount)
     local ply = qb.Functions.GetPlayer(source)
 
