@@ -5,8 +5,8 @@ lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, am
     return Framework.server.removeMoney(src, type, amount)
 end)
 
-lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicleData )
-    return functions.SpawnVehicle(_, vehicleData.model, vehicleData.coords, false)
+lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicleData, inside )
+    return functions.SpawnVehicle(_, vehicleData.model, vehicleData.coords, inside or false)
 end)
 
 lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared)
@@ -132,9 +132,9 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
     local ownerName = "Unkown"
 
     if Framework.qb() then
-        db.s = "SELECT player_vehicles.vehicle, player_vehicles.mods, player_vehicles.balance, player_vehicles.citizenid, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE plate = ? OR fakeplate = ?"
+        db.s = "SELECT player_vehicles.citizenid, player_vehicles.vehicle, player_vehicles.mods, player_vehicles.balance, player_vehicles.citizenid, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE plate = ? OR fakeplate = ?"
     elseif Framework.esx() then
-        db.s = "SELECT owned_vehicles.vehicle, owned_vehicles.plate, owned_vehicles.owner, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE plate = ?"
+        db.s = "SELECT owned_vehicles.owner, owned_vehicles.vehicle, owned_vehicles.plate, owned_vehicles.owner, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE plate = ?"
     end
 
     local data = MySQL.single.await(db.s, { plate })
@@ -147,6 +147,7 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
         local charinfo = json.decode(data.charinfo)
         ownerName = ("%s %s"):format(charinfo.firstname, charinfo.lastname)
         db.data = {
+            citizenid = data.citizenid,
             owner = ownerName,
             vehicle = data.vehicle,
             props = mods,
@@ -156,6 +157,7 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
         ownerName = ("%s %s"):format(data.firstname, data.lastname)
         local mods = json.decode(data.vehicle)
         db.data = {
+            citizenid = data.owner,
             owner = ownerName,
             vehicle = mods.model,
             props = mods,
@@ -164,6 +166,60 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
     end
 
     return db.data
+end)
+
+lib.callback.register("rhd_garage:cb_server:policeImpound.getVehicle", function (_, garage)
+    local result = MySQL.query.await("SELECT * FROM police_impound WHERE garage = ?", {garage})
+
+    local dataToSend = {}
+
+    if result and next(result) then
+        for k, v in pairs(result) do
+            dataToSend[#dataToSend+1] = {
+                citizenid = v.citizenid,
+                props = json.decode(v.props),
+                plate = v.plate,
+                vehicle = v.vehicle,
+                owner = v.owner,
+                officer = v.officer,
+                fine = v.fine,
+                paid = v.paid,
+                date = v.date,
+            }
+        end
+    end
+
+    return dataToSend
+end)
+
+lib.callback.register("rhd_garage:cb_server:policeImpound.impoundveh", function (_, impoundData )
+    local impounded = MySQL.insert.await('INSERT INTO `police_impound` (citizenid, plate, vehicle, props, owner, officer, date, fine, garage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', {
+        impoundData.citizenid, impoundData.plate, impoundData.vehicle, json.encode(impoundData.prop), impoundData.owner, impoundData.officer, os.date('%d/%m/%Y', impoundData.date), impoundData.fine, impoundData.garage
+    })
+    if Framework.esx() then
+        MySQL.update('UPDATE owned_vehicles SET stored = ?, vehicle = ? WHERE plate = ?', { 2, json.encode(impoundData.prop), impoundData.plate })
+        return
+    end
+
+    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ? WHERE plate = ? or fakeplate = ?', { 2, json.encode(impoundData.prop), impoundData.plate })
+    
+    return true
+end)
+
+lib.callback.register("rhd_garage:cb_server:policeImpound.cekDate", function (_, date )
+    local takeout, day = false, 0
+
+    local d, m, y = date:match("(%d+)/(%d+)/(%d+)")
+    local currentDate = os.date("*t")
+    local targetDate = {year = tonumber(y), month = tonumber(m), day = tonumber(d)}
+    
+    day = os.difftime(os.time(targetDate), os.time(currentDate)) / (24 * 60 * 60)
+
+    if os.date('%d/%m/%Y') >= date then
+        takeout = true
+    end
+
+    return takeout, math.ceil(day)
 end)
 
 --- events
@@ -179,6 +235,39 @@ RegisterNetEvent("rhd_garage:server:updateState", function ( data )
     end
 
     MySQL.update('UPDATE player_vehicles SET state = ?, mods = ?, garage = ? WHERE plate = ? or fakeplate = ?', { state, json.encode(prop), garage, plate })
+end)
+
+RegisterNetEvent('rhd_garage:server:updateState.policeImpound', function( plate )
+
+    print(plate)
+    MySQL.query('DELETE FROM police_impound WHERE plate = ?', { plate })
+
+    if Framework.esx() then
+        MySQL.update('UPDATE owned_vehicles SET stored = ? WHERE plate = ?', { 0, plate })
+        return
+    end
+
+    MySQL.update('UPDATE player_vehicles SET state = ? WHERE plate = ? or fakeplate = ?', { 0, plate })
+
+end)
+
+RegisterNetEvent('rhd_garage:server:policeImpound.sendBill', function( citizenid, fine, plate )
+    local Player = Framework.server.GetPlayerFromCitizenid(citizenid)
+    local src
+
+    if not Player then return end
+
+    if Framework.esx() then
+        src = Player.source
+    elseif Framework.qb() then
+        src = Player.PlayerData.source
+    end
+
+    local paid = lib.callback.await("rhd_garage:cb_client:sendFine", src, fine)
+
+    if paid then
+        MySQL.update('UPDATE police_impound SET paid = ? WHERE plate = ?', { 1, plate })
+    end
 end)
 
 RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
