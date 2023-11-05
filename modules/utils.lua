@@ -247,6 +247,12 @@ RegisterNetEvent("rhd_garage:radial:store", function (self)
     end
 end)
 
+RegisterNetEvent('rhd_garage:radial:open_policeimpound', function(self)
+    if not cache.vehicle then
+        PoliceImpound.open( self.garage )
+    end
+end)
+
 AddEventHandler('onResourceStop', function(resourceName)
     if (GetCurrentResourceName() ~= resourceName) then
       return
