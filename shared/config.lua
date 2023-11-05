@@ -4,7 +4,7 @@ CNV = require "data.customname"
 Config = {}
 
 Config.RadialMenu = 'rhd' --- ox / qb / rhd
-Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
+Config.FuelScript = 'rhd_fuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 
 Config.changeNamePrice = 15000 --- $
 
@@ -70,6 +70,27 @@ Config.ImpoundPrice = {
     [19] = 15000, -- Military
     [20] = 15000, -- Commercial
     [21] = 0 -- Trains (lol)
+}
+
+Config.PoliceImpound = {
+    enable = true,
+    targetUsed = "ox", -- qb or ox
+    location = {
+        [1] = {
+            label = "Police Impound 1",
+            zones = {
+                points = {
+                    vec3(824.69000244141, -1334.0200195312, 26.0),
+                    vec3(831.70001220703, -1337.2700195312, 26.0),
+                    vec3(831.73999023438, -1354.0300292969, 26.0),
+                    vec3(832.10998535156, -1355.4799804688, 26.0),
+                    vec3(824.72998046875, -1352.0400390625, 26.0),
+                },
+                thickness = 4.0,
+            },
+            grade = 3
+        }
+    }
 }
 
 Config.HouseGarages = {}
