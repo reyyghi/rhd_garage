@@ -13,6 +13,10 @@ Framework.getVehName = function ( model )
     return GetDisplayNameFromVehicleModel( model )
 end
 
+Framework.getName = function()
+    return ("%s"):format(LocalPlayer.state.name)
+end
+
 Framework.getMoney = function ( type )
     local amount = 0
     local plyMoney = esx.GetPlayerData().accounts

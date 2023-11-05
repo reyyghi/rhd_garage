@@ -18,6 +18,11 @@ Framework.getVehName = function ( model )
     return qb.Shared.Vehicles[model] and qb.Shared.Vehicles[model].name or 'Vehicle Not Found'
 end
 
+Framework.getName = function()
+    local charinfo = qb.Functions.GetPlayerData().charinfo
+    return ("%s %s"):format(charinfo.firstname, charinfo.lastname)
+end
+
 Framework.getMoney = function ( type )
     return qb.Functions.GetPlayerData().money[type:lower()]
 end

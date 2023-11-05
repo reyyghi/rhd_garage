@@ -4,6 +4,8 @@ local esx = exports.es_extended:getSharedObject()
 
 Framework.server = {}
 Framework.server.GetPlayer = esx.GetPlayerFromId
+Framework.server.GetPlayerFromCitizenid = esx.GetPlayerFromIdentifier
+
 Framework.server.removeMoney = function (source, type, amount)
     type = type == "cash" and "money" or type
     local ply = esx.GetPlayerFromId(source)
