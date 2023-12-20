@@ -2,7 +2,7 @@ local Zones = {}
 
 local creatorActive = false
 local controlsActive = false
-local zoneType, step, xCoord, yCoord, zCoord, heading, height, width, length
+local step, xCoord, yCoord, zCoord, heading, height, width, length
 local steps = {{0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 25, 50, 100}, {0.25, 0.5, 1, 2.5, 5, 15, 30, 45, 60, 90, 180}}
 local points = {}
 
@@ -10,38 +10,21 @@ local displayMode = 1
 local minCheck = steps[1][1] / 2
 local alignMovementWithCamera = true
 
-local function firstToUpper(str)
-    return (str:gsub('^%l', string.upper))
-end
+local freecam = exports['fivem-freecam']
 
 local function updateText()
 	local text = {
-		('------ Pembuatan Zona [%s] ------  \n'):format(firstToUpper(zoneType)),
+		'------ Pembuatan Zona ------  \n',
+        ('Koordinat X [Left/Right]: %s  \n'):format(xCoord),
+        ('Koordinat Y [Up/Down]: %s  \n'):format(yCoord),
+        ('Koordinat Z [R/F]: %s  \n'):format(zCoord),
+		('Tinggi / Rendah [Shift + Scroll]: %s  \n'):format(height),
+		'Buat Titik Baru - [Space]  \n',
+        'Edit Point Sebelumnya - [Backspace]  \n',
+        'Beralih Kontrol - [X]  \n',
+        'Simpan Zone - [Enter]  \n',
+        'Batalkan Pembuatan - [Esc]'
 	}
-
-	if zoneType == 'poly' then
-        text[#text + 1] = ('Koordinat X [Left/Right]: %s  \n'):format(xCoord)
-        text[#text + 1] = ('Koordinat Y [Up/Down]: %s  \n'):format(yCoord)
-        text[#text + 1] = ('Koordinat Z [R/F]: %s  \n'):format(zCoord)
-		text[#text + 1] = ('Tinggi / Rendah [Shift + Scroll]: %s  \n'):format(height)
-		text[#text + 1] = 'Buat Titik Baru - [Space]  \n'
-        text[#text + 1] = 'Edit Point Sebelumnya - [Backspace]  \n'
-	elseif zoneType == 'box' then
-		text[#text + 1] = ('Ukuran Langkah [Scroll]: %sm/%s&deg;  \n'):format(steps[1][step], steps[2][step])
-		text[#text + 1] = ('Atur Arah [Q/E]: %s&deg;  \n'):format(heading)
-		text[#text + 1] = ('Atur Tinggi [Shift + Scroll]: %s  \n'):format(height)
-		text[#text + 1] = ('Atur Lebar [Ctrl + Scroll]: %s  \n'):format(width)
-		text[#text + 1] = ('Atur Panjang [Alt + Scroll]: %s  \n'):format(length)
-		text[#text + 1] = 'Paskan Di Tengah - [Space]  \n'
-	elseif zoneType == 'sphere' then
-		text[#text + 1] = ('Ukuran Langkah [Scroll]: %sm/%s&deg;  \n'):format(steps[1][step], steps[2][step])
-		text[#text + 1] = ('Atur Ukuran [Shift + Scroll]: %s  \n'):format(height)
-		text[#text + 1] = 'Paskan Di Tengah - [Space]  \n'
-	end
-
-	text[#text + 1] = 'Beralih Kontrol - [X]  \n'
-	text[#text + 1] = 'Simpan Zone - [Enter]  \n'
-	text[#text + 1] = 'Batalkan Pembuatan - [Esc]'
 
 	lib.showTextUI(table.concat(text))
 end
@@ -52,31 +35,16 @@ end
 
 local function closeCreator(cancel, data)
     
-    exports['fivem-freecam']:SetActive(false)
+    freecam:SetActive(false)
 
 	if not cancel then
-		if zoneType == 'poly' then
-			points[#points + 1] = vec(xCoord, yCoord, zCoord)
-		end
-
+		points[#points + 1] = vec(xCoord, yCoord, zCoord)
         if data.onCreated then
             local zoneData = {}
-            if data.type == "poly" then
-                zoneData.points = points
-                zoneData.thickness = height
-                data.onCreated(zoneData)
-            elseif data.type == "box" then
-                zoneData.coords = vec(xCoord, yCoord, zCoord)
-                zoneData.size = vec(width, length, height)
-                zoneData.rotation = heading
-                data.onCreated(zoneData)
-            elseif data.type == "sphere" then
-                zoneData.coords = vec(xCoord, yCoord, zCoord)
-                zoneData.radius = height
-                data.onCreated(zoneData)
-            end
+            zoneData.points = points
+            zoneData.thickness = height
+            data.onCreated(zoneData)
         end
-
 	end
 
 	creatorActive = false
@@ -96,9 +64,7 @@ local function drawLines()
 	local thickness = vec(0, 0, height / 2)
     local activeA, activeB = vec(xCoord, yCoord, zCoord) + thickness, vec(xCoord, yCoord, zCoord) - thickness
 
-    if zoneType == 'poly' then
-        DrawLine(activeA.x, activeA.y, activeA.z, activeB.x, activeB.y, activeB.z, 255, 42, 24, 225)
-    end
+    DrawLine(activeA.x, activeA.y, activeA.z, activeB.x, activeB.y, activeB.z, 255, 42, 24, 225)
 
 	for i = 1, #points do
 		points[i] = vec(points[i].x, points[i].y, zCoord)
@@ -109,7 +75,7 @@ local function drawLines()
 		local e = points[i]
 		local f = (points[i + 1] and vec(points[i + 1].x, points[i + 1].y, zCoord) or points[1])
 
-        if i == #points and zoneType == 'poly' then
+        if i == #points then
             DrawLine(a.x, a.y, a.z, b.x, b.y, b.z, 255, 42, 24, 225)
             DrawLine(activeA.x, activeA.y, activeA.z, c.x, c.y, c.z, 255, 42, 24, 225)
             DrawLine(activeB.x, activeB.y, activeB.z, d.x, d.y, d.z, 255, 42, 24, 225)
@@ -124,7 +90,7 @@ local function drawLines()
             DrawLine(e.x, e.y, e.z, f.x, f.y, f.z, 255, 42, 24, 225)
         end
 
-        if i == #points and zoneType == 'poly' then
+        if i == #points then
             drawRectangle({a, b, activeB, activeA})
             drawRectangle({activeA, activeB, d, c})
         else
@@ -155,7 +121,6 @@ local controls = {
 function Zones.startCreator( data )
 	creatorActive = true
     controlsActive = true
-	zoneType = data.type or "poly"
 
 	step = 1
 	local coords = GetEntityCoords(cache.ped)
@@ -179,8 +144,8 @@ function Zones.startCreator( data )
 
         if displayMode == 3 or displayMode == 4 then
             if alignMovementWithCamera then
-                local rightX, rightY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord + 2, yCoord), GetGameplayCamRot(2).z)
-                local forwardX, forwardY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord, yCoord + 2), GetGameplayCamRot(2).z)
+                local rightX, rightY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord + 2, yCoord), freecam:GetRotation(2).z)
+                local forwardX, forwardY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord, yCoord + 2), freecam:GetRotation(2).z)
 
                 DrawLine(xCoord, yCoord, zCoord, rightX, rightY or 0, zCoord, 0, 255, 0, 225)
                 DrawLine(xCoord, yCoord, zCoord, forwardX, forwardY or 0, zCoord, 0, 255, 0, 225)
@@ -191,27 +156,8 @@ function Zones.startCreator( data )
             DrawLine(xCoord, yCoord, zCoord, xCoord, yCoord, zCoord + 2, 0, 0, 255, 225)
         end
 
-        if zoneType == 'poly' then
-            drawLines()
-            exports['fivem-freecam']:SetActive(true)
-        elseif zoneType == 'box' then
-            local rad = math.rad(-heading)
-            local sinH = math.sin(rad)
-            local cosH = math.cos(rad)
-            local center = vec2(xCoord, yCoord)
-            ---@type vector2[]
-            points = {
-                center + vec2((width * cosH + length * sinH), (length * cosH - width * sinH)) / 2,
-                center + vec2(-(width * cosH - length * sinH), (length * cosH + width * sinH)) / 2,
-                center + vec2(-(width * cosH + length * sinH), -(length * cosH - width * sinH)) / 2,
-                center + vec2((width * cosH - length * sinH), -(length * cosH + width * sinH)) / 2,
-            }
-
-            drawLines()
-        elseif zoneType == 'sphere' then
-            ---@diagnostic disable-next-line: param-type-mismatch
-            DrawMarker(28, xCoord, yCoord, zCoord, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, height, height, height, 255, 42, 24, 100, false, false, 0, false, false, false, false)
-        end
+        drawLines()
+        freecam:SetActive(true)
 
         if controlsActive then
             DisableAllControlActions(0)
@@ -235,9 +181,7 @@ function Zones.startCreator( data )
                     length += lStep
                 elseif step < 11 then
                     change = true
-                    if zoneType ~= 'poly' then
-                        step += 1
-                    end
+                    step += 1
                 end
             elseif IsDisabledControlJustReleased(0, 16) then -- scroll down
                 if IsDisabledControlPressed(0, 21) then -- shift held down
@@ -266,16 +210,14 @@ function Zones.startCreator( data )
                     end
                 elseif step > 1 then
                     change = true
-                    if zoneType ~= 'poly' then
-                        step -= 1
-                    end
+                    step -= 1
                 end
             -- elseif IsDisabledControlJustReleased(0, 32) then -- w
             elseif IsDisabledControlPressed(0, 188) then --- arrow up
                 change = true
 
                 if alignMovementWithCamera then
-                    local newX, newY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord, yCoord + lStep), GetGameplayCamRot(2).z)
+                    local newX, newY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord, yCoord + lStep), freecam:GetRotation(2).z)
 
                     if math.abs(newX) < minCheck then
                         newX = 0.0
@@ -301,7 +243,7 @@ function Zones.startCreator( data )
                 change = true
 
                 if alignMovementWithCamera then
-                    local newX, newY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord, yCoord - lStep), GetGameplayCamRot(2).z)
+                    local newX, newY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord, yCoord - lStep), freecam:GetRotation(2).z)
 
                     if math.abs(newX) < minCheck then
                         newX = 0.0
@@ -327,7 +269,7 @@ function Zones.startCreator( data )
                 change = true
 
                 if alignMovementWithCamera then
-                    local newX, newY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord + lStep, yCoord), GetGameplayCamRot(2).z)
+                    local newX, newY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord + lStep, yCoord), freecam:GetRotation(2).z)
 
                     if math.abs(newX) < minCheck then
                         newX = 0.0
@@ -353,7 +295,7 @@ function Zones.startCreator( data )
                 change = true
 
                 if alignMovementWithCamera then
-                    local newX, newY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord - lStep, yCoord), GetGameplayCamRot(2).z)
+                    local newX, newY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord - lStep, yCoord), freecam:GetRotation(2).z)
 
                     if math.abs(newX) < minCheck then
                         newX = 0.0
@@ -409,9 +351,7 @@ function Zones.startCreator( data )
             elseif IsDisabledControlJustReleased(0, 22) then -- space
                 change = true
 
-                if zoneType == 'poly' then
-                    points[#points + 1] = vec2(xCoord, yCoord)
-                end
+                points[#points + 1] = vec2(xCoord, yCoord)
 
                 local newC = nil
 
@@ -427,7 +367,7 @@ function Zones.startCreator( data )
             elseif IsDisabledControlJustReleased(0, 194) then -- backspace
                 change = true
 
-                if zoneType == 'poly' and #points > 0 then
+                if #points > 0 then
                     xCoord = points[#points].x
                     yCoord = points[#points].y
 
