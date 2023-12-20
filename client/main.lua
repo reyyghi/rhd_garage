@@ -5,7 +5,7 @@ Garage = {}
 local VehicleShow = nil
 
 local spawn = function ( data )
-    local netId = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {model = data.prop.model, coords = data.coords})
+    local netId = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {model = data.model, coords = data.coords})
 
     if netId < 1 then
         return
@@ -157,13 +157,14 @@ Garage.openMenu = function ( data )
     local vehData = lib.callback.await('rhd_garage:cb_server:getVehicleList', false, data.garage, data.impound, data.shared)
     for i=1, #vehData do
         local vehProp = vehData[i].vehicle
+        local vehModel = vehData[i].model
         local gState = vehData[i].state
         local pName = vehData[i].owner
         local plate = vehData[i].plate
         local fakeplate = vehData[i].fakeplate
-        local engine = vehProp.engineHealth
-        local body = vehProp.bodyHealth
-        local fuel = vehProp.fuelLevel
+        local engine = vehProp?.engineHealth or 100
+        local body = vehProp?.bodyHealth or 100
+        local fuel = vehProp?.fuelLevel or 100
         
         local shared_garage = data.shared
         local impound_garage = data.impound
@@ -177,7 +178,7 @@ Garage.openMenu = function ( data )
         end
 
         local icon = "car"
-        local vehicleClass = GetVehicleClassFromName(vehProp.model)
+        local vehicleClass = GetVehicleClassFromName(vehModel)
         local vehicleType = Utils.classCheck(vehicleClass)
 
         if vehicleType == "planes" then
@@ -220,7 +221,7 @@ Garage.openMenu = function ( data )
             end
         end
 
-        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehData[i].model or vehProp.model ), plate)
+        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehModel or vehProp.model ), plate)
         
         if Utils.getTypeByClass(vehicleClass) == data.type then
             menuData.options[#menuData.options+1] = {
@@ -246,6 +247,7 @@ Garage.openMenu = function ( data )
     
                     Garage.actionMenu({
                         prop = vehProp,
+                        model = vehModel or vehProp.model,
                         plate = plate,
                         coords = coords,
                         garage = data.garage,
