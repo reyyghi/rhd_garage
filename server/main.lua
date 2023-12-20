@@ -1,3 +1,5 @@
+local Utils = require 'modules.utils'
+
 --- callback
 lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, amount)
     return Framework.server.removeMoney(src, type, amount)
@@ -15,7 +17,6 @@ lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, 
     local isQB = Framework.qb()
     local isOwner = true
     if isQB then
-        print(plate:trim())
         vehicledata.cid = Framework.server.GetPlayer(src).PlayerData.citizenid
         vehicledata.dbtable = "SELECT 1 FROM `player_vehicles` WHERE `citizenid` = ? and plate = ? OR fakeplate = ?"
         vehicledata.dbvalue = {vehicledata.cid, plate:trim(), plate:trim()}
