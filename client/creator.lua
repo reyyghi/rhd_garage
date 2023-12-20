@@ -171,6 +171,17 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                             end
                         },
                         {
+                            title = 'Teleport To Location',
+                            icon = "location-dot",
+                            onSelect = function ()
+                                local coords = v.zones.points[1]
+                                DoScreenFadeOut(500)
+                                Wait(1000)
+                                SetPedCoordsKeepVehicle(cache.ped, coords.x, coords.y, coords.z)
+                                DoScreenFadeIn(500)
+                            end
+                        },
+                        {
                             title = locale("rhd_garage:context.admin.options_changelabel"),
                             icon = "pen-to-square",
                             onSelect = function ()
