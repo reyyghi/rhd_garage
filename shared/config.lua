@@ -3,8 +3,8 @@ CNV = require "data.customname"
 
 Config = {}
 
-Config.RadialMenu = 'rhd' --- ox / qb / rhd
-Config.FuelScript = 'rhd_fuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
+Config.RadialMenu = 'qb' --- ox / qb / rhd
+Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 
 Config.changeNamePrice = 15000 --- $
 
@@ -74,7 +74,7 @@ Config.ImpoundPrice = {
 
 Config.PoliceImpound = {
     enable = true,
-    targetUsed = "ox", -- qb or ox
+    targetUsed = "qb", -- qb or ox
     location = {
         [1] = {
             label = "Police Impound 1",
