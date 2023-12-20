@@ -1,12 +1,13 @@
-local functions = require "modules.utils"
-
 --- callback
 lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, amount)
     return Framework.server.removeMoney(src, type, amount)
 end)
 
 lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicleData, inside )
-    return functions.SpawnVehicle(_, vehicleData.model, vehicleData.coords, inside or false)
+    local veh = CreateVehicleServerSetter(vehicleData.model, vehicleData.vehtype, vehicleData.coords.x, vehicleData.coords.y, vehicleData.coords.z, vehicleData.coords.w)
+    local netId = NetworkGetNetworkIdFromEntity(veh)
+    SetVehicleNumberPlateText(veh, vehicleData.plate)
+    return netId
 end)
 
 lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared)

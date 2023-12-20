@@ -5,17 +5,20 @@ Garage = {}
 local VehicleShow = nil
 
 local spawn = function ( data )
-    local netId = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {model = data.model, coords = data.coords})
+
+    local netId = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
+        model = data.model,
+        plate = data.plate,
+        coords = data.coords,
+        vehtype = Utils.getVehicleTypeByModel(data.model)
+    })
 
     if netId < 1 then
         return
     end
 
-    local veh = NetToVeh(netId)
-
-    if not DoesEntityExist(veh) then
-        return
-    end
+    while not NetworkDoesNetworkIdExist(netId) do Wait(10) end
+    local veh = NetworkGetEntityFromNetworkId(netId)
 
     NetworkFadeInEntity(veh, true, false)
     lib.setVehicleProperties(veh, data.prop)
