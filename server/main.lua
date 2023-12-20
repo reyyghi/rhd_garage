@@ -15,13 +15,14 @@ lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, 
     local isQB = Framework.qb()
     local isOwner = true
     if isQB then
+        print(plate:trim())
         vehicledata.cid = Framework.server.GetPlayer(src).PlayerData.citizenid
-        vehicledata.dbtable = "SELECT 1 FROM `player_vehicles` WHERE `citizenid` = ? and plate = ?"
-        vehicledata.dbvalue = {vehicledata.cid, plate:trim()}
+        vehicledata.dbtable = "SELECT 1 FROM `player_vehicles` WHERE `citizenid` = ? and plate = ? OR fakeplate = ?"
+        vehicledata.dbvalue = {vehicledata.cid, plate:trim(), plate:trim()}
 
         if shared then
             vehicledata.dbtable = "SELECT 1 FROM `player_vehicles` WHERE plate = ? OR fakeplate = ?"
-            vehicledata.dbvalue = { plate:trim() }
+            vehicledata.dbvalue = { plate:trim(), plate:trim() }
         end
     else
         vehicledata.cid = Framework.server.GetPlayer(src).identifier
@@ -134,11 +135,13 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
 
     if Framework.qb() then
         db.s = "SELECT player_vehicles.citizenid, player_vehicles.vehicle, player_vehicles.mods, player_vehicles.balance, player_vehicles.citizenid, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE plate = ? OR fakeplate = ?"
+        db.v = { plate, plate }
     elseif Framework.esx() then
         db.s = "SELECT owned_vehicles.owner, owned_vehicles.vehicle, owned_vehicles.plate, owned_vehicles.owner, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE plate = ?"
+        db.v = { plate }
     end
 
-    local data = MySQL.single.await(db.s, { plate })
+    local data = MySQL.single.await(db.s, db.v)
     if not data then return {} end
 
     db.data = {}
@@ -202,7 +205,7 @@ lib.callback.register("rhd_garage:cb_server:policeImpound.impoundveh", function 
         return
     end
 
-    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ? WHERE plate = ? or fakeplate = ?', { 2, json.encode(impoundData.prop), impoundData.plate })
+    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ? WHERE plate = ? or fakeplate = ?', { 2, json.encode(impoundData.prop), impoundData.plate, impoundData.plate })
     
     return true
 end)
@@ -235,12 +238,10 @@ RegisterNetEvent("rhd_garage:server:updateState", function ( data )
         return
     end
 
-    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ?, garage = ? WHERE plate = ? or fakeplate = ?', { state, json.encode(prop), garage, plate })
+    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ?, garage = ? WHERE plate = ? or fakeplate = ?', { state, json.encode(prop), garage, plate, plate })
 end)
 
 RegisterNetEvent('rhd_garage:server:updateState.policeImpound', function( plate )
-
-    print(plate)
     MySQL.query('DELETE FROM police_impound WHERE plate = ?', { plate })
 
     if Framework.esx() then
@@ -248,8 +249,7 @@ RegisterNetEvent('rhd_garage:server:updateState.policeImpound', function( plate 
         return
     end
 
-    MySQL.update('UPDATE player_vehicles SET state = ? WHERE plate = ? or fakeplate = ?', { 0, plate })
-
+    MySQL.update('UPDATE player_vehicles SET state = ? WHERE plate = ? or fakeplate = ?', { 0, plate, plate })
 end)
 
 RegisterNetEvent('rhd_garage:server:policeImpound.sendBill', function( citizenid, fine, plate )
