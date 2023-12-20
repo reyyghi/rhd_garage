@@ -1,5 +1,4 @@
 local utils = {}
-local isServer = IsDuplicityVersion()
 local QBRadial = {}
 
 ---@param string string
@@ -37,6 +36,24 @@ function utils.getoutsidevehicleByPlate( plate )
     end
 
     return nil
+end
+
+function utils.getVehicleTypeByModel( model )
+    model = type(model) == 'string' and joaat(model) or model
+    if not IsModelInCdimage(model) then return end
+
+    local vehicleType = GetVehicleClassFromName(model)
+    local types = {
+        [8] = "bike",
+        [11] = "trailer",
+        [13] = "bike",
+        [14] = "boat",
+        [15] = "heli",
+        [16] = "plane",
+        [21] = "train",
+    }
+
+    return types[vehicleType] or "automobile"
 end
 
 ---@param model string | integer
@@ -264,51 +281,5 @@ AddEventHandler('onResourceStop', function(resourceName)
         end
     end
 end)
-
-if isServer then
-    --- QBOX Function (https://github.com/Qbox-project/qbx_core/blob/a4f2c0466e6ee113d799b6a08e56fb58f066f4a2/modules/utils.lua#L187C4-L187C4)
-    -- If you don't use the above on the client, it will return 0 as the vehicle from the netid and 0 means no vehicle found because it doesn't exist so fast on the client
-    -- Deletes vehicle ped is in before spawning a new one.
-    ---@param source integer
-    ---@param model string | integer
-    ---@param coords? vector4 defaults to player's position
-    ---@param warp? boolean
-    ---@return integer? netId
-    function utils.SpawnVehicle(source, model, coords, warp)
-        model = type(model) == 'string' and joaat(model) or model
-
-        if not CreateVehicleServerSetter then
-            error('^1CreateVehicleServerSetter is not available on your artifact, please use artifact 5904 or above to be able to use this^0')
-            return
-        end
-
-        local tempVehicle = CreateVehicle(model, 0, 0, 0, 0, true, true)
-        while not DoesEntityExist(tempVehicle) do
-            Wait(0)
-        end
-        local vehicleType = GetVehicleType(tempVehicle)
-        DeleteEntity(tempVehicle)
-
-        local ped = GetPlayerPed(source)
-        if not coords then
-            coords = GetCoordsFromEntity(ped)
-        end
-
-        local veh = CreateVehicleServerSetter(model, vehicleType, coords.x, coords.y, coords.z, coords.w)
-
-        while not DoesEntityExist(veh) do
-            Wait(0)
-        end
-
-        while GetVehicleNumberPlateText(veh) == "" do
-            Wait(0)
-        end
-
-        if warp then SetPedIntoVehicle(ped, veh, -1) end
-        Entity(veh).state:set('initVehicle', true, true)
-        return NetworkGetNetworkIdFromEntity(veh)
-    end
-end
-
 
 return utils
