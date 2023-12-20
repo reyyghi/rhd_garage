@@ -19,14 +19,14 @@ end
 
 Framework.getMoney = function ( type )
     local amount = 0
-    local plyMoney = esx.GetPlayerData().accounts
-
+    local accounts = esx.GetPlayerData().accounts
     type = type == "cash" and "money" or type
-    for i=1, #plyMoney do
-        if plyMoney[i].name == type:lower() then
-            amount = plyMoney[i].money
+ 
+    for k, v in pairs(accounts) do
+        if v.name == type then
+            amount = v.money
         end
     end
-
+    
     return amount
 end
