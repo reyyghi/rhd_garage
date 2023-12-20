@@ -2,12 +2,11 @@ local Zones = {}
 
 local creatorActive = false
 local controlsActive = false
-local step, xCoord, yCoord, zCoord, heading, height, width, length
-local steps = {{0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10, 25, 50, 100}, {0.25, 0.5, 1, 2.5, 5, 15, 30, 45, 60, 90, 180}}
+local xCoord, yCoord, zCoord, heading, height, width, length
 local points = {}
 
 local displayMode = 1
-local minCheck = steps[1][1] / 2
+local minCheck = 0.025
 local alignMovementWithCamera = true
 
 local freecam = exports['fivem-freecam']
@@ -122,7 +121,6 @@ function Zones.startCreator( data )
 	creatorActive = true
     controlsActive = true
 
-	step = 1
 	local coords = GetEntityCoords(cache.ped)
 	xCoord = round(coords.x) + 0.0
 	yCoord = round(coords.y) + 0.0
@@ -166,8 +164,8 @@ function Zones.startCreator( data )
             EnableControlAction(0, controls['INPUT_MP_TEXT_CHAT_ALL'], true)
 
             local change = false
-            local lStep = steps[1][step]
-            local rStep = steps[2][step]
+            local lStep = 0.08
+            local rStep = 0.08
 
             if IsDisabledControlJustReleased(0, 17) then -- scroll up
                 if IsDisabledControlPressed(0, 21) then -- shift held down
@@ -179,9 +177,6 @@ function Zones.startCreator( data )
                 elseif IsDisabledControlPressed(0, 19) then -- alt held down
                     change = true
                     length += lStep
-                elseif step < 11 then
-                    change = true
-                    step += 1
                 end
             elseif IsDisabledControlJustReleased(0, 16) then -- scroll down
                 if IsDisabledControlPressed(0, 21) then -- shift held down
@@ -208,9 +203,6 @@ function Zones.startCreator( data )
                     elseif length - lStep > 0 then
                         length = lStep
                     end
-                elseif step > 1 then
-                    change = true
-                    step -= 1
                 end
             -- elseif IsDisabledControlJustReleased(0, 32) then -- w
             elseif IsDisabledControlPressed(0, 188) then --- arrow up
