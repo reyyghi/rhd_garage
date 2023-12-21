@@ -1,4 +1,5 @@
 local Utils = require "modules.utils"
+local Deformation = require "modules.deformation"
 
 PoliceImpound = {}
 
@@ -28,7 +29,8 @@ local spawn = function ( data )
     else
         exports[Config.FuelScript]:SetFuel(veh, data.prop.fuelLevel)
     end
-        
+       
+    Deformation.set(veh, data.deformation)
     TriggerServerEvent("rhd_garage:server:updateState.policeImpound", data.plate)
     TriggerEvent("vehiclekeys:client:SetOwner", data.prop.plate:trim())
 end
@@ -48,6 +50,7 @@ PoliceImpound.open = function ( garage )
         for k,v in pairs(vehicle) do
             local citizenid = v.citizenid
             local props = v.props
+            local deformation = v.deformation
             local plate = v.plate
             local vehname = v.vehicle
             local owner = v.owner
@@ -139,6 +142,7 @@ PoliceImpound.open = function ( garage )
                                         prop = props,
                                         coords = vec(GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)),
                                         plate = plate,
+                                        deformation = deformation
                                         
                                     }
                                     spawn( data )
@@ -202,7 +206,8 @@ PoliceImpound.ImpoundVeh = function ( vehicle )
             prop = vehprop,
             plate = vehprop.plate:trim(),
             vehicle = vehname,
-            date =  math.floor(input[4] / 1000)
+            date =  math.floor(input[4] / 1000),
+            deformation = Deformation.get(vehicle)
         }
 
         if lib.progressBar({

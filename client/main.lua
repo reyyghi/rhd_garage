@@ -1,4 +1,5 @@
 local Utils = require "modules.utils"
+local Deformation = require 'modules.deformation'
 
 Garage = {}
 
@@ -30,13 +31,16 @@ local spawn = function ( data )
     else
         exports[Config.FuelScript]:SetFuel(veh, data.prop.fuelLevel)
     end
-        
+    
+    Deformation.set(veh, data.deformation)
+
     TriggerServerEvent("rhd_garage:server:updateState", {
         vehicle = veh,
         prop = data.prop,
         plate = data.plate,
         state = 0,
-        garage = data.garage
+        garage = data.garage,
+        deformation = data.deformation
     })
     
     TriggerEvent("vehiclekeys:client:SetOwner", data.prop.plate:trim())
@@ -161,6 +165,7 @@ Garage.openMenu = function ( data )
     for i=1, #vehData do
         local vehProp = vehData[i].vehicle
         local vehModel = vehData[i].model
+        local vehDeformation = vehData[i].deformation
         local gState = vehData[i].state
         local pName = vehData[i].owner
         local plate = vehData[i].plate
@@ -224,7 +229,7 @@ Garage.openMenu = function ( data )
             end
         end
 
-        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehModel or vehProp.model ), plate)
+        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehModel ), plate)
         
         if Utils.getTypeByClass(vehicleClass) == data.type then
             menuData.options[#menuData.options+1] = {
@@ -242,7 +247,7 @@ Garage.openMenu = function ( data )
                     local vehInArea = lib.getClosestVehicle(coords.xyz)
                     if DoesEntityExist(vehInArea) then return Utils.notify(locale('rhd_garage:no_parking_spot'), 'error') end
     
-                    VehicleShow = Utils.createPlyVeh(vehProp.model, coords)
+                    VehicleShow = Utils.createPlyVeh(vehModel, coords)
                     NetworkFadeInEntity(VehicleShow, true, false)
                     FreezeEntityPosition(VehicleShow, true)
                     SetVehicleDoorsLocked(VehicleShow, 2)
@@ -250,13 +255,14 @@ Garage.openMenu = function ( data )
     
                     Garage.actionMenu({
                         prop = vehProp,
-                        model = vehModel or vehProp.model,
+                        model = vehModel,
                         plate = plate,
                         coords = coords,
                         garage = data.garage,
                         vehName = vehicleLabel,
                         impound = data.impound,
-                        shared = data.shared
+                        shared = data.shared,
+                        deformation = vehDeformation
                     })
                 end,
             }
@@ -277,6 +283,7 @@ Garage.storeVeh = function ( data )
     local prop = lib.getVehicleProperties(data.vehicle)
     local plate = prop.plate:trim()
     local shared = data.shared
+    local deformation = Deformation.get(data.vehicle)
     local isOwned = lib.callback.await('rhd_garage:cb_server:getvehowner', false, plate, shared)
     if not isOwned then return Utils.notify(locale('rhd_garage:not_owned'), 'error') end
     if DoesEntityExist(data.vehicle) then
@@ -287,6 +294,7 @@ Garage.storeVeh = function ( data )
             vehicle = nil,
             prop = prop,
             plate = plate,
+            deformation = deformation,
             state = 1,
             garage = data.garage
         })

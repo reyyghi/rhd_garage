@@ -57,32 +57,32 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
 
     if isQB then
         garageData.cid = Framework.server.GetPlayer(src).PlayerData.citizenid
-        garageData.dbtable = "SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE garage = ? and citizenid = ?"
+        garageData.dbtable = "SELECT vehicle, mods, state, plate, fakeplate, deformation FROM player_vehicles WHERE garage = ? and citizenid = ?"
         garageData.dbvalue = {garage, garageData.cid}
 
         if impound_garage then
             if shared_garage then return false end
-            garageData.dbtable = "SELECT vehicle, mods, state, plate, fakeplate FROM player_vehicles WHERE state = ? and citizenid = ?"
+            garageData.dbtable = "SELECT vehicle, mods, state, plate, fakeplate, deformation FROM player_vehicles WHERE state = ? and citizenid = ?"
             garageData.dbvalue = {0, garageData.cid}
         end
 
         if shared_garage then
-            garageData.dbtable = "SELECT player_vehicles.vehicle, player_vehicles.mods, player_vehicles.state, player_vehicles.plate, player_vehicles.fakeplate, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE player_vehicles.garage = ?"
+            garageData.dbtable = "SELECT player_vehicles.vehicle, player_vehicles.mods, player_vehicles.deformation, player_vehicles.state, player_vehicles.plate, player_vehicles.fakeplate, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE player_vehicles.garage = ?"
             garageData.dbvalue = {garage}
         end
     else
         garageData.cid = Framework.server.GetPlayer(src).identifier
-        garageData.dbtable = "SELECT vehicle, plate, stored FROM owned_vehicles WHERE garage = ? and owner = ?"
+        garageData.dbtable = "SELECT vehicle, plate, stored, deformation FROM owned_vehicles WHERE garage = ? and owner = ?"
         garageData.dbvalue = {garage, garageData.cid}
 
         if impound_garage then
             if shared_garage then return false end
-            garageData.dbtable = "SELECT vehicle, plate, stored FROM owned_vehicles WHERE stored = ? and owner = ?"
+            garageData.dbtable = "SELECT vehicle, plate, stored, deformation FROM owned_vehicles WHERE stored = ? and owner = ?"
             garageData.dbvalue = {0, garageData.cid}
         end
 
         if shared_garage then
-            garageData.dbtable = "SELECT owned_vehicles.vehicle, owned_vehicles.plate, owned_vehicles.stored, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE owned_vehicles.garage = ?"
+            garageData.dbtable = "SELECT owned_vehicles.vehicle, owned_vehicles.plate, owned_vehicles.stored, owned_vehicles.deformation, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE owned_vehicles.garage = ?"
             garageData.dbvalue = {garage}
         end
     end
@@ -94,6 +94,7 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
             for k, v in pairs(result) do
                 local charinfo = json.decode(v.charinfo)
                 local vehicles = json.decode(v.mods)
+                local deformation = json.decode(v.deformation)
                 local state = v.state
                 local model = v.vehicle
                 local plate = v.plate
@@ -106,12 +107,14 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
                     model = model,
                     plate = plate,
                     fakeplate = fakeplate,
-                    owner = ownername
+                    owner = ownername,
+                    deformation = deformation
                 }
             end
         else
             for k,v in pairs(result) do
                 local vehicles = json.decode(v.vehicle)
+                local deformation = json.decode(v.deformation)
                 local state = v.stored
                 local model = vehicles.model
                 local plate = v.plate
@@ -122,7 +125,8 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
                     state = state,
                     model = model,
                     plate = plate,
-                    owner = ownername
+                    owner = ownername,
+                    deformation = deformation
                 }
             end
         end
@@ -135,10 +139,10 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
     local ownerName = "Unkown"
 
     if Framework.qb() then
-        db.s = "SELECT player_vehicles.citizenid, player_vehicles.vehicle, player_vehicles.mods, player_vehicles.balance, player_vehicles.citizenid, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE plate = ? OR fakeplate = ?"
+        db.s = "SELECT player_vehicles.citizenid, player_vehicles.vehicle, player_vehicles.mods, player_vehicles.deformation, player_vehicles.balance, player_vehicles.citizenid, players.charinfo FROM player_vehicles LEFT JOIN players ON players.citizenid = player_vehicles.citizenid WHERE plate = ? OR fakeplate = ?"
         db.v = { plate, plate }
     elseif Framework.esx() then
-        db.s = "SELECT owned_vehicles.owner, owned_vehicles.vehicle, owned_vehicles.plate, owned_vehicles.owner, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE plate = ?"
+        db.s = "SELECT owned_vehicles.owner, owned_vehicles.vehicle, owned_vehicles.plate, owned_vehicles.owner, owned_vehicles.deformation, users.firstname, users.lastname FROM owned_vehicles LEFT JOIN users ON users.identifier = owned_vehicles.owner WHERE plate = ?"
         db.v = { plate }
     end
 
@@ -150,23 +154,27 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
     if Framework.qb() then
         local mods = json.decode(data.mods)
         local charinfo = json.decode(data.charinfo)
+        local deformation = json.decode(data.deformation)
         ownerName = ("%s %s"):format(charinfo.firstname, charinfo.lastname)
         db.data = {
             citizenid = data.citizenid,
             owner = ownerName,
             vehicle = data.vehicle,
             props = mods,
-            balance = data.balance
+            balance = data.balance,
+            deformation = deformation
         }
     elseif Framework.esx() then
         ownerName = ("%s %s"):format(data.firstname, data.lastname)
         local mods = json.decode(data.vehicle)
+        local deformation = json.decode(data.deformation)
         db.data = {
             citizenid = data.owner,
             owner = ownerName,
             vehicle = mods.model,
             props = mods,
-            balance = 0
+            balance = 0,
+            deformation = deformation
         }
     end
 
@@ -174,15 +182,29 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
 end)
 
 lib.callback.register("rhd_garage:cb_server:policeImpound.getVehicle", function (_, garage)
-    local result = MySQL.query.await("SELECT * FROM police_impound WHERE garage = ?", {garage})
-
+    local db = {}
     local dataToSend = {}
+
+    if Framework.qb() then
+        db.t = "player_vehicles.deformation"
+        db.j = "player_vehicles"
+        db.p = "player_vehicles.plate"
+    elseif Framework.esx() then
+        db.t = "owned_vehicles.deformation"
+        db.j = "owned_vehicles"
+        db.p = "owned_vehicles.plate"
+    end
+    
+    local result = MySQL.query.await(("SELECT police_impound.citizenid, police_impound.plate, police_impound.vehicle, police_impound.props, police_impound.owner, police_impound.officer, police_impound.date, police_impound.fine, police_impound.paid, police_impound.garage, %s FROM police_impound LEFT JOIN %s ON %s = police_impound.plate WHERE police_impound.garage = ?"):format(
+        db.t, db.j, db.p), {garage}
+    )
 
     if result and next(result) then
         for k, v in pairs(result) do
             dataToSend[#dataToSend+1] = {
                 citizenid = v.citizenid,
                 props = json.decode(v.props),
+                deformation = json.decode(v.deformation),
                 plate = v.plate,
                 vehicle = v.vehicle,
                 owner = v.owner,
@@ -202,11 +224,11 @@ lib.callback.register("rhd_garage:cb_server:policeImpound.impoundveh", function 
         impoundData.citizenid, impoundData.plate, impoundData.vehicle, json.encode(impoundData.prop), impoundData.owner, impoundData.officer, os.date('%d/%m/%Y', impoundData.date), impoundData.fine, impoundData.garage
     })
     if Framework.esx() then
-        MySQL.update('UPDATE owned_vehicles SET stored = ?, vehicle = ? WHERE plate = ?', { 2, json.encode(impoundData.prop), impoundData.plate })
+        MySQL.update('UPDATE owned_vehicles SET stored = ?, vehicle = ?, deformation = ? WHERE plate = ?', { 2, json.encode(impoundData.prop), json.encode(impoundData.deformation), impoundData.plate })
         return
     end
 
-    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ? WHERE plate = ? or fakeplate = ?', { 2, json.encode(impoundData.prop), impoundData.plate, impoundData.plate })
+    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ?, deformation = ? WHERE plate = ? or fakeplate = ?', { 2, json.encode(impoundData.prop), json.encode(impoundData.deformation), impoundData.plate, impoundData.plate })
     
     return true
 end)
@@ -230,16 +252,17 @@ end)
 --- events
 RegisterNetEvent("rhd_garage:server:updateState", function ( data )
     local prop = data.prop
+    local deformation = data.deformation
     local state = data.state
     local garage = data.garage
     local plate = data.plate
     
     if Framework.esx() then
-        MySQL.update('UPDATE owned_vehicles SET stored = ?, vehicle = ?, garage = ? WHERE plate = ?', { state, json.encode(prop), garage, plate })
+        MySQL.update('UPDATE owned_vehicles SET stored = ?, vehicle = ?, garage = ?, deformation = ? WHERE plate = ?', { state, json.encode(prop), garage, json.encode(deformation), plate })
         return
     end
 
-    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ?, garage = ? WHERE plate = ? or fakeplate = ?', { state, json.encode(prop), garage, plate, plate })
+    MySQL.update('UPDATE player_vehicles SET state = ?, mods = ?, garage = ?, deformation = ? WHERE plate = ? or fakeplate = ?', { state, json.encode(prop), garage, json.encode(deformation), plate, plate })
 end)
 
 RegisterNetEvent('rhd_garage:server:updateState.policeImpound', function( plate )
