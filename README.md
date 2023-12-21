@@ -13,6 +13,7 @@
 - Boat Garage
 - Aircraft Garage
 - Shared Garage
+- Save Deformation Damage
 - Garage Creator (In Game) ```/creategarage (Admin Only)```
 - Garage Editor (In Game) ```/listgarage (Admin Only)```
 - Custom Vehicle Name
@@ -105,22 +106,21 @@
 # Installation 
 
 ### ESX
-- edit your owned_vehicles database as below :
+- Run this on your database :
 ```
-    CREATE TABLE `owned_vehicles` (
-    	`owner` VARCHAR(60) NOT NULL,
-    	`plate` varchar(12) NOT NULL,
-    	`vehicle` longtext,
-    	`type` VARCHAR(20) NOT NULL DEFAULT 'car',
-    	`job` VARCHAR(20) NULL DEFAULT NULL,
-        `stored` bigint(20) NOT NULL DEFAULT 0,
-        `garage` longtext DEFAULT NULL,
+   ALTER TABLE owned_vehicles CHANGE COLUMN stored stored INT(11) NOT NULL DEFAULT 0;
     
-    	PRIMARY KEY (`plate`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+   ALTER TABLE owned_vehicles ADD COLUMN garage LONGTEXT NULL AFTER stored;
+    
+   ALTER TABLE owned_vehicles ADD COLUMN deformation LONGTEXT NULL
 ```
 
 ### QBCore
+- Run this on your database :
+```
+   ALTER TABLE owned_vehicles ADD COLUMN deformation LONGTEXT NULL
+```
+
 #### qb-phone
 - look for this in qb-phone/server/main.lua on line 230:
 ```
