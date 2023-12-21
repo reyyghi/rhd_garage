@@ -23,6 +23,7 @@ shared_scripts {
 files {
     'modules/utils.lua',
     'modules/zone.lua',
+    'modules/deformation.lua',
 
     'data/customname.lua',
     'data/garage.lua',
