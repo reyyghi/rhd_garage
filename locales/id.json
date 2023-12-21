@@ -52,6 +52,7 @@
     "rhd_garage:context.admin.blip_setting": "Pengaturan Blip",
     "rhd_garage:context.admin.blip_edit": "Atur Blip",
     "rhd_garage:context.admin.blip_remove": "Hapus Blip",
+    "rhd_garage:context.admin.tptoloc": "Teleport Ke Lokasi",
     "rhd_garage:context.policeImpound.not_paid": "belum di bayar",
     "rhd_garage:context.policeImpound.paid": "sudah di bayar",
     "rhd_garage:context.policeImpound.vehdescription": "Denda: %s | Status Denda: %s",
@@ -75,5 +76,14 @@
     "rhd_garage:notify.admin.success_deleted_access": "Akses berhasil di hapus",
     "rhd_garage:notify.admin.success_added_access": "Berhasil menambah akses untuk %s",
     "rhd_garage:notify.admin.success_editblip": "Blip berhasil di perbarui",
-    "rhd_garage:notify.admin.success_deletedBlip": "Blip berhasil di hapus"
+    "rhd_garage:notify.admin.success_deletedBlip": "Blip berhasil di hapus",
+    "rhd_garage:createzone.admin.1": "------ Pembuatan Zona ------  \n",
+    "rhd_garage:createzone.admin.2": "Koordinat X [Left/Right]: %s  \n",
+    "rhd_garage:createzone.admin.3": "Koordinat Y [Up/Down]: %s  \n",
+    "rhd_garage:createzone.admin.4": "Koordinat Z [R/F]: %s  \n",
+    "rhd_garage:createzone.admin.5": "Tinggi / Rendah [Shift + Scroll]: %s  \n",
+    "rhd_garage:createzone.admin.6": "Buat Point Baru - [Space]  \n",
+    "rhd_garage:createzone.admin.7": "Edit Point Sebelumnya - [Backspace]  \n",
+    "rhd_garage:createzone.admin.8": "Simpan - [Enter]  \n",
+    "rhd_garage:createzone.admin.9": "Batalkan - [Esc]  \n"
 }

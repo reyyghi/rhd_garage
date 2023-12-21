@@ -171,7 +171,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                             end
                         },
                         {
-                            title = 'Teleport To Location',
+                            title = locale("rhd_garage:context.admin.tptoloc"),
                             icon = "location-dot",
                             onSelect = function ()
                                 local coords = v.zones.points[1]

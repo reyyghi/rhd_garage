@@ -52,6 +52,7 @@
     "rhd_garage:context.admin.blip_setting": "Blip Setting",
     "rhd_garage:context.admin.blip_edit": "Edit Blip",
     "rhd_garage:context.admin.blip_remove": "Remove Blip",
+    "rhd_garage:context.admin.tptoloc": "Teleport To Location",
     "rhd_garage:context.policeImpound.not_paid": "not yet paid",
     "rhd_garage:context.policeImpound.vehdescription": "Fine: %s | Fine Status: %s",
     "rhd_garage:context.policeImpound.sendBill": "Send Bill",
@@ -75,5 +76,14 @@
     "rhd_garage:notify.admin.success_deleted_access": "Access has been successfully removed",
     "rhd_garage:notify.admin.success_added_access": "Successfully added access for %s",
     "rhd_garage:notify.admin.success_editblip": "Blip updated successfully",
-    "rhd_garage:notify.admin.success_deletedBlip": "blip successfully deleted"
+    "rhd_garage:notify.admin.success_deletedBlip": "blip successfully deleted",
+    "rhd_garage:createzone.admin.1": "------ Zone Creator ------  \n",
+    "rhd_garage:createzone.admin.2": "X coord [Left/Right]: %s  \n",
+    "rhd_garage:createzone.admin.3": "Y coord [Up/Down]: %s  \n",
+    "rhd_garage:createzone.admin.4": "Z coord [R/F]: %s  \n",
+    "rhd_garage:createzone.admin.5": "Height [Shift + Scroll]: %s  \n",
+    "rhd_garage:createzone.admin.6": "Create new point - [Space]  \n",
+    "rhd_garage:createzone.admin.7": "Edit last point - [Backspace]  \n",
+    "rhd_garage:createzone.admin.8": "Save - [Enter]  \n",
+    "rhd_garage:createzone.admin.9": "Cancel - [Esc]  \n"
 }

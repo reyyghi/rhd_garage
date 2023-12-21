@@ -13,16 +13,15 @@ local freecam = exports['fivem-freecam']
 
 local function updateText()
 	local text = {
-		'------ Pembuatan Zona ------  \n',
-        ('Koordinat X [Left/Right]: %s  \n'):format(xCoord),
-        ('Koordinat Y [Up/Down]: %s  \n'):format(yCoord),
-        ('Koordinat Z [R/F]: %s  \n'):format(zCoord),
-		('Tinggi / Rendah [Shift + Scroll]: %s  \n'):format(height),
-		'Buat Titik Baru - [Space]  \n',
-        'Edit Point Sebelumnya - [Backspace]  \n',
-        'Beralih Kontrol - [X]  \n',
-        'Simpan Zone - [Enter]  \n',
-        'Batalkan Pembuatan - [Esc]'
+        locale("rhd_garage:createzone.admin.1"),
+        locale("rhd_garage:createzone.admin.2", xCoord),
+        locale("rhd_garage:createzone.admin.3", yCoord),
+        locale("rhd_garage:createzone.admin.4", zCoord),
+        locale("rhd_garage:createzone.admin.5", height),
+        locale("rhd_garage:createzone.admin.6"),
+        locale("rhd_garage:createzone.admin.7"),
+        locale("rhd_garage:createzone.admin.8"),
+        locale("rhd_garage:createzone.admin.9"),
 	}
 
 	lib.showTextUI(table.concat(text))
