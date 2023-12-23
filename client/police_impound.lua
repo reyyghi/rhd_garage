@@ -1,3 +1,5 @@
+if not Config.UsePoliceImpound then return end
+
 local Utils = require "modules.utils"
 local Deformation = require "modules.deformation"
 

@@ -5,8 +5,8 @@ Config = {}
 
 Config.RadialMenu = 'qb' --- ox / qb / rhd
 Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
-
-Config.changeNamePrice = 15000 --- $
+Config.changeNamePrice = 15000 --- price for changing the name of the vehicle in the garage
+Config.UsePoliceImpound = true --- change it to false if you don't want to use the police impound system from rhd
 
 Config.defaultBlip = {
     garage = {
