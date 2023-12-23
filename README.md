@@ -1,8 +1,5 @@
-# RHD-Garage For ESX or QBCore
-
-| Made with love By Reyghita Hafizh & Della Kholida |
-|----|
-
+# RHD-Garage
+The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https://github.com/dellaaaaaa). We invite you to contribute to this garage script by submitting new features via PR. We're always eager to review and consider new features
 
 # Features
 - Public Garage
@@ -76,6 +73,18 @@
         shared = false,
         type = "car"
     })
+```
+- get vehicle data by plate
+```
+    exports.rhd_garage:getvehdataByPlate(plate)
+```
+- get vehicle data for phone
+```
+    exports.rhd_garage:getvehdataForPhone()
+```
+- get all garage ( server side )
+```
+    exports.rhd_garage:Garage()
 ```
 
 ### Example
