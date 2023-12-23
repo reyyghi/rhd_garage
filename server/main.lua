@@ -9,7 +9,33 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
     local veh = CreateVehicleServerSetter(vehicleData.model, vehicleData.vehtype, vehicleData.coords.x, vehicleData.coords.y, vehicleData.coords.z, vehicleData.coords.w)
     local netId = NetworkGetNetworkIdFromEntity(veh)
     SetVehicleNumberPlateText(veh, vehicleData.plate)
-    return netId
+
+    local db = {}
+    local props = {}
+    
+    if Framework.qb() then
+        db.c = 'mods'
+        db.t = 'player_vehicles'
+        db.p = 'plate = ? OR fakeplate = ?'
+        db.v = { vehicleData.plate, vehicleData.plate }
+    else
+        db.c = 'vehicle'
+        db.t = 'owned_vehicles'
+        db.p = 'plate = ?'
+        db.v = { vehicleData.plate }
+    end
+
+    local result = MySQL.single.await(('SELECT %s FROM %s WHERE %s'):format(db.c, db.t, db.p), db.v)
+
+    if result then
+        props = result[db.c]
+    end
+    
+    return {
+        netId = netId,
+        props = props,
+        plate = vehicleData.plate
+    }
 end)
 
 lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared)

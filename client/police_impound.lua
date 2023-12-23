@@ -7,34 +7,37 @@ PoliceImpound = {}
 
 local spawn = function ( data )
 
-    local netId = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
+    local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
         model = data.prop.model,
         plate = data.plate,
         coords = data.coords,
         vehtype = Utils.getVehicleTypeByModel(data.prop.model)
     })
 
-    if netId < 1 then
+    if serverData.netId < 1 then
         return
     end
 
-    while not NetworkDoesNetworkIdExist(netId) do Wait(10) end
-    local veh = NetworkGetEntityFromNetworkId(netId)
+    while not NetworkDoesNetworkIdExist(serverData.netId) do Wait(10) end
+    local veh = NetworkGetEntityFromNetworkId(serverData.netId)
+    NetworkFadeInEntity(veh, true)
 
-    NetworkFadeInEntity(veh, true, false)
-    lib.setVehicleProperties(veh, data.prop)
-    SetVehicleNumberPlateText(veh, data.plate)
+    if next(serverData.props) then
+        lib.setVehicleProperties(veh, serverData.props)
+    end
+    
+    SetVehicleNumberPlateText(veh, serverData.plate)
     SetVehicleOnGroundProperly(veh)
 
     if Config.FuelScript == 'ox_fuel' then
-        Entity(veh).state.fuel = data.prop.fuelLevel
+        Entity(veh).state.fuel = serverData.props?.fuelLevel or 100
     else
-        exports[Config.FuelScript]:SetFuel(veh, data.prop.fuelLevel)
+        exports[Config.FuelScript]:SetFuel(veh, serverData.props?.fuelLevel or 100)
     end
        
     Deformation.set(veh, data.deformation)
-    TriggerServerEvent("rhd_garage:server:updateState.policeImpound", data.plate)
-    TriggerEvent("vehiclekeys:client:SetOwner", data.prop.plate:trim())
+    TriggerServerEvent("rhd_garage:server:updateState.policeImpound", serverData.plate)
+    TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
 end
 
 PoliceImpound.open = function ( garage )

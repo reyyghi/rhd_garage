@@ -7,43 +7,46 @@ local VehicleShow = nil
 
 local spawn = function ( data )
 
-    local netId = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
+    local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
         model = data.model,
         plate = data.plate,
         coords = data.coords,
         vehtype = Utils.getVehicleTypeByModel(data.model)
     })
 
-    if netId < 1 then
+    if serverData.netId < 1 then
         return
     end
 
-    while not NetworkDoesNetworkIdExist(netId) do Wait(10) end
-    local veh = NetworkGetEntityFromNetworkId(netId)
+    while not NetworkDoesNetworkIdExist(serverData.netId) do Wait(10) end
+    local veh = NetworkGetEntityFromNetworkId(serverData.netId)
+    NetworkFadeInEntity(veh, true)
+    
+    if serverData.props then
+        lib.setVehicleProperties(veh, serverData.props)
+    end
 
-    NetworkFadeInEntity(veh, true, false)
-    lib.setVehicleProperties(veh, data.prop)
-    SetVehicleNumberPlateText(veh, data.plate)
+    SetVehicleNumberPlateText(veh, serverData.plate)
     SetVehicleOnGroundProperly(veh)
 
     if Config.FuelScript == 'ox_fuel' then
-        Entity(veh).state.fuel = data.prop.fuelLevel
+        Entity(veh).state.fuel = serverData.props?.fuelLevel or 100
     else
-        exports[Config.FuelScript]:SetFuel(veh, data.prop.fuelLevel)
+        exports[Config.FuelScript]:SetFuel(veh, serverData.props?.fuelLevel or 100)
     end
     
     Deformation.set(veh, data.deformation)
 
     TriggerServerEvent("rhd_garage:server:updateState", {
         vehicle = veh,
-        prop = data.prop,
-        plate = data.plate,
+        prop = serverData.props,
+        plate = serverData.plate,
         state = 0,
         garage = data.garage,
         deformation = data.deformation
     })
     
-    TriggerEvent("vehiclekeys:client:SetOwner", data.prop.plate:trim())
+    TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
 end
 
 Garage.actionMenu = function ( data )
