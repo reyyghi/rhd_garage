@@ -118,7 +118,7 @@
 ### QBCore
 - Run this on your database :
 ```
-   ALTER TABLE owned_vehicles ADD COLUMN deformation LONGTEXT NULL
+   ALTER TABLE player_vehicles ADD COLUMN deformation LONGTEXT NULL
 ```
 
 #### qb-phone
