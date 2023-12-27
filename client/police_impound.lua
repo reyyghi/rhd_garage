@@ -22,7 +22,7 @@ local spawn = function ( data )
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
     NetworkFadeInEntity(veh, true)
 
-    if next(serverData.props) then
+    if serverData.props and next(serverData.props) then
         lib.setVehicleProperties(veh, serverData.props)
     end
     

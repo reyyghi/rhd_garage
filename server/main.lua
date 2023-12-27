@@ -33,7 +33,7 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
     
     return {
         netId = netId,
-        props = props,
+        props = json.decode(props),
         plate = vehicleData.plate
     }
 end)

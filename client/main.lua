@@ -22,7 +22,7 @@ local spawn = function ( data )
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
     NetworkFadeInEntity(veh, true)
     
-    if serverData.props then
+    if serverData.props and next(serverData.props) then
         lib.setVehicleProperties(veh, serverData.props)
     end
 
@@ -254,7 +254,10 @@ Garage.openMenu = function ( data )
                     NetworkFadeInEntity(VehicleShow, true, false)
                     FreezeEntityPosition(VehicleShow, true)
                     SetVehicleDoorsLocked(VehicleShow, 2)
-                    lib.setVehicleProperties(VehicleShow, vehProp)
+
+                    if vehProp and next(vehProp) then
+                        lib.setVehicleProperties(VehicleShow, vehProp)
+                    end
     
                     Garage.actionMenu({
                         prop = vehProp,
