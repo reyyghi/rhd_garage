@@ -73,7 +73,6 @@ Config.ImpoundPrice = {
 }
 
 Config.PoliceImpound = {
-    enable = true,
     targetUsed = "qb", -- qb or ox
     location = {
         [1] = {
