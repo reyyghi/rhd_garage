@@ -26,11 +26,11 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 
 
 # Dependencies 
-**[ox_lib](https://github.com/overextended/ox_lib/releases)**
+- **[ox_lib](https://github.com/overextended/ox_lib/releases)**
 
-**[es_extended](https://github.com/esx-framework/esx_core/tree/main/%5Bcore%5D/es_extended) or [qb-core](https://github.com/qbcore-framework/qb-core)**
+- **[es_extended](https://github.com/esx-framework/esx_core/tree/main/%5Bcore%5D/es_extended) or [qb-core](https://github.com/qbcore-framework/qb-core)**
 
-**[fivem-freecam](https://github.com/Deltanic/fivem-freecam)**
+- **[fivem-freecam](https://github.com/Deltanic/fivem-freecam)**
 
 # Configuration
 ```lua
