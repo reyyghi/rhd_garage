@@ -33,7 +33,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 **[fivem-freecam](https://github.com/Deltanic/fivem-freecam)**
 
 # Configuration
-```
+```lua
     return {
         ["Alta Garage"] = { --- Garage Label
             type = "car", --- Type of vehicle
@@ -57,7 +57,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 
 # Exports 
 - open garage
-```
+```lua
     exports.rhd_garage:openMenu({
         garage = 'Garage Label',
         impound = false,
@@ -66,7 +66,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
     })
 ```
 - store vehicle
-```
+```lua
     exports.rhd_garage:storeVehicle({
         vehicle = cache.vehicle,
         garage = 'Garage Label',
@@ -75,20 +75,20 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
     })
 ```
 - get vehicle data by plate
-```
+```lua
     exports.rhd_garage:getvehdataByPlate(plate)
 ```
 - get vehicle data for phone
-```
+```lua
     exports.rhd_garage:getvehdataForPhone()
 ```
 - get all garage ( server side )
-```
+```lua
     exports.rhd_garage:Garage()
 ```
 
 ### Example
-```
+```lua
     RegisterCommand('opengarage', function (src, args)
         exports.rhd_garage:openMenu({
             garage = 'Garage Label',
@@ -116,7 +116,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 
 ### ESX
 - Run this on your database :
-```
+```sql
    ALTER TABLE owned_vehicles CHANGE COLUMN stored stored INT(11) NOT NULL DEFAULT 0;
     
    ALTER TABLE owned_vehicles ADD COLUMN garage LONGTEXT NULL AFTER stored;
@@ -126,13 +126,13 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 
 ### QBCore
 - Run this on your database :
-```
+```sql
    ALTER TABLE player_vehicles ADD COLUMN deformation LONGTEXT NULL
 ```
 
 #### qb-phone
 - look for this in qb-phone/server/main.lua on line 230:
-```
+```lua
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
     if garageresult[1] ~= nil then
         for _, v in pairs(garageresult) do
@@ -148,7 +148,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
     end
 ```
 - then replace with this:
-```
+```lua
     local Garages = exports.rhd_garage:Garage()
     local garageresult = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', {Player.PlayerData.citizenid})
     if garageresult[1] ~= nil then
@@ -166,19 +166,19 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 
 
 - look for this in qb-phone/client/main.lua on line 302:
-```
+```lua
     QBCore.Functions.TriggerCallback('qb-garage:server:GetPlayerVehicles', function(vehicles)
         PhoneData.GarageVehicles = vehicles
     end)
 ```
 - then replace with this: 
-```
+```lua
     PhoneData.GarageVehicles = exports.rhd_garage:getvehdataForPhone()
 ```
 
 #### qb-phone (Renewed-Scripts)
 - look for this in qb-phone/client/garage.lua on line 21 - 40:
-```
+```lua
     RegisterNUICallback('SetupGarageVehicles', function(_, cb)
         QBCore.Functions.TriggerCallback('qb-phone:server:GetGarageVehicles', function(vehicles)
             cb(vehicles)
@@ -201,7 +201,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
     end)
 ```
 - then replace with this:
-```
+```lua
     RegisterNUICallback('SetupGarageVehicles', function(_, cb)
         local veh = exports.rhd_garage:getvehdataForPhone()
         cb(veh)
@@ -229,7 +229,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 
 #### qb-vehiclesales
 - look for this in qb-vehiclesales/client/main.lua on line 270 and 319:
-```
+```lua
     line 270:
     QBCore.Functions.TriggerCallback('qb-garage:server:checkVehicleOwner', function(owned, balance)
         if owned then
@@ -264,7 +264,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
     end, VehiclePlate)
 ```
 - then replace with this: 
-```
+```lua
     line 270:
 
     local ownerData = exports.rhd_garage:getvehdataByPlate( vehicleData.plate )
