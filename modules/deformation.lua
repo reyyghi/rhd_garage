@@ -77,7 +77,11 @@ Deformation.set = function (vehicle, deformation)
 
     if deformation and next(deformation) then
         for k, v in pairs(deformation) do
-            SetVehicleDamage(vehicle, v.offset.x, v.offset.y, v.offset.z, v.damage * damageMult, 1000.0, true)
+			local x, y, z, d = v.offset.x, v.offset.y, v.offset.z, (v.damage * damageMult)
+			if d > 14.0 then
+				d  = 14.5
+			end
+            SetVehicleDamage(vehicle, x, y, z, d, 1000.0, true)
         end
     end
  
@@ -88,16 +92,9 @@ Deformation.get = function ( vehicle )
 	local offsets = GetVehicleOffsetsForDeformation(vehicle)
     local dmg = 0
 
-    local curx, cury, curz = 0,0,0
-
     for k, v in ipairs(offsets) do
-		dmg = math.floor(#(GetVehicleDeformationAtPos(vehicle, v)) * 1000.0) / 1000.0
-        if dmg > 0.05 then
-            if curx ~= v.x and cury ~= v.y then
-                curx, cury, curz = v.x, v.y, v.z
-                data[#data+1] = { offset = v, damage = dmg }
-            end
-        end
+		dmg = math.floor(#(GetVehicleDeformationAtPos(vehicle, v.x, v.y, v.z)) * 1000.0) / 1000.0
+		data[#data+1] = { offset = v, damage = dmg }
 	end
 
     return data
