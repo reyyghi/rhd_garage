@@ -36,7 +36,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 ```lua
     return {
         ["Alta Garage"] = { --- Garage Label
-            type = "car", --- Type of vehicle
+            type = "car", --- Type of vehicle | tale or string | options (car, motorcycle, cycles, boat, planes, helicopter)
             blip = { type = 357, color = 3 }, --- Garage Blip
             zones = { --- Garage Zone (Use ox_lib zone)
                 points = {
