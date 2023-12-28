@@ -10,13 +10,15 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
         onCreated = function (zones)
             local input = lib.inputDialog('RHD GARAGE (Creator)', {
                 { type = 'input', label = locale("rhd_garage:input.admin.creator_labelgarage"), placeholder = 'Alta Garage', required = true },
-                { type = 'select', label = locale("rhd_garage:input.admin.creator_typevehicle"), options = {
+                { type = 'multi-select', label = locale("rhd_garage:input.admin.creator_typevehicle"), options = {
                     {value = "car", label = "Car"},
                     {value = "boat", label = "Boats"},
                     {value = "helicopter", label = "Helicopter"},
-                    {value = "planes", label = "Planes"}
+                    {value = "planes", label = "Planes"},
+                    {value = "motorcycle", label = "Motorcycle"},
+                    {value = "cycles", label = "Bicycle"},
                 }, required = true},
-                { type = 'checkbox', label = "Custom Blip"},
+                { type = 'checkbox', label = "Use Blip"},
                 { type = 'checkbox', label = "Impound"},
                 { type = 'checkbox', label = "Shared"},
             })
@@ -24,19 +26,11 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
             if input then
 
                 local Impound = not input[5] and input[4] or false
-                local defaultBlip = {}
-                if not Impound then
-                    defaultBlip.type = Config.defaultBlip.garage[input[2]].type
-                    defaultBlip.color = Config.defaultBlip.garage[input[2]].color
-                else
-                    defaultBlip.type = Config.defaultBlip.insurance[input[2]].type
-                    defaultBlip.color = Config.defaultBlip.insurance[input[2]].color
-                end
 
                 local newData = {
                     label = input[1],
                     type = input[2],
-                    blip = { type = defaultBlip.type, color = defaultBlip.color },
+                    blip = nil,
                     zones = zones,
                     impound = Impound,
                     shared = input[5]
@@ -44,13 +38,14 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
 
                 if input[3] then
                     local blipinput = lib.inputDialog('BLIP', {
-                        { type = 'number', label = locale("rhd_garage:input.admin.creator_bliptype"), placeholder = '357'},
-                        { type = 'number', label = locale("rhd_garage:input.admin.creator_blipcolor"), placeholder = '3'},
+                        { type = 'number', label = locale("rhd_garage:input.admin.creator_bliptype"), placeholder = '357', required = true},
+                        { type = 'number', label = locale("rhd_garage:input.admin.creator_blipcolor"), placeholder = '3', required = true},
                     })
 
                     if blipinput then
-                        newData.blip.type = blipinput[1] or defaultBlip.type
-                        newData.blip.color = blipinput[2] or defaultBlip.color
+                        newData.blip = {}
+                        newData.blip.type = blipinput[1]
+                        newData.blip.color = blipinput[2]
                     end
 
                     GarageZone[newData.label] = {
@@ -92,7 +87,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
         context.options[#context.options+1] = {
             title = k:upper(),
             icon = "warehouse",
-            description = locale("rhd_garage:context.admin.listgarage_description", v.impound and "Impound" or v.shared and "Shared" or "Public", v.type),
+            description = locale("rhd_garage:context.admin.listgarage_description", v.impound and "Impound" or v.shared and "Shared" or "Public", Utils.gerageType("getstring", v.type)),
             onSelect = function ()
                 local context2 = {
                     id = "rhd:action_garage",
@@ -128,14 +123,14 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
                                             icon = "pen-to-square",
                                             onSelect = function ()
                                                 local blipinput = lib.inputDialog('BLIP', {
-                                                    { type = 'number', label = locale("rhd_garage:input.admin.creator_bliptype") },
-                                                    { type = 'number', label = locale("rhd_garage:input.admin.creator_blipcolor") },
+                                                    { type = 'number', label = locale("rhd_garage:input.admin.creator_bliptype"), required = true },
+                                                    { type = 'number', label = locale("rhd_garage:input.admin.creator_blipcolor"), required = true },
                                                 })
                             
                                                 if blipinput then
                                                     GarageZone[k].blip = {
-                                                        type = blipinput[1] or Config.defaultBlip.garage[GarageZone[k].type].type,
-                                                        color = blipinput[2] or Config.defaultBlip.garage[GarageZone[k].type].color
+                                                        type = blipinput[1],
+                                                        color = blipinput[2]
                                                     }
                                                     Utils.notify(locale("rhd_garage:notify.admin.success_editblip"), "success")
                                                     Zones.save( GarageZone )
