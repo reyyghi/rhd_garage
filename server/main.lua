@@ -12,6 +12,7 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
 
     local db = {}
     local props = {}
+    local deformation = {}
     
     if Framework.qb() then
         db.c = 'mods'
@@ -25,16 +26,17 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
         db.v = { vehicleData.plate }
     end
 
-    local result = MySQL.single.await(('SELECT %s FROM %s WHERE %s'):format(db.c, db.t, db.p), db.v)
+    local result = MySQL.single.await(('SELECT %s, deformation FROM %s WHERE %s'):format(db.c, db.t, db.p), db.v)
 
     if result then
-        props = result[db.c]
+        props = result[db.c] deformation = result.deformation
     end
     
     return {
         netId = netId,
-        props = json.decode(props),
-        plate = vehicleData.plate
+        props = props,
+        plate = vehicleData.plate,
+        deformation = json.decode(deformation)
     }
 end)
 
@@ -222,6 +224,13 @@ RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
                     points[#points + 1] = ('vec3(%s, %s, %s),\n\t\t\t\t'):format(data.zones.points[i].x, data.zones.points[i].y, data.zones.points[i].z)
                 end
 
+                local typeStr = ''
+                if data.type then
+                    for _, vehType in pairs(data.type) do
+                        typeStr = typeStr .. ('"%s"%s'):format(vehType, next(data.type, _) and ", " or "")
+                    end
+                end
+
                 local groupsStr = ''
                 if data.job and table.type(data.job) ~= "empty" then
                     groupsStr = '{'
@@ -249,8 +258,8 @@ RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
                     blip = ('{ type = %s, color = %s }'):format(data.blip.type, data.blip.color)
                 end
     
-                result[#result + 1] = ('\t["%s"] = {\n\t    type = "%s",\n\t    blip = %s,\n\t    zones = {\n\t        points = {\n\t            %s\n\t        },\n\t        thickness = "%s"\n\t    },\n\t    job = %s,\n\t    gang = %s,\n\t    impound = %s,\n\t    shared = %s,\n\t},\n'):format(
-                key, data.type, blip, table.concat(points), data.zones.thickness, groupsStr, gangStr, data.impound, data.shared)
+                result[#result + 1] = ('\t["%s"] = {\n\t    type = {%s},\n\t    blip = %s,\n\t    zones = {\n\t        points = {\n\t            %s\n\t        },\n\t        thickness = "%s"\n\t    },\n\t    job = %s,\n\t    gang = %s,\n\t    impound = %s,\n\t    shared = %s,\n\t},\n'):format(
+                key, typeStr, blip, table.concat(points), data.zones.thickness, groupsStr, gangStr, data.impound, data.shared)
             end
         end
     
@@ -259,7 +268,7 @@ RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
 
     GarageZone = fileData
     TriggerClientEvent("rhd_garage:client:refreshZone", -1, fileData)
-    local serializedData = ('return {\n%s\n}'):format(getData(fileData))
+    local serializedData = ('return {\n%s}'):format(getData(fileData))
     SaveResourceFile(GetCurrentResourceName(), 'data/garage.lua', serializedData, -1)
 end)
 
