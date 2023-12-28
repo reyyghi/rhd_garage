@@ -107,9 +107,15 @@ function utils.gerageType ( action, ... )
     elseif action == "check" then
         result = false
         if args[1] and args[2] then
-            for k, v in pairs(args[1]) do
-                if v == args[2] then
+            if type(args[1]) == "string" then
+                if args[1] == args[2] then
                     result = true
+                end
+            elseif type(args[1]) == "table" then
+                for k, v in pairs(args[1]) do
+                    if v == args[2] then
+                        result = true
+                    end
                 end
             end
         end
