@@ -35,7 +35,7 @@ local spawn = function ( data )
         exports[Config.FuelScript]:SetFuel(veh, serverData.props?.fuelLevel or 100)
     end
     
-    Deformation.set(veh, data.deformation)
+    Deformation.set(veh, serverData.deformation)
 
     TriggerServerEvent("rhd_garage:server:updateState", {
         vehicle = veh,
@@ -43,7 +43,7 @@ local spawn = function ( data )
         plate = serverData.plate,
         state = 0,
         garage = data.garage,
-        deformation = data.deformation
+        deformation = serverData.deformation
     })
     
     TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
@@ -160,11 +160,12 @@ Garage.openMenu = function ( data )
     
     local menuData = {
         id = 'garage_menu',
-        title = data.garage:upper(  ),
+        title = data.garage:upper(),
         options = {}
     }
 
     local vehData = lib.callback.await('rhd_garage:cb_server:getVehicleList', false, data.garage, data.impound, data.shared)
+
     for i=1, #vehData do
         local vehProp = vehData[i].vehicle
         local vehModel = vehData[i].model
@@ -188,17 +189,9 @@ Garage.openMenu = function ( data )
             plate = plate:trim()
         end
 
-        local icon = "car"
         local vehicleClass = GetVehicleClassFromName(vehModel)
         local vehicleType = Utils.classCheck(vehicleClass)
-
-        if vehicleType == "planes" then
-            icon = "plane"
-        elseif vehicleType == "boat" then
-            icon = "sailboat"
-        elseif vehicleType == "helicopter" then
-            icon = "helicopter"
-        end
+        local icon = Config.Icons[vehicleType]
 
         if gState == 0 then
             if DoesEntityExist(Utils.getoutsidevehicleByPlate(plate)) then
@@ -234,7 +227,7 @@ Garage.openMenu = function ( data )
 
         local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehModel ), plate)
         
-        if Utils.getTypeByClass(vehicleClass) == data.type then
+        if Utils.gerageType("check", data.type, Utils.getTypeByClass(vehicleClass)) then
             menuData.options[#menuData.options+1] = {
                 title = vehicleLabel,
                 icon = icon,
