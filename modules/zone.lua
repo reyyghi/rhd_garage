@@ -135,10 +135,6 @@ function Zones.startCreator( data )
     while creatorActive do
         Wait(0)
 
-        if IsDisabledControlJustReleased(0, 73) then -- x
-            controlsActive = not controlsActive
-        end
-
         if displayMode == 3 or displayMode == 4 then
             if alignMovementWithCamera then
                 local rightX, rightY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord + 2, yCoord), freecam:GetRotation(2).z)
