@@ -77,21 +77,45 @@ function utils.createPlyVeh ( model, coords, cb, network )
     if cb then cb(veh) else return veh end
 end
 
----@param garageType string
----@param Vehicle integer
----@return boolean
-function utils.classCheck ( garageType, Vehicle )
-    local VehClass = GetVehicleClass(Vehicle)
-    if garageType == 'car' then
-        if VehClass ~= 14 and VehClass ~= 15 and VehClass ~= 16 then return true end
-    elseif garageType == 'boat' then
-        if VehClass == 14 then return true end
-    elseif garageType == 'planes' then
-        if VehClass == 16 then return true end
-    elseif garageType == 'helicopter' then
-        if VehClass == 15 then return true end
+---@param vehType number
+---@return string
+function utils.classCheck ( vehType )
+    local class = {
+        [8] = "motorcycle",
+        [13] = "cycles",
+        [14] = "boat",
+        [15] = "helicopter",
+        [16] = "planes",
+    }
+    return class[vehType] or "car"
+end
+
+---@param action string
+---@param ... unknown
+---@return boolean|string|unknown
+function utils.gerageType ( action, ... )
+    local result
+    local args = {...}
+
+    if action == "getstring" then
+        result = ""
+        if args[1] then
+            for k, v in pairs(args[1]) do
+                result = result .. ("%s%s"):format(v, next(args[1], k) and ", " or "")
+            end
+        end
+    elseif action == "check" then
+        result = false
+        if args[1] and args[2] then
+            for k, v in pairs(args[1]) do
+                if v == args[2] then
+                    result = true
+                end
+            end
+        end
     end
-    return false
+
+    return result
 end
 
 ---@param class number
@@ -246,7 +270,12 @@ RegisterNetEvent("rhd_garage:radial:store", function (self)
     if not vehicle then
         vehicle = lib.getClosestVehicle(GetEntityCoords(cache.ped))
     end
-    if not utils.classCheck( self.garage.type, vehicle ) then return utils.notify(locale('rhd_garage:invalid_vehicle_class', self.garage.label:lower())) end
+
+    local vehicleType = utils.classCheck(GetVehicleClass(vehicle))
+    if not utils.gerageType("check", self.garage.type, vehicleType) then return
+        utils.notify(locale('rhd_garage:invalid_vehicle_class', self.garage.label:lower()), "error")
+    end
+
     if DoesEntityExist(vehicle) then
         if cache.vehicle then
             if cache.seat ~= -1 then return end
