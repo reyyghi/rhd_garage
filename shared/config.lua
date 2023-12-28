@@ -8,43 +8,13 @@ Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel /
 Config.changeNamePrice = 15000 --- price for changing the name of the vehicle in the garage
 Config.UsePoliceImpound = true --- change it to false if you don't want to use the police impound system from rhd
 
-Config.defaultBlip = {
-    garage = {
-        car = {
-            type = 357,
-            color = 3
-        },
-        boat = {
-            type = 356,
-            color = 3
-        },
-        helicopter = {
-            type = 360,
-            color = 3
-        },
-        planes = {
-            type = 359,
-            color = 3
-        }
-    },
-    insurance = {
-        car = {
-            type = 473,
-            color = 60
-        },
-        boat = {
-            type = 529,
-            color = 60
-        },
-        helicopter = {
-            type = 557,
-            color = 60
-        },
-        planes = {
-            type = 557,
-            color = 60
-        }
-    }
+Config.Icons = {
+    car = "car",
+    boat = "sailboat",
+    planes = "plane",
+    helicopter = "helicopter",
+    motorcycle = "motorcycle",
+    cycles = "bicycle"
 }
 
 Config.ImpoundPrice = {
