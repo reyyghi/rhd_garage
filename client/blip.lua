@@ -4,16 +4,23 @@ local GarageBlip = {}
 function blip.refresh ( data )
     data = data or GarageZone
 
-    for k,v in pairs(GarageBlip) do
-        if DoesBlipExist(v) then
-            RemoveBlip(v)
+    if not data or type(data) ~= "table" then return end
+
+    if GarageBlip and next(GarageBlip) then
+        for k,v in pairs(GarageBlip) do
+            if DoesBlipExist(v) then
+                RemoveBlip(v)
+            end
         end
     end
 
+    GarageBlip = {}
+
     for k, v in pairs(data) do
-        if v.blip ~= nil then
+        if v.blip then
             local location = nil
             local points = v.zones.points
+
             if type(points) == 'table' then
                 for i=1, #points do
                     location = points[i]
