@@ -1,6 +1,6 @@
 return {
 	["Motel Parking"] = {
-	    type = "car",
+	    type = {"car", "motorcycle", "cycles"},
 	    blip = { type = 357, color = 3 },
 	    zones = {
 	        points = {
@@ -19,7 +19,7 @@ return {
 	},
 
 	["Spanish Ave Parking"] = {
-	    type = "car",
+	    type = {"car", "motorcycle", "cycles"},
 	    blip = { type = 357, color = 3 },
 	    zones = {
 	        points = {
@@ -38,7 +38,7 @@ return {
 	},
 
 	["Depot Lot"] = {
-	    type = "car",
+	    type = {"car", "motorcycle", "cycles"},
 	    blip = { type = 68, color = 3 },
 	    zones = {
 	        points = {
@@ -57,7 +57,7 @@ return {
 	},
 
 	["Caears 24 Parking"] = {
-	    type = "car",
+	    type = {"car", "motorcycle", "cycles"},
 	    blip = { type = 357, color = 3 },
 	    zones = {
 	        points = {
@@ -76,7 +76,7 @@ return {
 	},
 
 	["Alta Parking"] = {
-	    type = "car",
+	    type = {"car", "motorcycle", "cycles"},
 	    blip = { type = 357, color = 3 },
 	    zones = {
 	        points = {
@@ -95,7 +95,7 @@ return {
 	},
 
 	["Casino Parking"] = {
-	    type = "car",
+	    type = {"car", "motorcycle", "cycles"},
 	    blip = { type = 357, color = 3 },
 	    zones = {
 	        points = {
@@ -112,5 +112,4 @@ return {
 	    impound = false,
 	    shared = false,
 	},
-
 }
