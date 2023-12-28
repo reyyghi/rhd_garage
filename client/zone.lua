@@ -6,6 +6,9 @@ local zone = {}
 
 function zone.refresh ( data )
     data = data or GarageZone
+
+    if not data or type(data) ~= "table" then return end
+
     blips.refresh(data)
 
     if next(CreatedZone) then
