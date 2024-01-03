@@ -28,6 +28,12 @@ local function trackOutVeh ( plate )
     end
 end
 
+---@param model string|integer
+---@return string|nil
+local function getVehicleTypeByModel ( model )
+    return utils.getVehicleTypeByModel( model )
+end
+
 ---callback
 lib.callback.register('rhd_garage:cb_client:cekEntityVeh', function (plate)
     if utils.getoutsidevehicleByPlate(plate:trim()) then
@@ -40,3 +46,4 @@ end)
 exports('trackOutVeh', trackOutVeh)
 exports("getvehdataByPlate", getvehdataByPlate)
 exports('getvehdataForPhone', getvehdataForPhone)
+exports('getVehicleTypeByModel', getVehicleTypeByModel)
