@@ -18,18 +18,18 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
         db.c = 'mods'
         db.t = 'player_vehicles'
         db.p = 'plate = ? OR fakeplate = ?'
-        db.v = { vehicleData.plate, vehicleData.plate }
+        db.v = { vehicleData.plate:trim(), vehicleData.plate:trim() }
     else
         db.c = 'vehicle'
         db.t = 'owned_vehicles'
         db.p = 'plate = ?'
-        db.v = { vehicleData.plate }
+        db.v = { vehicleData.plate:trim() }
     end
 
-    local result = MySQL.single.await(('SELECT %s, deformation FROM %s WHERE %s'):format(db.c, db.t, db.p), db.v)
+    local result = MySQL.query.await(('SELECT %s, deformation FROM %s WHERE %s'):format(db.c, db.t, db.p), db.v)
 
     if result then
-        props = result[db.c] deformation = result.deformation
+        props = result[1][db.c] deformation = result[1].deformation
     end
     
     return {
