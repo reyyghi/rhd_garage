@@ -241,8 +241,7 @@ function utils.createRadial ( data )
         exports.rhd_radialmenu:addRadialItem({
             id = data.id,
             label = data.label,
-            icon = ("#%s"):format(data.icon),
-            type = "clientFunction",
+            icon = data.icon,
             action = function ()
                 TriggerEvent(data.event, {garage = data.garage})
             end
