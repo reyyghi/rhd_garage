@@ -21,13 +21,12 @@ local spawn = function ( data )
     while not NetworkDoesNetworkIdExist(serverData.netId) do Wait(10) end
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
     NetworkFadeInEntity(veh, true)
-    
+    SetVehicleNumberPlateText(veh, serverData.plate)
+    SetVehicleOnGroundProperly(veh)
+
     if serverData.props and next(serverData.props) then
         lib.setVehicleProperties(veh, serverData.props)
     end
-
-    SetVehicleNumberPlateText(veh, serverData.plate)
-    SetVehicleOnGroundProperly(veh)
 
     if Config.FuelScript == 'ox_fuel' then
         Entity(veh).state.fuel = serverData.props?.fuelLevel or 100
