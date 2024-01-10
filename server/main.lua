@@ -7,7 +7,13 @@ end)
 
 lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicleData, inside )
     local veh = CreateVehicleServerSetter(vehicleData.model, vehicleData.vehtype, vehicleData.coords.x, vehicleData.coords.y, vehicleData.coords.z, vehicleData.coords.w)
-    local netId = NetworkGetNetworkIdFromEntity(veh)
+
+    if veh == 0 then return end
+
+    while NetworkGetEntityOwner(veh) == -1 do Wait(0) end
+
+    local netId, owner = NetworkGetNetworkIdFromEntity(veh), NetworkGetEntityOwner(veh)
+
     SetVehicleNumberPlateText(veh, vehicleData.plate)
 
     local db = {}
@@ -31,7 +37,8 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
     if result then
         props = result[1][db.c] deformation = result[1].deformation
     end
-    
+    TriggerClientEvent('ox_lib:setVehicleProperties', owner, netId, json.decode(props))
+
     return {
         netId = netId,
         props = json.decode(props),
