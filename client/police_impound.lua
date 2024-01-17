@@ -7,25 +7,21 @@ PoliceImpound = {}
 
 local spawn = function ( data )
 
+    lib.requestModel(data.props.model)
     local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
-        model = data.prop.model,
+        model = data.props.model,
         plate = data.plate,
         coords = data.coords,
-        vehtype = Utils.getVehicleTypeByModel(data.prop.model)
+        vehtype = Utils.getVehicleTypeByModel(data.props.model)
     })
 
     if serverData.netId < 1 then
         return
     end
-
-    while not NetworkDoesNetworkIdExist(serverData.netId) do Wait(10) end
+    
+    while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
     NetworkFadeInEntity(veh, true)
-
-    if serverData.props and next(serverData.props) then
-        lib.setVehicleProperties(veh, serverData.props)
-    end
-    
     SetVehicleNumberPlateText(veh, serverData.plate)
     SetVehicleOnGroundProperly(veh)
 

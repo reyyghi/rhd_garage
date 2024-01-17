@@ -93,7 +93,7 @@ end
 ---@param action string
 ---@param ... unknown
 ---@return boolean|string|unknown
-function utils.gerageType ( action, ... )
+function utils.garageType ( action, ... )
     local result
     local args = {...}
 
@@ -277,7 +277,7 @@ RegisterNetEvent("rhd_garage:radial:store", function (self)
     end
 
     local vehicleType = utils.classCheck(GetVehicleClass(vehicle))
-    if not utils.gerageType("check", self.garage.type, vehicleType) then return
+    if not utils.garageType("check", self.garage.type, vehicleType) then return
         utils.notify(locale('rhd_garage:invalid_vehicle_class', self.garage.label:lower()), "error")
     end
 

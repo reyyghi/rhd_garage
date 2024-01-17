@@ -18,6 +18,7 @@ local spawn = function ( data )
     if serverData.netId < 1 then
         return
     end
+
     while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
     NetworkFadeInEntity(veh, true)
@@ -222,7 +223,7 @@ Garage.openMenu = function ( data )
 
         local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehModel ), plate)
         
-        if Utils.gerageType("check", data.type, Utils.getTypeByClass(vehicleClass)) then
+        if Utils.garageType("check", data.type, Utils.getTypeByClass(vehicleClass)) then
             menuData.options[#menuData.options+1] = {
                 title = vehicleLabel,
                 icon = icon,

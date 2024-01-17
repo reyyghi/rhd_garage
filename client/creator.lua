@@ -87,7 +87,7 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
         context.options[#context.options+1] = {
             title = k:upper(),
             icon = "warehouse",
-            description = locale("rhd_garage:context.admin.listgarage_description", v.impound and "Impound" or v.shared and "Shared" or "Public", Utils.gerageType("getstring", v.type)),
+            description = locale("rhd_garage:context.admin.listgarage_description", v.impound and "Impound" or v.shared and "Shared" or "Public", Utils.garageType("getstring", v.type)),
             onSelect = function ()
                 local context2 = {
                     id = "rhd:action_garage",
