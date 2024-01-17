@@ -1,7 +1,7 @@
 fx_version 'cerulean'
 game 'gta5'
 author 'Reyghita Hafizh Firmanda'
-version '1.3.0'
+version '1.3.1'
 
 client_scripts {
     'bridge/framework/**/client.lua',
