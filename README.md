@@ -14,6 +14,7 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 - Garage Creator (In Game) ```/creategarage (Admin Only)```
 - Garage Editor (In Game) ```/listgarage (Admin Only)```
 - Custom Vehicle Name
+- Swap Garage
 
 # Preview
 ## Garage Creator
