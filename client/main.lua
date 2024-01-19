@@ -242,8 +242,8 @@ Garage.openMenu = function ( data )
                 iconAnimation = Config.IconAnimation,
                 metadata = {
                     { label = 'Fuel', value = math.floor(fuel) .. '%', progress = math.floor(fuel), colorScheme = ColorLevel[math.floor(fuel)]},
-                    { label = 'Body', value = math.floor(body / 10) .. '%', progress = math.floor(body), colorScheme = ColorLevel[math.floor(body / 10)]},
-                    { label = 'Engine', value = math.floor(engine/ 10) .. '%', progress = math.floor(engine), colorScheme = ColorLevel[math.floor(engine / 10)]}
+                    { label = 'Body', value = math.floor(body / 10) .. '%', progress = math.floor(body / 10), colorScheme = ColorLevel[math.floor(body / 10)]},
+                    { label = 'Engine', value = math.floor(engine/ 10) .. '%', progress = math.floor(engine / 10), colorScheme = ColorLevel[math.floor(engine / 10)]}
                 },
                 onSelect = function ()
                     local coords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5), GetEntityHeading(cache.ped)+90)
