@@ -3,6 +3,7 @@ local Deformation = require 'modules.deformation'
 
 Garage = {}
 
+local ColorLevel = {}
 local VehicleShow = nil
 
 local spawn = function ( data )
@@ -21,9 +22,14 @@ local spawn = function ( data )
 
     while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
-    NetworkFadeInEntity(veh, true)
+    
     SetVehicleNumberPlateText(veh, serverData.plate)
     SetVehicleOnGroundProperly(veh)
+
+    if Config.SpawnInVehicle then
+        Wait(200)
+        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
+    end
 
     if Config.FuelScript == 'ox_fuel' then
         Entity(veh).state.fuel = serverData.props?.fuelLevel or 100
@@ -65,7 +71,8 @@ Garage.actionMenu = function ( data )
         options = {
             {
                 title = data.impound and locale('rhd_garage:pay_impound') or locale('rhd_garage:take_out_veh'),
-                icon = data.impound and 'hand-holding-dollar' or 'caret-right',
+                icon = data.impound and 'hand-holding-dollar' or 'sign-out-alt',
+                iconAnimation = Config.IconAnimation,
                 onSelect = function ()
                     if DoesEntityExist(VehicleShow) then
                         DeleteVehicle(VehicleShow)
@@ -82,6 +89,7 @@ Garage.actionMenu = function ( data )
                                     title = locale('rhd_garage:pay_methode_cash'):upper(),
                                     icon = 'dollar-sign',
                                     description = locale('rhd_garage:pay_with_cash'),
+                                    iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
                                         if Framework.getMoney('cash') < impoundPrice then return Utils.notify(locale('rhd_garage:not_enough_cash'), 'error') end
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', impoundPrice)
@@ -95,6 +103,7 @@ Garage.actionMenu = function ( data )
                                     title = locale('rhd_garage:pay_methode_bank'):upper(),
                                     icon = 'fab fa-cc-mastercard',
                                     description = locale('rhd_garage:pay_with_bank'),
+                                    iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
                                         if Framework.getMoney('bank') < impoundPrice then return Utils.notify(locale('rhd_garage:not_enough_bank'), 'error') end
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'bank', impoundPrice)
@@ -121,6 +130,7 @@ Garage.actionMenu = function ( data )
             title = locale('rhd_garage:change_veh_name'),
             description = locale('rhd_garage:change_veh_name_price', lib.math.groupdigits(Config.changeNamePrice)),
             icon = 'pencil',
+            iconAnimation = Config.IconAnimation,
             onSelect = function ()
                 DeleteVehicle(VehicleShow)
                 VehicleShow = nil
@@ -229,10 +239,11 @@ Garage.openMenu = function ( data )
                 icon = icon,
                 disabled = disabled,
                 description = description:upper(),
+                iconAnimation = Config.IconAnimation,
                 metadata = {
-                    { label = 'Fuel', value = math.ceil(fuel) .. '%', progress = math.ceil(fuel) },
-                    { label = 'Body', value = math.ceil(body / 10) .. '%', progress = math.ceil(body) },
-                    { label = 'Engine', value = math.ceil(engine/ 10) .. '%', progress = math.ceil(engine) }
+                    { label = 'Fuel', value = math.floor(fuel) .. '%', progress = math.floor(fuel), colorScheme = ColorLevel[math.floor(fuel)]},
+                    { label = 'Body', value = math.floor(body / 10) .. '%', progress = math.floor(body), colorScheme = ColorLevel[math.floor(body / 10)]},
+                    { label = 'Engine', value = math.floor(engine/ 10) .. '%', progress = math.floor(engine), colorScheme = ColorLevel[math.floor(engine / 10)]}
                 },
                 onSelect = function ()
                     local coords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5), GetEntityHeading(cache.ped)+90)
@@ -297,6 +308,23 @@ Garage.storeVeh = function ( data )
         Utils.notify(locale('rhd_garage:success_stored'), 'success')
     end
 end
+
+--- Thread
+CreateThread(function ()
+    if not next(ColorLevel) then
+        for i=1, 100 do
+            if i < 25 then
+                ColorLevel[i] = "red"
+            elseif i >= 25 and i < 50 then
+                ColorLevel[i] = "#E86405"
+            elseif i >= 50 and i < 75 then
+                ColorLevel[i] = "#E8AC05"
+            elseif i >= 75 then
+                ColorLevel[i] = "green"
+            end
+        end
+    end
+end)
 
 --- exports 
 exports('openMenu', Garage.openMenu)
