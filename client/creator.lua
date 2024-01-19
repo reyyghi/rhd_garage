@@ -42,8 +42,11 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
                         { type = 'number', label = locale("rhd_garage:input.admin.creator_blipcolor"), placeholder = '3', required = true},
                     })
 
+                    newData.blip = {}
+                    newData.blip.type = Impound and 68 or 357
+                    newData.blip.color = 3
+
                     if blipinput then
-                        newData.blip = {}
                         newData.blip.type = blipinput[1]
                         newData.blip.color = blipinput[2]
                     end
