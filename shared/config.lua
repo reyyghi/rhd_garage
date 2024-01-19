@@ -7,7 +7,9 @@ Config.RadialMenu = 'qb' --- ox / qb / rhd
 Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 Config.changeNamePrice = 15000 --- price for changing the name of the vehicle in the garage
 Config.UsePoliceImpound = true --- change it to false if you don't want to use the police impound system from rhd
+Config.SpawnInVehicle = true --- change this to true if you want the player to immediately enter the vehicle when the vehicle is taken out of the garage
 
+Config.IconAnimation = "fade"
 Config.Icons = {
     car = "car",
     boat = "sailboat",
