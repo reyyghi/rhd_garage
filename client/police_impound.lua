@@ -21,9 +21,14 @@ local spawn = function ( data )
     
     while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
-    NetworkFadeInEntity(veh, true)
+    
     SetVehicleNumberPlateText(veh, serverData.plate)
     SetVehicleOnGroundProperly(veh)
+
+    if Config.SpawnInVehicle then
+        Wait(200)
+        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
+    end
 
     if Config.FuelScript == 'ox_fuel' then
         Entity(veh).state.fuel = serverData.props?.fuelLevel or 100
@@ -74,6 +79,7 @@ PoliceImpound.open = function ( garage )
                     OFFICER = officer,
                     ['PICKUP DATE'] = date,
                 },
+                iconAnimation = Config.IconAnimation,
                 onSelect = function ()
                     local context2 = {
                         id = "rhd_garage:policeImpound.action",
@@ -100,6 +106,7 @@ PoliceImpound.open = function ( garage )
                         context2.options[#context2.options+1] = {
                             title = locale("rhd_garage:context.policeImpound.sendBill"),
                             icon = "dollar-sign",
+                            iconAnimation = Config.IconAnimation,
                             onSelect = function ()
                                 TriggerServerEvent("rhd_garage:server:policeImpound.sendBill", citizenid, fine, plate)
                             end
@@ -108,6 +115,7 @@ PoliceImpound.open = function ( garage )
                         context2.options[#context2.options+1] = {
                             title = locale("rhd_garage:context.policeImpound.takeOutVeh"),
                             icon = "car",
+                            iconAnimation = Config.IconAnimation,
                             onSelect = function ()
                                 local checkkDate, day = lib.callback.await("rhd_garage:cb_server:policeImpound.cekDate", false, date)
 
@@ -326,6 +334,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
                 {
                     title = locale('rhd_garage:pay_methode_cash'):upper(),
                     icon = 'dollar-sign',
+                    iconAnimation = Config.IconAnimation,
                     description = locale('rhd_garage:pay_with_cash'),
                     onSelect = function ()
 
@@ -349,6 +358,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
                 {
                     title = locale('rhd_garage:pay_methode_bank'):upper(),
                     icon = 'fab fa-cc-mastercard',
+                    iconAnimation = Config.IconAnimation,
                     description = locale('rhd_garage:pay_with_bank'),
                     onSelect = function ()  
                         if Framework.getMoney('bank') < fine then
