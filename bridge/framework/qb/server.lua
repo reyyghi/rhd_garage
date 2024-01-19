@@ -3,19 +3,19 @@ if not Framework.qb() then return end
 local Utils = require "modules.utils"
 local qb = exports['qb-core']:GetCoreObject()
 
-Framework.server = {}
-Framework.server.GetPlayer = qb.Functions.GetPlayer
-Framework.server.GetPlayerFromCitizenid = qb.Functions.GetPlayerByCitizenId
-
-Framework.server.removeMoney = function (source, type, amount)
-    local ply = qb.Functions.GetPlayer(source)
-
-    if ply and ply ~= nil then
-        return ply.Functions.RemoveMoney(type:lower(), amount, '')
-    end
-
-    return false
-end
+Framework.server = {
+    removeMoney = function (source, type, amount)
+        local ply = qb.Functions.GetPlayer(source)
+        if ply and ply ~= nil then
+            return ply.Functions.RemoveMoney(type:lower(), amount, '')
+        end
+        return false
+    end,
+    getIdentifier = function (source)
+        return qb.Functions.GetPlayer(source)?.PlayerData.citizenid or "unkown"
+    end,
+    GetPlayerFromCitizenid = qb.Functions.GetPlayerByCitizenId,
+}
 
 --- check house owner
 lib.callback.register('rhd_garage:cb_server:getOwnedHouse', function(src, house)
