@@ -48,11 +48,15 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
 end)
 
 lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared)
-    local vehicledata = {}
     local isQB = Framework.qb()
     local isOwner = true
+
+    local vehicledata = {
+        cid = Framework.server.getIdentifier(src)
+    }
+
+    print(vehicledata.cid)
     if isQB then
-        vehicledata.cid = Framework.server.GetPlayer(src).PlayerData.citizenid
         vehicledata.dbtable = "SELECT 1 FROM `player_vehicles` WHERE `citizenid` = ? and plate = ? OR fakeplate = ?"
         vehicledata.dbvalue = {vehicledata.cid, plate:trim(), plate:trim()}
 
@@ -61,7 +65,6 @@ lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, 
             vehicledata.dbvalue = { plate:trim(), plate:trim() }
         end
     else
-        vehicledata.cid = Framework.server.GetPlayer(src).identifier
         vehicledata.dbtable = "SELECT `vehicle` FROM `owned_vehicles` WHERE `owner` = ? and plate = ?"
         vehicledata.dbvalue = { vehicledata.cid, plate:trim() }
 
@@ -84,14 +87,14 @@ end)
 lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garage, impound, shared)
     local impound_garage = impound
     local shared_garage = shared
-
-    local garageData = {}
     local isQB = Framework.qb()
 
-    garageData.vehicle = {}
-
+    local garageData = {
+        cid = Framework.server.getIdentifier(src),
+        vehicle = {}
+    }
+    
     if isQB then
-        garageData.cid = Framework.server.GetPlayer(src).PlayerData.citizenid
         garageData.dbtable = "SELECT vehicle, mods, state, plate, fakeplate, deformation FROM player_vehicles WHERE garage = ? and citizenid = ?"
         garageData.dbvalue = {garage, garageData.cid}
 
@@ -106,7 +109,6 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
             garageData.dbvalue = {garage}
         end
     else
-        garageData.cid = Framework.server.GetPlayer(src).identifier
         garageData.dbtable = "SELECT vehicle, plate, stored, deformation FROM owned_vehicles WHERE garage = ? and owner = ?"
         garageData.dbvalue = {garage, garageData.cid}
 
@@ -214,6 +216,21 @@ lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (sr
     end
 
     return db.data
+end)
+
+lib.callback.register("rhd_garage:cb_server:swapGarage", function (source, clientData)
+    local identifier = Framework.server.getIdentifier(source)
+    local isQB = Framework.qb()
+    local db = {
+        t = isQB and "player_vehicles" or "owned_vehicles",
+        identifier_column = isQB and "citizenid" or "owner"
+    }
+    local changed = MySQL.update.await(("UPDATE %s SET garage = ? WHERE plate = ? AND %s = ?"):format(db.t, db.identifier_column), {
+        clientData.newgarage,
+        clientData.plate,
+        identifier
+    })
+    return changed > 0
 end)
 
 RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)

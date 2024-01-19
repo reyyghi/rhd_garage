@@ -126,11 +126,61 @@ Garage.actionMenu = function ( data )
     }
     
     if not data.impound then
+        if Config.SwapGarage.enable then
+            actionData.options[#actionData.options+1] = {
+                title = locale('rhd_garage:swapgarage_title'),
+                icon = "retweet",
+                iconAnimation = Config.IconAnimation,
+                metadata = {
+                    price = lib.math.groupdigits(Config.SwapGarage.price, '.')
+                },
+                onSelect = function ()
+                    DeleteVehicle(VehicleShow)
+                    VehicleShow = nil
+    
+                    local garageTable = function ()
+                        local result = {}
+                        for k, v in pairs(GarageZone) do
+                            if k ~= data.garage and not v.impound then
+                                result[#result+1] = { value = k }
+                            end
+                        end
+                        return result
+                    end
+                    local garageInput = lib.inputDialog(data.garage:upper(), {
+                        { type = 'select', label = locale('rhd_garage:swapgarage_input_label'), options = garageTable(), required = true},
+                    })
+                    
+                    if garageInput then
+                        local vehdata = {
+                            plate = data.plate,
+                            newgarage = garageInput[1]
+                        }
+
+                        if Framework.getMoney('cash') < Config.SwapGarage.price then return Utils.notify(locale("rhd_garage:swapgarage_need_money", lib.math.groupdigits(Config.SwapGarage.price, '.')), 'error') end
+                        local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', Config.SwapGarage.price)
+                        if not success then return end
+
+                        lib.callback('rhd_garage:cb_server:swapGarage', false, function (success)
+                            if not success then return
+                                Utils.notify(locale("rhd_garage:swapgarage_error"), "error")
+                            end
+    
+                            Utils.notify(locale('rhd_garage:swapgarage_success', vehdata.newgarage), "success")
+                        end, vehdata)
+                    end
+                end
+            }
+        end
+
         actionData.options[#actionData.options+1] = {
             title = locale('rhd_garage:change_veh_name'),
-            description = locale('rhd_garage:change_veh_name_price', lib.math.groupdigits(Config.changeNamePrice)),
+            -- description = locale('rhd_garage:change_veh_name_price', lib.math.groupdigits(Config.changeNamePrice)),
             icon = 'pencil',
             iconAnimation = Config.IconAnimation,
+            metadata = {
+                price = lib.math.groupdigits(Config.SwapGarage.price, '.')
+            },
             onSelect = function ()
                 DeleteVehicle(VehicleShow)
                 VehicleShow = nil
