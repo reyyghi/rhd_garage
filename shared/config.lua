@@ -1,10 +1,10 @@
+Config = {}
+
 GarageZone = require "data.garage"
 CNV = require "data.customname"
 
-Config = {}
-
-Config.RadialMenu = 'qb' --- ox / qb / rhd
-Config.FuelScript = 'LegacyFuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
+Config.RadialMenu = 'rhd' --- ox / qb / rhd
+Config.FuelScript = 'rhd_fuel' --- rhd-fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 Config.changeNamePrice = 15000 --- price for changing the name of the vehicle in the garage
 Config.UsePoliceImpound = true --- change it to false if you don't want to use the police impound system from rhd
 Config.SpawnInVehicle = true --- change this to true if you want the player to immediately enter the vehicle when the vehicle is taken out of the garage
@@ -17,6 +17,11 @@ Config.Icons = {
     helicopter = "helicopter",
     motorcycle = "motorcycle",
     cycles = "bicycle"
+}
+
+Config.SwapGarage = {
+    enable = true,
+    price = 500
 }
 
 Config.ImpoundPrice = {
@@ -45,7 +50,7 @@ Config.ImpoundPrice = {
 }
 
 Config.PoliceImpound = {
-    targetUsed = "qb", -- qb or ox
+    targetUsed = "ox", -- qb or ox
     location = {
         [1] = {
             label = "Police Impound 1",
