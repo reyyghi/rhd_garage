@@ -142,7 +142,7 @@ end
 ---@return boolean
 function utils.gangCheck ( data )
     local configGang = data.gang
-    local plyJob = Framework.playerGang()
+    local plyJob = Framework.client.gang
     if type(configGang) == 'table' then
         for job, grade in pairs(configGang) do      
             if type(plyJob.grade) == 'table' then
@@ -164,7 +164,7 @@ end
 ---@return boolean
 function utils.JobCheck ( data )
     local configJob = data.job
-    local plyJob = Framework.playerJob()
+    local plyJob = Framework.client.job
     if type(configJob) == 'table' then
         for job, grade in pairs(configJob) do         
             if type(plyJob.grade) == 'table' then
@@ -315,5 +315,17 @@ AddEventHandler('onResourceStop', function(resourceName)
         end
     end
 end)
+
+if IsDuplicityVersion() then
+    ---@param src number
+    ---@param txt string
+    ---@param type string
+    function utils.ServerNotify(src, txt, type)
+        lib.notify(src, {
+            description = txt,
+            type = type
+        })
+    end
+end
 
 return utils
