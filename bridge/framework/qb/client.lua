@@ -1,31 +1,37 @@
 if not Framework.qb() then return end
 
-local qb = exports['qb-core']:GetCoreObject()
+local QBCore = exports['qb-core']:GetCoreObject()
 
 local Utils = require "modules.utils"
 local lasthouse = nil
 local houseZone = {}
 
-Framework.playerJob = function ()
-    return qb.Functions.GetPlayerData().job
-end
+Framework.client = {
+    getMoney = function (type)
+        local pData = QBCore.Functions.GetPlayerData()
+        return pData.money[type] or 0
+    end,
+    getVehName = function (model)
+        return QBCore.Shared.Vehicles[model] and QBCore.Shared.Vehicles[model].name or GetDisplayNameFromVehicleModel(model)
+    end,
+    job = {},
+    gang = {},
+    playerName = ""
+}
 
-Framework.playerGang = function ()
-    return qb.Functions.GetPlayerData().gang
-end
+AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
+    QBCore.Functions.GetPlayerData(function(PlayerData)
+        Framework.client.job = PlayerData.job
+        Framework.client.gang = PlayerData.gang
+        Framework.client.playerName = ("%s %s"):format(PlayerData.charinfo.firstname, PlayerData.charinfo.lastname)
+    end)
+end)
 
-Framework.getVehName = function ( model )
-    return qb.Shared.Vehicles[model] and qb.Shared.Vehicles[model].name or 'Vehicle Not Found'
-end
-
-Framework.getName = function()
-    local charinfo = qb.Functions.GetPlayerData().charinfo
-    return ("%s %s"):format(charinfo.firstname, charinfo.lastname)
-end
-
-Framework.getMoney = function ( type )
-    return qb.Functions.GetPlayerData().money[type:lower()]
-end
+RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
+    Framework.client.job = PlayerData.job
+    Framework.client.gang = PlayerData.gang
+    Framework.client.playerName = ("%s %s"):format(PlayerData.charinfo.firstname, PlayerData.charinfo.lastname)
+end)
 
 --- for qb-houses or ps-housing
 RegisterNetEvent('qb-garages:client:setHouseGarage', function(house, hasKey)

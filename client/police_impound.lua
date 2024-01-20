@@ -123,7 +123,7 @@ PoliceImpound.open = function ( garage )
                                 
                                 if not checkkDate then
                                     local alert = lib.alertDialog({
-                                        header = ("Halo %s"):format(Framework.getName()),
+                                        header = ("Halo %s"):format(Framework.client.playerName),
                                         content = ("waktu penyitaan kendaraan ini masih %s hari lagi, apakah anda ingin tetap mengeluarkan kendaraa ini?"):format(day),
                                         centered = true,
                                         cancel = true,
@@ -148,7 +148,7 @@ PoliceImpound.open = function ( garage )
 
                                 if takeout then
                                     local data = {
-                                        prop = props,
+                                        props = props,
                                         coords = vec(GetEntityCoords(cache.ped), GetEntityHeading(cache.ped)),
                                         plate = plate,
                                         deformation = deformation
@@ -195,8 +195,8 @@ PoliceImpound.ImpoundVeh = function ( vehicle )
     if not vehdata then return end
     if #garageList < 1 then return end
 
-    local vehname = CNV[vehprop.plate:trim()]?.name or Framework.getVehName(vehdata.vehicle)
-    local officerName = Framework.getName()
+    local vehname = CNV[vehprop.plate:trim()]?.name or Framework.client.getVehName(vehdata.vehicle)
+    local officerName = Framework.client.playerName
 
     local input = lib.inputDialog(("%s [%s]"):format(vehname, vehprop.plate:upper()), {
         { type = 'input', label = 'PEMILIK', placeholder = vehdata.owner:upper(), disabled = true },
@@ -313,7 +313,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
     local paid, continue = false, false
 
     local alert = lib.alertDialog({
-        header = ("Halo %s"):format(Framework.getName()),
+        header = ("Halo %s"):format(Framework.client.playerName),
         content = ("anda di minta untuk membayar tagihan kendaraan anda yang di sita oleh polisi sebesar $%s"):format(fine),
         centered = true,
         cancel = true,
@@ -338,7 +338,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
                     description = locale('rhd_garage:pay_with_cash'),
                     onSelect = function ()
 
-                        if Framework.getMoney('cash') < fine then
+                        if Framework.client.getMoney('cash') < fine then
                             continue = true
                             Utils.notify(locale('rhd_garage:not_enough_cash_policeImpound'), 'error')
                             return
@@ -361,7 +361,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
                     iconAnimation = Config.IconAnimation,
                     description = locale('rhd_garage:pay_with_bank'),
                     onSelect = function ()  
-                        if Framework.getMoney('bank') < fine then
+                        if Framework.client.getMoney('bank') < fine then
                             continue = true
                             Utils.notify(locale('rhd_garage:not_enough_bank_policeImpound'), 'error') 
                             return
@@ -392,7 +392,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
 end)
 
 CreateThread(function()
-    if Config.PoliceImpound.enable and next(Config.PoliceImpound.location) then
+    if Config.UsePoliceImpound and next(Config.PoliceImpound.location) then
         
         PoliceImpound.setUpTarget(Config.PoliceImpound.targetUsed)
 

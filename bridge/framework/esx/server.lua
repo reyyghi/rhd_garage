@@ -14,7 +14,10 @@ Framework.server = {
         return false
     end,
     getIdentifier = function (source)
-        return esx.GetPlayerFromId(source)?.identifier or "unkown"
+        return esx.GetPlayerFromId(source)?.identifier or false
+    end,
+    getName = function (source)
+        return esx.GetPlayerFromId(source)?.getName() or "unknown"
     end,
     GetPlayerFromCitizenid = esx.GetPlayerFromIdentifier,
 }
