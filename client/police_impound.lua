@@ -37,7 +37,7 @@ local spawn = function ( data )
     end
        
     Deformation.set(veh, data.deformation)
-    TriggerServerEvent("rhd_garage:server:updateState.policeImpound", serverData.plate)
+    TriggerServerEvent("rhd_garage:server:removeFromPoliceImpound", serverData.plate)
     TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
 end
 
