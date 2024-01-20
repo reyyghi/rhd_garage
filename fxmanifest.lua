@@ -11,7 +11,12 @@ client_scripts {
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'bridge/framework/**/server.lua',
-    'server/*.lua'
+    'server/main.lua',
+    'server/police_impound.lua',
+    'server/dbformat.lua',
+    'server/storage.lua',
+    'server/version.lua',
+    'server/command.lua',
 }
 
 shared_scripts {
