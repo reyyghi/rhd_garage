@@ -12,7 +12,14 @@ Framework.server = {
         return false
     end,
     getIdentifier = function (source)
-        return qb.Functions.GetPlayer(source)?.PlayerData.citizenid or "unkown"
+        local Player = qb.Functions.GetPlayer(source)
+        if not Player then return end
+        return Player.PlayerData.citizenid
+    end,
+    getName = function (source)
+        local Player = qb.Functions.GetPlayer(source)
+        if not Player then return end
+        return ("%s %s"):format(Player.PlayerData.charinfo.firstname, Player.PlayerData.charinfo.lastname)
     end,
     GetPlayerFromCitizenid = qb.Functions.GetPlayerByCitizenId,
 }

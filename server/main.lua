@@ -233,6 +233,37 @@ lib.callback.register("rhd_garage:cb_server:swapGarage", function (source, clien
     return changed > 0
 end)
 
+lib.callback.register("rhd_garage:cb_server:transferVehicle", function (src, clientData)
+    local isQB = Framework.qb()
+    local TargetIdentifier = Framework.server.getIdentifier(clientData.targetSrc)
+    local myIdentifier = Framework.server.getIdentifier(src)
+    if not TargetIdentifier then
+        return false, locale("rhd_garage:transferveh_plyoffline", clientData.targetSrc)
+    end
+    if TargetIdentifier == myIdentifier then
+        return false, locale("rhd_garage:transferveh_cannot_transfer")
+    end
+    if not Framework.server.removeMoney(src, "cash", clientData.price) then
+        return false, locale("rhd_garage:transferveh_no_money")
+    end
+    local db = {
+        t = isQB and "player_vehicles" or "owned_vehicles",
+        identifier_column = isQB and "citizenid" or "owner"
+    }
+    local changed = MySQL.update.await(("UPDATE %s SET %s = ? WHERE plate = ? AND %s = ?"):format(db.t, db.identifier_column, db.identifier_column), {
+        TargetIdentifier,
+        clientData.plate,
+        myIdentifier
+    })
+    
+    local success = changed > 0
+
+    if success then
+        Utils.ServerNotify(clientData.targetSrc, locale("rhd_garage:transferveh_success_target", Framework.server.getName(src), clientData.garage), "success")
+    end
+    return changed > 0, locale("rhd_garage:transferveh_success_src", Framework.server.getName(clientData.targetSrc))
+end)
+
 RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
     if type(fileData) ~= "table" or type(fileData) == "nil" then return end
     return Storage.save.garage(fileData)

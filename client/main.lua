@@ -91,7 +91,7 @@ Garage.actionMenu = function ( data )
                                     description = locale('rhd_garage:pay_with_cash'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
-                                        if Framework.getMoney('cash') < impoundPrice then return Utils.notify(locale('rhd_garage:not_enough_cash'), 'error') end
+                                        if Framework.client.getMoney('cash') < impoundPrice then return Utils.notify(locale('rhd_garage:not_enough_cash'), 'error') end
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', impoundPrice)
                                         if success then
                                             Utils.notify(locale('rhd_garage:success_pay_impound'), 'success')
@@ -105,7 +105,7 @@ Garage.actionMenu = function ( data )
                                     description = locale('rhd_garage:pay_with_bank'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
-                                        if Framework.getMoney('bank') < impoundPrice then return Utils.notify(locale('rhd_garage:not_enough_bank'), 'error') end
+                                        if Framework.client.getMoney('bank') < impoundPrice then return Utils.notify(locale('rhd_garage:not_enough_bank'), 'error') end
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'bank', impoundPrice)
                                         if success then
                                             Utils.notify(locale('rhd_garage:success_pay_impound'), 'success')
@@ -126,6 +126,41 @@ Garage.actionMenu = function ( data )
     }
     
     if not data.impound then
+        if Config.TransferVehicle.enable then
+            actionData.options[#actionData.options+1] = {
+                title = locale("rhd_garage:transferveh_title"),
+                icon = "exchange-alt",
+                iconAnimation = Config.IconAnimation,
+                metadata = {
+                    price = lib.math.groupdigits(Config.TransferVehicle.price, '.')
+                },
+                onSelect = function ()
+                    DeleteVehicle(VehicleShow)
+                    VehicleShow = nil
+
+                    local transferInput = lib.inputDialog(data.vehName:upper(), {
+                        { type = 'number', label = 'Player Id', required = true },
+                    })
+                    
+                    if transferInput then
+                        local clData = {
+                            targetSrc = transferInput[1],
+                            plate = data.plate,
+                            price = Config.TransferVehicle.price,
+                            garage = data.garage
+                        }
+                        lib.callback('rhd_garage:cb_server:transferVehicle', false, function (success, information)
+                            if not success then return
+                                Utils.notify(information, "error")
+                            end
+
+                            Utils.notify(information, "success")
+                        end, clData)
+                    end
+                end
+            }
+        end
+
         if Config.SwapGarage.enable then
             actionData.options[#actionData.options+1] = {
                 title = locale('rhd_garage:swapgarage_title'),
@@ -137,7 +172,7 @@ Garage.actionMenu = function ( data )
                 onSelect = function ()
                     DeleteVehicle(VehicleShow)
                     VehicleShow = nil
-    
+
                     local garageTable = function ()
                         local result = {}
                         for k, v in pairs(GarageZone) do
@@ -147,17 +182,18 @@ Garage.actionMenu = function ( data )
                         end
                         return result
                     end
+
                     local garageInput = lib.inputDialog(data.garage:upper(), {
                         { type = 'select', label = locale('rhd_garage:swapgarage_input_label'), options = garageTable(), required = true},
                     })
-                    
+
                     if garageInput then
                         local vehdata = {
                             plate = data.plate,
                             newgarage = garageInput[1]
                         }
 
-                        if Framework.getMoney('cash') < Config.SwapGarage.price then return Utils.notify(locale("rhd_garage:swapgarage_need_money", lib.math.groupdigits(Config.SwapGarage.price, '.')), 'error') end
+                        if Framework.client.getMoney('cash') < Config.SwapGarage.price then return Utils.notify(locale("rhd_garage:swapgarage_need_money", lib.math.groupdigits(Config.SwapGarage.price, '.')), 'error') end
                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', Config.SwapGarage.price)
                         if not success then return end
 
@@ -190,7 +226,7 @@ Garage.actionMenu = function ( data )
                 })
                 
                 if input then
-                    if Framework.getMoney('cash') < Config.changeNamePrice then return Utils.notify(locale('rhd_garage:change_veh_name_nocash'), 'error') end
+                    if Framework.client.getMoney('cash') < Config.changeNamePrice then return Utils.notify(locale('rhd_garage:change_veh_name_nocash'), 'error') end
 
                     local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', Config.changeNamePrice)
                     if success then
@@ -281,7 +317,7 @@ Garage.openMenu = function ( data )
             end
         end
 
-        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.getVehName( vehModel ), plate)
+        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.client.getVehName( vehModel ), plate)
         
         if Utils.garageType("check", data.type, Utils.getTypeByClass(vehicleClass)) then
             menuData.options[#menuData.options+1] = {
