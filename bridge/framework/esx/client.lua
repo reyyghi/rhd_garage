@@ -37,3 +37,11 @@ RegisterNetEvent('esx:setJob', function(newJob)
     Framework.client.job = newJob
     Framework.client.gang = Framework.client.job
 end)
+
+CreateThread(function ()
+    if LocalPlayer.state.isLoggedIn then
+        Framework.client.job = LocalPlayer.state.job
+        Framework.client.gang = Framework.client.job
+        Framework.client.playerName = LocalPlayer.state.name
+    end
+end)
