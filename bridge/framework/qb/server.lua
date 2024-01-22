@@ -54,7 +54,6 @@ end)
 lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src, phoneType)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
     local Vehicles = {}
-
     local result = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', { cid })
     if result[1] then
         for i=1, #result do
@@ -66,90 +65,76 @@ lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src, p
             local garageLocation = nil
             local EntityExist = lib.callback.await('rhd_garage:cb_client:cekEntityVeh', src, plate)
             local inPoliceImpound, inInsurance = false, false
-            
-            local body = math.ceil(mods.bodyHealth)
-            local engine = math.ceil(mods.engineHealth)
-
-            if db.garage ~= nil then
-                if GarageZone[db.garage] ~= nil then
-                    if db.state ~= 0 and db.state ~= 2 then
-                        VehicleGarage = db.garage
-
-                        local L = GarageZone[db.garage]?.zones.points
-
-                        if L and #L > 1 then
-                            for loc=1, #L do
-                                garageLocation = L[loc].xyz
+            local body = mods.bodyHealth and math.floor(mods.bodyHealth) or 100
+            local engine = mods.engineHealth and math.floor(mods.engineHealth) or 100
+            if VehicleData and next(VehicleData) then
+                if db.garage ~= nil then
+                    if GarageZone[db.garage] ~= nil then
+                        if db.state ~= 0 and db.state ~= 2 then
+                            VehicleGarage = db.garage
+                            local L = GarageZone[db.garage]?.zones.points
+                            if L and #L > 1 then
+                                for loc=1, #L do
+                                    garageLocation = L[loc].xyz
+                                end
                             end
                         end
-                    end
-                    
-                else
-                    if db.state == 1 then
-                        local HouseGarage = Config.HouseGarages
-
-                        for k, v in pairs(HouseGarage) do
-                            
-                            if v.label == db.garage then
-                                VehicleGarage = db.garage
-                                
-                                local L = v.takeVehicle
-    
-                                garageLocation = vec3(L.x, L.y, L.z)
+                    else
+                        if db.state == 1 then
+                            local HouseGarage = Config.HouseGarages
+                            for k, v in pairs(HouseGarage) do
+                                if v.label == db.garage then
+                                    VehicleGarage = db.garage
+                                    local L = v.takeVehicle
+                                    garageLocation = vec3(L.x, L.y, L.z)
+                                end
                             end
                         end
                     end
                 end
-            end
-            
-            if db.state == 0 then
+                if db.state == 0 then
+                    db.state = locale('rhd_garage:phone_veh_out_garage')
+                    if not EntityExist then
+                        db.state = locale('rhd_garage:phone_veh_in_impound')
+                        inInsurance = true
+                    end
+                elseif db.state == 1 then
+                    db.state = locale('rhd_garage:phone_veh_in_garage')
+                elseif db.state == 2 then
+                    db.state = locale('rhd_garage:phone_veh_in_policeimpound')
+                    inPoliceImpound = true
+                end
                 
-                db.state = locale('rhd_garage:phone_veh_out_garage')
-
-                if not EntityExist then
-                    db.state = locale('rhd_garage:phone_veh_in_impound')
-
-                    inInsurance = true
+                local fullname
+                if VehicleData["brand"] ~= nil then
+                    fullname = VehicleData["brand"] .. " " .. VehicleData["name"]
+                else
+                    fullname = VehicleData["name"]
                 end
-            elseif db.state == 1 then
-                db.state = locale('rhd_garage:phone_veh_in_garage')
-
-            elseif db.state == 2 then
-                db.state = locale('rhd_garage:phone_veh_in_policeimpound')
-
-                inPoliceImpound = true
+    
+                if body > 1000 then
+                    body = 1000
+                end
+                if engine > 1000 then
+                    engine = 1000
+                end
+    
+                Vehicles[#Vehicles+1] = {
+                    fullname = CNV[plate] and CNV[plate].name or fullname,
+                    brand = VehicleData["brand"],
+                    model = VehicleData["name"],
+                    plate = plate,
+                    garage = VehicleGarage,
+                    state = db.state,
+                    fuel = mods.fuelLevel,
+                    engine = engine,
+                    body = body,
+                    paymentsleft = db.paymentsleft,
+                    garageLocation = json.encode(garageLocation),
+                    inInsurance = inInsurance,
+                    inPoliceImpound = inPoliceImpound
+                }
             end
-
-            local fullname
-            if VehicleData["brand"] ~= nil then
-                fullname = VehicleData["brand"] .. " " .. VehicleData["name"]
-            else
-                fullname = VehicleData["name"]
-            end
-
-            if body > 1000 then
-                body = 1000
-            end
-            if engine > 1000 then
-                engine = 1000
-            end
-
-            Vehicles[#Vehicles+1] = {
-                fullname = CNV[plate] and CNV[plate].name or fullname,
-                brand = VehicleData["brand"],
-                model = VehicleData["name"],
-                plate = plate,
-                garage = VehicleGarage,
-                state = db.state,
-                fuel = mods.fuelLevel,
-                engine = engine,
-                body = body,
-                paymentsleft = db.paymentsleft,
-                garageLocation = json.encode(garageLocation),
-                inInsurance = inInsurance,
-                inPoliceImpound = inPoliceImpound
-            }
-            
         end
     end
     return Vehicles
