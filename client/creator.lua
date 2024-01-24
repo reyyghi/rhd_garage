@@ -2,9 +2,7 @@ local Zones = require "client.zone"
 local Zones_Creator = require "modules.zone"
 local Utils = require "modules.utils"
 
-RegisterNetEvent("rhd_garage:client:loadedZone", Zones.refresh)
-RegisterNetEvent("rhd_garage:client:refreshZone", Zones.refresh)
-RegisterNetEvent("rhd_garage:client:createGarage", function ()
+local function createGarage ()
     Zones_Creator.startCreator({
         type = "poly",
         onCreated = function (zones)
@@ -78,9 +76,9 @@ RegisterNetEvent("rhd_garage:client:createGarage", function ()
             
         end
     })
-end)
+end
 
-RegisterNetEvent("rhd_garage:client:listgarage", function ()
+local function listGarage ()
     local context = {
         id = 'rhd:list_garage',
         title = locale("rhd_garage:context.admin.listgarage_title"),
@@ -344,10 +342,15 @@ RegisterNetEvent("rhd_garage:client:listgarage", function ()
     end
 
     Utils.createMenu(context)
-end)
+end
 
 CreateThread(function ()
     if LocalPlayer.state.isLoggedIn then
         Zones.refresh()
     end
 end)
+
+RegisterNetEvent("rhd_garage:client:loadedZone", Zones.refresh)
+RegisterNetEvent("rhd_garage:client:refreshZone", Zones.refresh)
+RegisterNetEvent("rhd_garage:client:createGarage", createGarage)
+RegisterNetEvent("rhd_garage:client:listgarage", listGarage)
