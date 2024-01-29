@@ -68,7 +68,7 @@ local function SaveVehicleName(dataName)
     local NameFormat = [[
     ["%s"] = {
         name = "%s"
-    }
+    },
 ]]
     for plate, data in pairs(dataName) do
         result[#result + 1] = NameFormat:format(plate, data.name)
