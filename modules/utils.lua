@@ -140,7 +140,7 @@ end
 
 ---@param data table
 ---@return boolean
-function utils.gangCheck ( data )
+function utils.GangCheck ( data )
     local configGang = data.gang
     local plyJob = Framework.client.gang
     if type(configGang) == 'table' then
