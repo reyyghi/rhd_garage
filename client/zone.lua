@@ -4,12 +4,10 @@ local blips = require "client.blip"
 local CreatedZone = {}
 local zone = {}
 
-function zone.refresh ( data )
-    data = data or GarageZone
+function zone.refresh ()
+    if not GarageZone or type(GarageZone) ~= "table" then return end
 
-    if not data or type(data) ~= "table" then return end
-
-    blips.refresh(data)
+    blips.refresh(GarageZone)
 
     if next(CreatedZone) then
         for k, v in pairs(CreatedZone) do
@@ -17,7 +15,7 @@ function zone.refresh ( data )
         end
     end
 
-    for k, v in pairs(data) do
+    for k, v in pairs(GarageZone) do
         CreatedZone[k] = lib.zones.poly({
             points = v.zones.points,
             thickness = v.zones.thickness,

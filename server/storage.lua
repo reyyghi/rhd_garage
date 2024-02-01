@@ -58,7 +58,7 @@ local function SaveGarage(garageData)
         ):gsub('[%s]-[%w]+ = "?nil"?,?', '')
     end
     GarageZone = garageData
-    TriggerClientEvent("rhd_garage:client:refreshZone", -1, garageData)
+    GlobalState.rhd_garage_zone = garageData
     local serializedData = ('return {\n%s}'):format(table.concat(result, "\n"))
     SaveResourceFile(GetCurrentResourceName(), 'data/garage.lua', serializedData, -1)
 end

@@ -350,7 +350,12 @@ CreateThread(function ()
     end
 end)
 
-RegisterNetEvent("rhd_garage:client:loadedZone", Zones.refresh)
-RegisterNetEvent("rhd_garage:client:refreshZone", Zones.refresh)
+AddStateBagChangeHandler("rhd_garage_zone", "global", function (bagName, key, value)
+    if value then
+        GarageZone = value
+        Zones.refresh()
+    end
+end)
+
 RegisterNetEvent("rhd_garage:client:createGarage", createGarage)
 RegisterNetEvent("rhd_garage:client:listgarage", listGarage)

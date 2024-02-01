@@ -23,5 +23,5 @@ Framework.server = {
 }
 
 RegisterNetEvent('esx:playerLoaded', function(player, xPlayer, isNew)
-    TriggerClientEvent("rhd_garage:client:loadedZone", xPlayer.source, GarageZone)
+    GlobalState.rhd_garage_zone = GarageZone
 end)

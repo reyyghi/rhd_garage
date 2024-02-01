@@ -141,5 +141,5 @@ lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src, p
 end)
 
 AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
-    TriggerClientEvent("rhd_garage:client:loadedZone", Player.PlayerData.source, GarageZone)
+    GlobalState.rhd_garage_zone = GarageZone
 end)
