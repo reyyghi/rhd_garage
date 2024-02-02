@@ -46,6 +46,7 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
             local state = IsQB and v.state or v.stored or 0
             local model = IsQB and v.vehicle or vehicles.model
             local plate = v.plate
+            local depotprice = IsQB and v.depotprice or 0
             local fakeplate = IsQB and v.fakeplate or nil
             local ownername = ("%s %s"):format(IsQB and charinfo.firstname or v.firstname, IsQB and charinfo.lastname or v.lastname)
             
@@ -56,6 +57,7 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
                 plate = plate,
                 fakeplate = fakeplate,
                 owner = ownername,
+                depotprice = depotprice,
                 deformation = deformation
             }
         end

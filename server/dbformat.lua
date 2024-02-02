@@ -12,8 +12,8 @@ DBFormat = {
     },
     selected_column = {
         vehicleList = {
-            shared = IsQB and "vehicle, mods, state, plate, fakeplate, deformation, charinfo" or "vehicle, plate, stored, deformation, firstname, lastname",
-            normal = IsQB and "vehicle, mods, state, plate, fakeplate, deformation" or "vehicle, plate, stored, deformation",
+            shared = IsQB and "vehicle, mods, state, depotprice, plate, fakeplate, deformation, charinfo" or "vehicle, plate, stored, deformation, firstname, lastname",
+            normal = IsQB and "vehicle, mods, state, depotprice, plate, fakeplate, deformation" or "vehicle, plate, stored, deformation",
         },
         vehicleData = IsQB and "player_vehicles.citizenid, vehicle, mods, deformation, balance, charinfo" or "owner, vehicle, plate, owner, deformation, firstname, lastname"
     },

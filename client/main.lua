@@ -88,7 +88,6 @@ Garage.actionMenu = function ( data )
                     end
 
                     if data.impound then
-                        local impoundPrice = Config.ImpoundPrice[GetVehicleClassFromName(data.prop.model)]
                         Utils.createMenu({
                             id = 'pay_methode',
                             title = locale('rhd_garage:pay_methode'):upper(),
@@ -99,8 +98,8 @@ Garage.actionMenu = function ( data )
                                     description = locale('rhd_garage:pay_with_cash'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
-                                        if Framework.client.getMoney('cash') < impoundPrice then return Utils.notify(locale('rhd_garage:not_enough_cash'), 'error') end
-                                        local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', impoundPrice)
+                                        if Framework.client.getMoney('cash') < data.depotprice then return Utils.notify(locale('rhd_garage:not_enough_cash'), 'error') end
+                                        local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', data.depotprice)
                                         if success then
                                             Utils.notify(locale('rhd_garage:success_pay_impound'), 'success')
                                             return spawn( data )
@@ -113,8 +112,8 @@ Garage.actionMenu = function ( data )
                                     description = locale('rhd_garage:pay_with_bank'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
-                                        if Framework.client.getMoney('bank') < impoundPrice then return Utils.notify(locale('rhd_garage:not_enough_bank'), 'error') end
-                                        local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'bank', impoundPrice)
+                                        if Framework.client.getMoney('bank') < data.depotprice then return Utils.notify(locale('rhd_garage:not_enough_bank'), 'error') end
+                                        local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'bank', data.depotprice)
                                         if success then
                                             Utils.notify(locale('rhd_garage:success_pay_impound'), 'success')
                                             return spawn( data )
@@ -277,7 +276,8 @@ Garage.openMenu = function ( data )
         local engine = vehProp?.engineHealth or 100
         local body = vehProp?.bodyHealth or 100
         local fuel = vehProp?.fuelLevel or 100
-        
+        local dp = vehData[i].depotprice
+
         local shared_garage = data.shared
         local impound_garage = data.impound
         local disabled = false
@@ -292,6 +292,7 @@ Garage.openMenu = function ( data )
         local vehicleClass = GetVehicleClassFromName(vehModel)
         local vehicleType = Utils.classCheck(vehicleClass)
         local icon = Config.Icons[vehicleType]
+        local ImpoundPrice = dp > 0 and dp or Config.ImpoundPrice[vehicleClass]
 
         if gState == 0 then
             if DoesEntityExist(Utils.getoutsidevehicleByPlate(plate)) then
@@ -302,8 +303,7 @@ Garage.openMenu = function ( data )
                 end
             else
                 if impound_garage then
-                    local impoundPrice = Config.ImpoundPrice[vehicleClass]
-                    description = locale('rhd_garage:impound_price', impoundPrice)
+                    description = locale('rhd_garage:impound_price', ImpoundPrice)
                 else
                     disabled = true
                     description = 'STATUS: ' ..  locale('rhd_garage:veh_in_impound')
@@ -362,7 +362,8 @@ Garage.openMenu = function ( data )
                         vehName = vehicleLabel,
                         impound = data.impound,
                         shared = data.shared,
-                        deformation = vehDeformation
+                        deformation = vehDeformation,
+                        depotprice = ImpoundPrice
                     })
                 end,
             }
