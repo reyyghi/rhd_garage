@@ -104,15 +104,18 @@ RegisterNetEvent("rhd_garage:server:updateState", function ( data )
     local state = data.state
     local garage = data.garage
     local plate = data.plate
+    if GetInvokingResource() then return end
     MySQL.update(DBFormat.getParameters("state_garage"), DBFormat.getValue("state_garage", state, json.encode(prop), garage,  json.encode(deformation), plate))
 end)
 
 RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
+    if GetInvokingResource() then return end
     if type(fileData) ~= "table" or type(fileData) == "nil" then return end
     return Storage.save.garage(fileData)
 end)
 
 RegisterNetEvent("rhd_garage:server:saveCustomVehicleName", function (fileData)
+    if GetInvokingResource() then return end
     if type(fileData) ~= "table" or type(fileData) == "nil" then return end
     return Storage.save.vehname(fileData)
 end)
