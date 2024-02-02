@@ -26,12 +26,16 @@ local spawn = function ( data )
     while GetVehicleNumberPlateText(veh) ~= serverData.plate do
         SetVehicleNumberPlateText(serverData.plate:trim()) Wait(10)
     end
+
+    local PedDriver = GetPedInVehicleSeat(veh, -1)
+    if PedDriver > 0 and PedDriver ~= cache.ped then
+        DeleteEntity(PedDriver)
+    end
     
     SetVehicleNumberPlateText(veh, serverData.plate)
     SetVehicleOnGroundProperly(veh)
 
     if Config.SpawnInVehicle then
-        Wait(200)
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
     end
 
