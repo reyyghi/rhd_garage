@@ -51,7 +51,7 @@ RegisterNetEvent('rhd_garage:server:addHouseGarage', function(house, garageInfo)
     Config.HouseGarages[house] = garageInfo
 end)
 
-lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src, phoneType)
+lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src)
     local cid = qb.Functions.GetPlayer(src).PlayerData.citizenid
     local Vehicles = {}
     local result = MySQL.query.await('SELECT * FROM player_vehicles WHERE citizenid = ?', { cid })
