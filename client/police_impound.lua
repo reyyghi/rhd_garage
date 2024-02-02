@@ -273,7 +273,7 @@ PoliceImpound.ImpoundVeh = function ( vehicle )
     end
 end
 
-PoliceImpound.setUpTarget = function ( type, grade )
+PoliceImpound.setUpTarget = function ( )
     local bones = {
         'door_dside_f',
         'seat_dside_f',
@@ -287,20 +287,22 @@ PoliceImpound.setUpTarget = function ( type, grade )
         'boot'
     }
 
-    if type == "ox" then
+    local TargetData = Config.PoliceImpound.Target
+
+    if TargetData.type == "ox" then
         exports.ox_target:addGlobalVehicle({
             {
                 label = "Sita Kendaraan",
                 icon = 'fas fa-car',
                 bones = bones,
-                groups = 'police',
+                groups = TargetData.groups,
                 onSelect = function (data)
                     PoliceImpound.ImpoundVeh(data.entity)
                 end,
                 distance = 1.5
             }
         })
-    elseif type == "qb" then
+    elseif TargetData.type == "qb" then
         exports['qb-target']:AddTargetBone(bones, {
             options = {
                 ["Sita Kendaraan"] = {
@@ -309,7 +311,7 @@ PoliceImpound.setUpTarget = function ( type, grade )
                     action = function(veh)
                         PoliceImpound.ImpoundVeh(veh)
                     end,
-                    job = 'police',
+                    job = TargetData.groups,
                     distance = 1.5
                 }
             }
@@ -403,7 +405,7 @@ end)
 CreateThread(function()
     if Config.UsePoliceImpound and next(Config.PoliceImpound.location) then
         
-        PoliceImpound.setUpTarget(Config.PoliceImpound.targetUsed)
+        PoliceImpound.setUpTarget()
 
         for k,v in pairs(Config.PoliceImpound.location) do
             lib.zones.poly({
