@@ -23,6 +23,10 @@ local spawn = function ( data )
     while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
     
+    while GetVehicleNumberPlateText(veh) ~= serverData.plate do
+        SetVehicleNumberPlateText(serverData.plate:trim()) Wait(10)
+    end
+    
     SetVehicleNumberPlateText(veh, serverData.plate)
     SetVehicleOnGroundProperly(veh)
 
