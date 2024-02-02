@@ -10,9 +10,13 @@ end)
 lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicleData )
     local props = {}
     local deformation = {}
+    
     local veh = CreateVehicleServerSetter(vehicleData.model, vehicleData.vehtype, vehicleData.coords.x, vehicleData.coords.y, vehicleData.coords.z, vehicleData.coords.w)
-    if veh == 0 then return end
-    while NetworkGetEntityOwner(veh) == -1 do Wait(0) end
+    
+    while not DoesEntityExist(veh) do Wait(10) end
+    while GetVehicleNumberPlateText(veh) == '' do Wait(10) end
+    while NetworkGetEntityOwner(veh) == -1 do Wait(10) end
+
     local netId, owner = NetworkGetNetworkIdFromEntity(veh), NetworkGetEntityOwner(veh)
     SetVehicleNumberPlateText(veh, vehicleData.plate)
     local result = MySQL.query.await(DBFormat.getParameters("createvehicle"), DBFormat.getValue("createvehicle", vehicleData.plate))
