@@ -16,11 +16,11 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
     while not DoesEntityExist(veh) do Wait(10) end
     while GetVehicleNumberPlateText(veh) == '' do Wait(10) end
     while NetworkGetEntityOwner(veh) == -1 do Wait(10) end
-
-    local netId, owner = NetworkGetNetworkIdFromEntity(veh), NetworkGetEntityOwner(veh)
     SetVehicleNumberPlateText(veh, vehicleData.plate)
+    
+    local netId, owner = NetworkGetNetworkIdFromEntity(veh), NetworkGetEntityOwner(veh)
     local result = MySQL.query.await(DBFormat.getParameters("createvehicle"), DBFormat.getValue("createvehicle", vehicleData.plate))
-    if result then props = result[1][DBFormat.column.properties] deformation = result[1].deformation end
+    if result then print(json.encode(result[1])) props = result[1][DBFormat.column.properties] deformation = result[1].deformation end
     TriggerClientEvent('ox_lib:setVehicleProperties', owner, netId, json.decode(props))
     return { netId = netId, props = json.decode(props), plate = vehicleData.plate, deformation = json.decode(deformation) }
 end)

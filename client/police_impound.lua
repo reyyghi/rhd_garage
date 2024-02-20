@@ -31,8 +31,8 @@ local spawn = function ( data )
     while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
 
-    while GetVehicleNumberPlateText(veh) ~= serverData.plate do
-        SetVehicleNumberPlateText(serverData.plate:trim()) Wait(10)
+    while Utils.getPlate(veh) ~= serverData.plate do
+        SetVehicleNumberPlateText(veh, serverData.plate) Wait(10)
     end
 
     local PedDriver = GetPedInVehicleSeat(veh, -1)
@@ -40,7 +40,6 @@ local spawn = function ( data )
         DeleteEntity(PedDriver)
     end
 
-    SetVehicleNumberPlateText(veh, serverData.plate)
     SetVehicleOnGroundProperly(veh)
 
     if Config.SpawnInVehicle then
