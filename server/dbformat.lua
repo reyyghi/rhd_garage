@@ -30,7 +30,7 @@ function DBFormat.getParameters(type, ...)
     if type == "vehiclelist" then
         local result = {
             impound = ("SELECT %s FROM %s WHERE %s AND %s"):format(DBFormat.selected_column.vehicleList.normal, DBFormat.table.player_vehicles, DBFormat.placeholder.state, DBFormat.placeholder.owner),
-            shared = ("SELECT %s FROM %s LEFT JOIN %s ON %s = %s WHERE garage = ?"):format(DBFormat.selected_column.vehicleList.shared, DBFormat.table.player_vehicles, DBFormat.table.players, DBFormat.column.identifier, DBFormat.column.owner),
+            shared = ("SELECT %s FROM %s LEFT JOIN %s ON %s = %s WHERE garage = ?"):format(DBFormat.selected_column.vehicleList.shared, DBFormat.table.player_vehicles, DBFormat.table.players, ("%s.%s"):format(DBFormat.table.players, DBFormat.column.identifier), ("%s.%s"):format(DBFormat.table.player_vehicles, DBFormat.column.owner)),
             normal = ("SELECT %s FROM %s WHERE garage = ? AND %s"):format(DBFormat.selected_column.vehicleList.normal, DBFormat.table.player_vehicles, DBFormat.placeholder.owner)
         }
         return result[args[1]]
