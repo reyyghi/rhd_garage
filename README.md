@@ -116,22 +116,6 @@ The garage system for QBCore and ESX frameworks is created by [dellaaaaaa](https
 
 # Installation 
 
-### ESX
-- Run this on your database :
-```sql
-   ALTER TABLE owned_vehicles CHANGE COLUMN stored stored INT(11) NOT NULL DEFAULT 0;
-    
-   ALTER TABLE owned_vehicles ADD COLUMN garage LONGTEXT NULL AFTER stored;
-    
-   ALTER TABLE owned_vehicles ADD COLUMN deformation LONGTEXT NULL
-```
-
-### QBCore
-- Run this on your database :
-```sql
-   ALTER TABLE player_vehicles ADD COLUMN deformation LONGTEXT NULL
-```
-
 #### qb-phone
 - look for this in qb-phone/server/main.lua on line 230:
 ```lua
