@@ -1,9 +1,18 @@
 if not Config.UsePoliceImpound then return end
 
+local VehicleShow = nil
+
 local Utils = require "modules.utils"
 local Deformation = require "modules.deformation"
 
 PoliceImpound = {}
+
+local function deletePreviewVehicle ()
+    if VehicleShow and DoesEntityExist(VehicleShow) then
+        SetEntityAsMissionEntity(VehicleShow, true, true)
+        DeleteVehicle(VehicleShow)
+    end
+end
 
 local spawn = function ( data )
 
@@ -58,6 +67,8 @@ PoliceImpound.open = function ( garage )
     local context = {
         id = "rhd_garage:policeImpound",
         title = garage:upper(),
+        onBack = deletePreviewVehicle,
+        onExit = deletePreviewVehicle,
         options = {}
     }
 
@@ -90,13 +101,24 @@ PoliceImpound.open = function ( garage )
                 },
                 iconAnimation = Config.IconAnimation,
                 onSelect = function ()
+                    local coords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5), GetEntityHeading(cache.ped)+90)
+                    local vehInArea = lib.getClosestVehicle(coords.xyz)
+                    if DoesEntityExist(vehInArea) then return Utils.notify(locale('rhd_garage:no_parking_spot'), 'error') end
+
+                    VehicleShow = Utils.createPlyVeh(props.model, coords)
+                    NetworkFadeInEntity(VehicleShow, true, false)
+                    FreezeEntityPosition(VehicleShow, true)
+                    SetVehicleDoorsLocked(VehicleShow, 2)
+                    if props and next(props) then
+                        lib.setVehicleProperties(VehicleShow, props)
+                    end
+
                     local context2 = {
                         id = "rhd_garage:policeImpound.action",
                         title = garage:upper(),
                         menu = "rhd_garage:policeImpound",
-                        onBack = function ()
-                            
-                        end,
+                        onBack = deletePreviewVehicle,
+                        onExit = deletePreviewVehicle,
                         options = {
                             {
                                 title = ("%s [%s]"):format(vehname, plate:upper()),
@@ -117,6 +139,7 @@ PoliceImpound.open = function ( garage )
                             icon = "dollar-sign",
                             iconAnimation = Config.IconAnimation,
                             onSelect = function ()
+                                deletePreviewVehicle()
                                 TriggerServerEvent("rhd_garage:server:policeImpound.sendBill", citizenid, fine, plate)
                             end
                         }
@@ -126,6 +149,7 @@ PoliceImpound.open = function ( garage )
                             icon = "car",
                             iconAnimation = Config.IconAnimation,
                             onSelect = function ()
+                                deletePreviewVehicle()
                                 local checkkDate, day = lib.callback.await("rhd_garage:cb_server:policeImpound.cekDate", false, date)
 
                                 local continue, takeout = false, false
@@ -403,16 +427,18 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
 end)
 
 CreateThread(function()
-    if Config.UsePoliceImpound and next(Config.PoliceImpound.location) then
+    local Location = Config.PoliceImpound.location
+    local Target = Config.PoliceImpound.Target
+    if Config.UsePoliceImpound and next(Location) then
         
         PoliceImpound.setUpTarget()
 
-        for k,v in pairs(Config.PoliceImpound.location) do
+        for k,v in pairs(Location) do
             lib.zones.poly({
                 points  = v.zones.points,
                 thickness = v.zones.thickness,
                 onEnter = function ()
-                    if Utils.JobCheck({ job = {["police"] = v.grade}}) then
+                    if Utils.JobCheck({ job = Target.groups}) then
 
                         Utils.drawtext('show', v.label:upper(), 'warehouse')
                         Utils.createRadial({
@@ -434,6 +460,15 @@ CreateThread(function()
                     Utils.removeRadial("store_veh")
                 end
             })
+        end
+    end
+end)
+
+AddEventHandler('onResourceStop', function(resource)
+    if resource == GetCurrentResourceName() then
+        if VehicleShow and DoesEntityExist(VehicleShow) then
+            SetEntityAsMissionEntity(VehicleShow, true, true)
+            DeleteVehicle(VehicleShow)
         end
     end
 end)
