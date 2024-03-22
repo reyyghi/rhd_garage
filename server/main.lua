@@ -20,8 +20,8 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
     
     local netId, owner = NetworkGetNetworkIdFromEntity(veh), NetworkGetEntityOwner(veh)
     local result = MySQL.query.await(DBFormat.getParameters("createvehicle"), DBFormat.getValue("createvehicle", vehicleData.plate))
-    if result then print(json.encode(result[1])) props = result[1][DBFormat.column.properties] deformation = result[1].deformation end
-    TriggerClientEvent('ox_lib:setVehicleProperties', owner, netId, json.decode(props))
+    if result then props = result[1][DBFormat.column.properties] deformation = result[1].deformation end
+    lib.callback.await('rhd_garage:cb_client:vehicleSpawned', owner, netId, json.decode(props))
     return { netId = netId, props = json.decode(props), plate = vehicleData.plate, deformation = json.decode(deformation) }
 end)
 

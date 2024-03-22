@@ -42,6 +42,21 @@ lib.callback.register('rhd_garage:cb_client:cekEntityVeh', function (plate)
     return false
 end)
 
+lib.callback.register('rhd_garage:cb_client:vehicleSpawned', function(netId, props)
+    local veh = NetworkGetEntityFromNetworkId(netId)
+
+    for i = -1, 0 do
+        local ped = GetPedInVehicleSeat(veh, i)
+        if ped ~= cache.ped and ped > 0 and NetworkGetEntityOwner(ped) == cache.playerId then
+            DeleteEntity(ped)
+        end
+    end
+
+    if props then
+        lib.setVehicleProperties(veh, props)
+    end
+end)
+
 --- exports
 exports('trackOutVeh', trackOutVeh)
 exports("getvehdataByPlate", getvehdataByPlate)
