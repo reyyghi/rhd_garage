@@ -9,10 +9,6 @@ local function getvehdataByPlate ( plate )
 end
 
 local function getvehdataForPhone ( )
-    if not Framework.qb() then
-        return
-    end
-
     return lib.callback.await('rhd_garage:cb_server:getvehdataForPhone', false)
 end
 
