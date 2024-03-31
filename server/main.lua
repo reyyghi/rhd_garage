@@ -103,6 +103,10 @@ lib.callback.register("rhd_garage:cb_server:transferVehicle", function (src, cli
     return changed > 0, locale("rhd_garage:transferveh_success_src", Framework.server.getName(clientData.targetSrc))
 end)
 
+lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src)
+    return GetPlayerVehiclesForPhone(src)
+end)
+
 --- Event
 RegisterNetEvent("rhd_garage:server:updateState", function ( data )
     local prop = data.prop

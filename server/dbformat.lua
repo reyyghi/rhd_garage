@@ -1,4 +1,11 @@
 DBFormat = {
+    player_vehicles = IsQB and "player_vehicles" or "owned_vehicles",
+    players = IsQB and "players" or "users",
+    owner = IsQB and "citizenid" or "owner",
+    state = IsQB and "state" or "stored"
+}
+
+DBFormat = {
     table = {
         player_vehicles = IsQB and "player_vehicles" or "owned_vehicles",
         players = IsQB and "players" or "users"
