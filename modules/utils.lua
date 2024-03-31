@@ -1,11 +1,24 @@
 local utils = {}
 local QBRadial = {}
 
+local printType = {
+    error = "^1[ERROR]^7",
+    success = "^2[SUCCESS]^7"
+}
+
 ---@param string string
 ---@return string?
 string.trim = function ( string )
     if not string then return nil end
     return (string.gsub(string, '^%s*(.-)%s*$', '%1'))
+end
+
+---@param type string
+---@param string string
+function utils.print(type, string)
+    if not type or not string then return end
+    if not printType[type] then return end
+    print(('%s %s'):format(printType[type], string))
 end
 
 ---@param txt string
@@ -142,51 +155,34 @@ end
 ---@return boolean
 function utils.GangCheck ( data )
     local configGang = data.gang
-    local plyJob = Framework.client.gang
+    local playergang = fw.player.gang
+    local allowed = false
     if type(configGang) == 'table' then
-        for job, grade in pairs(configGang) do      
-            if type(plyJob.grade) == 'table' then
-                plyJob.grade = plyJob.grade.level
-            end
-            if plyJob.name == job and plyJob.grade >= grade then
-                return true
-            end
-        end
+        local grade = configGang[playergang.name]
+        allowed = grade and playergang.grade >= grade
     elseif type(configGang) == 'string' then
-        if plyJob.name == configGang then
-            return true
+        if playergang.name == configGang then
+            allowed = true
         end
     end
-    return false
+    return allowed
 end
 
 ---@param data table
 ---@return boolean
 function utils.JobCheck ( data )
     local configJob = data.job
-    local plyJob = Framework.client.job
+    local playerjob = fw.player.job
+    local allowed = false
     if type(configJob) == 'table' then
-        for job, grade in pairs(configJob) do         
-            if type(plyJob.grade) == 'table' then
-                plyJob.grade = plyJob.grade.level
-            end
-
-            if plyJob.type then
-                if plyJob.type == job and plyJob.grade >= grade then
-                    return true
-                end
-            end
-
-            if plyJob.name == job and plyJob.grade >= grade then
-                return true
-            end
-        end
+        local grade = configJob[playerjob.name]
+        allowed = grade and playerjob.grade >= grade
     elseif type(configJob) == 'string' then
-        if plyJob.name == configJob then
-            return true
+        if playerjob.name == configJob then
+            allowed = true
         end
     end
-    return false
+    return allowed
 end
 
 ---@param type string
