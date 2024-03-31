@@ -97,7 +97,7 @@ Garage.actionMenu = function ( data )
                                     description = locale('rhd_garage:pay_with_cash'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
-                                        if Framework.client.getMoney('cash') < data.depotprice then return Utils.notify(locale('rhd_garage:not_enough_cash'), 'error') end
+                                        if fw.gm('cash') < data.depotprice then return Utils.notify(locale('rhd_garage:not_enough_cash'), 'error') end
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', data.depotprice)
                                         if success then
                                             Utils.notify(locale('rhd_garage:success_pay_impound'), 'success')
@@ -111,7 +111,7 @@ Garage.actionMenu = function ( data )
                                     description = locale('rhd_garage:pay_with_bank'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
-                                        if Framework.client.getMoney('bank') < data.depotprice then return Utils.notify(locale('rhd_garage:not_enough_bank'), 'error') end
+                                        if fw.gm('bank') < data.depotprice then return Utils.notify(locale('rhd_garage:not_enough_bank'), 'error') end
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'bank', data.depotprice)
                                         if success then
                                             Utils.notify(locale('rhd_garage:success_pay_impound'), 'success')
@@ -199,7 +199,7 @@ Garage.actionMenu = function ( data )
                             newgarage = garageInput[1]
                         }
 
-                        if Framework.client.getMoney('cash') < Config.SwapGarage.price then return Utils.notify(locale("rhd_garage:swapgarage_need_money", lib.math.groupdigits(Config.SwapGarage.price, '.')), 'error') end
+                        if fw.gm('cash') < Config.SwapGarage.price then return Utils.notify(locale("rhd_garage:swapgarage_need_money", lib.math.groupdigits(Config.SwapGarage.price, '.')), 'error') end
                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', Config.SwapGarage.price)
                         if not success then return end
 
@@ -232,7 +232,7 @@ Garage.actionMenu = function ( data )
                 })
                 
                 if input then
-                    if Framework.client.getMoney('cash') < Config.changeNamePrice then return Utils.notify(locale('rhd_garage:change_veh_name_nocash'), 'error') end
+                    if fw.gm('cash') < Config.changeNamePrice then return Utils.notify(locale('rhd_garage:change_veh_name_nocash'), 'error') end
 
                     local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', Config.changeNamePrice)
                     if success then
@@ -324,7 +324,7 @@ Garage.openMenu = function ( data )
             end
         end
 
-        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or Framework.client.getVehName( vehModel ), plate)
+        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or fw.gvn( vehModel ), plate)
         
         if Utils.garageType("check", data.type, Utils.getTypeByClass(vehicleClass)) then
             menuData.options[#menuData.options+1] = {
