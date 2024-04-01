@@ -228,13 +228,16 @@ local function impoundVehicle (vehicle)
     if not vehdata then return end
     if #garageList < 1 then return end
 
+    local vehName = vehdata.vehicle_name or fw.gvn(vehdata.vehicle)
+    local customvehName = CNV[plate:trim()] and CNV[plate:trim()].name
+    local vehlabel = customvehName or vehName
+
     local owner = vehdata.owner
     local ownerName = owner.name
     local ownerCitizenid = owner.citizenid
-    local vehname = CNV[plate:trim()]?.name or fw.gvn(vehdata.vehicle)
     local officerName = fw.gn()
 
-    local input = lib.inputDialog(("%s [%s]"):format(vehname, plate:upper()), {
+    local input = lib.inputDialog(("%s [%s]"):format(vehlabel, plate:upper()), {
         { type = 'input', label = 'PEMILIK', placeholder = ownerName:upper(), disabled = true },
         { type = 'number', label = 'DENDA', required = true, default = 10000, min = 1, max = 1000000 },
         { type = 'select', label = 'GARASI PENYITAAN', options = garageList, default = garageList[1] },
@@ -250,7 +253,7 @@ local function impoundVehicle (vehicle)
             garage = input[3],
             prop = vehprop,
             plate = plate:trim(),
-            vehicle = vehname,
+            vehicle = vehlabel,
             date =  math.floor(input[4] / 1000),
             deformation = Deformation.get(vehicle)
         }
