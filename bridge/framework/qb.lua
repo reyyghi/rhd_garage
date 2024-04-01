@@ -55,11 +55,11 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
 
     fw.player.job = {
         name = Job.name,
-        grade = Job.grade
+        grade = Job.grade.level
     }
     fw.player.gang = {
         name = Gang.name,
-        grade = Gang.grade
+        grade = Gang.grade.level
     }
 end)
 
@@ -74,11 +74,11 @@ RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
 
     fw.player.job = {
         name = Job.name,
-        grade = Job.grade
+        grade = Job.grade.level
     }
     fw.player.gang = {
         name = Gang.name,
-        grade = Gang.grade
+        grade = Gang.grade.level
     }
 end)
 
@@ -147,6 +147,18 @@ if isServer then
     function fw.uvs(plate, state, garage)
         local Update = MySQL.update.await("UPDATE player_vehicles SET state = ?, garage = ? WHERE plate = ? OR fakeplate = ?", {state, garage, plate, plate})
         return Update > 0
+    end
+
+    --- Update Vehicle State Police Impound
+    ---@param plate string
+    ---@param state number
+    ---@return boolean
+    function fw.uvspi(plate, state)
+        local update = MySQL.update.await([[
+            UPDATE
+                player_vehicles SET state = ? WHERE plate = ? OR fakeplate = ?
+        ]], {state, plate, plate})
+        return update > 0
     end
 
     --- Swap Vehicle Garage
