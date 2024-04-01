@@ -384,17 +384,14 @@ Garage.storeVeh = function ( data )
     local plate = prop.plate:trim()
     local shared = data.shared
     local deformation = Deformation.get(data.vehicle)
-    local isOwned = lib.callback.await('rhd_garage:cb_server:getvehowner', false, plate, shared)
+    local isOwned = lib.callback.await('rhd_garage:cb_server:getvehowner', false, plate, shared, {mods = prop, deformation = deformation})
     if not isOwned then return Utils.notify(locale('rhd_garage:not_owned'), 'error') end
     if DoesEntityExist(data.vehicle) then
         SetEntityAsMissionEntity(data.vehicle, true, true)
         DeleteVehicle(data.vehicle)
-
+        
         TriggerServerEvent('rhd_garage:server:updateState', {
-            vehicle = nil,
-            prop = prop,
             plate = plate,
-            deformation = deformation,
             state = 1,
             garage = data.garage
         })
