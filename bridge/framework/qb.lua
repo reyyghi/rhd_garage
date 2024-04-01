@@ -39,7 +39,12 @@ end
 ---@param model string
 function fw.gvn(model)
     local vd = QBCore.Shared.Vehicles[model]
-    return vd?.name or GetDisplayNameFromVehicleModel(model)
+    local makename = GetMakeNameFromVehicleModel(model)
+    local displayname = GetDisplayNameFromVehicleModel(model)
+
+    local vm = vd?.brand or makename
+    local vn = vd?.name or displayname
+    return ("%s %s"):format(vm, vn)
 end
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
@@ -197,7 +202,7 @@ if isServer then
     ---@param src number
     ---@param plate string
     ---@param filter {onlyOwner: boolean}
-    ---@param pleaseUpdate { mods: table, deformation: table, fuel: number, engine: number, body: number }
+    ---@param pleaseUpdate {vehicle_name:string, mods: table, deformation: table, fuel: number, engine: number, body: number}
     ---@return table | boolean
     function fw.gvobp(src, plate, filter, pleaseUpdate)
         local identifier = fw.gi(src)
@@ -235,8 +240,9 @@ if isServer then
                 UPDATE
                     player_vehicles
                         SET
-                mods = ?, fuel = ?, engine = ?, body = ?, deformation = ? WHERE plate = ? OR fakeplate = ?
+                    vehicle_name = ?, mods = ?, fuel = ?, engine = ?, body = ?, deformation = ? WHERE plate = ? OR fakeplate = ?
             ]], {
+                pleaseUpdate.vehicle_name,
                 json.encode(pleaseUpdate.mods),
                 math.floor(pleaseUpdate.fuel),
                 math.floor(pleaseUpdate.engine),
@@ -253,6 +259,17 @@ if isServer then
         }
     end
 
+    --- Get Vehicle Data For Phone
+    -- function fw.gvdfp()
+    --     local results = MySQL.query.await([[
+    --         SELECT
+    --             vehicle_name,
+    --             mods,
+                
+
+    --     ]])
+    -- end
+
     --- Get Player Vehicle By Plate
     ---@param plate string
     ---@return table
@@ -261,6 +278,7 @@ if isServer then
             SELECT 
                 pv.citizenid,
                 pv.vehicle,
+                pv.vehicle_name,
                 pv.mods,
                 pv.plate,
                 pv.fakeplate,
@@ -285,6 +303,7 @@ if isServer then
                     name = ("%s %s"):format(charinfo.firstname, charinfo.lastname),
                     citizenid = v.citizenid,
                 },
+                vehicle_name = v.vehicle_name,
                 mods = mods,
                 vehicle = v.vehicle,
                 model = joaat(v.vehicle),
@@ -313,6 +332,7 @@ if isServer then
         local format = [[
             SELECT 
                 vehicle,
+                vehicle_name,
                 mods,
                 state,
                 depotprice,
@@ -331,7 +351,8 @@ if isServer then
                 if filter.shared then
                     format = [[
                         SELECT
-                            pv.vehicle, 
+                            pv.vehicle,
+                            pv.vehicle_name,
                             pv.mods,
                             pv.state,
                             pv.depotprice,
@@ -348,7 +369,18 @@ if isServer then
                 end
             else
                 format = [[
-                    SELECT vehicle, mods, state, depotprice, plate, fakeplate, fuel, engine, body, deformation FROM player_vehicles WHERE citizenid = ? AND state = 0
+                    SELECT
+                        vehicle,
+                        vehicle_name,
+                        mods,
+                        state,
+                        depotprice,
+                        plate,
+                        fakeplate,
+                        fuel,
+                        engine,
+                        body,
+                        deformation FROM player_vehicles WHERE citizenid = ? AND state = 0
                 ]]
                 value = {Identifier}
             end
@@ -370,6 +402,7 @@ if isServer then
                 
                 vehicles[#vehicles+1] = {
                     vehicle = mods,
+                    vehicle_name = data.vehicle_name,
                     fuel = data.fuel or 100,
                     engine = data.engine,
                     body = data.body,
