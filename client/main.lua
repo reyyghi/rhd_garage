@@ -4,8 +4,7 @@ local VehicleShow = nil
 
 Garage = {}
 
-local spawn = function ( data )
-
+local function spawnvehicle ( data )
     lib.requestModel(data.model)
     local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
         model = data.model,
@@ -47,7 +46,7 @@ local spawn = function ( data )
     TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
 end
 
-Garage.actionMenu = function ( data )
+local function actionMenu ( data )
     local actionData = {
         id = 'garage_action',
         title = data.vehName:upper(),
@@ -90,7 +89,7 @@ Garage.actionMenu = function ( data )
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', data.depotprice)
                                         if success then
                                             Utils.notify(locale('rhd_garage:success_pay_impound'), 'success')
-                                            return spawn( data )
+                                            return spawnvehicle( data )
                                         end
                                     end
                                 },
@@ -104,7 +103,7 @@ Garage.actionMenu = function ( data )
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'bank', data.depotprice)
                                         if success then
                                             Utils.notify(locale('rhd_garage:success_pay_impound'), 'success')
-                                            return spawn( data )
+                                            return spawnvehicle( data )
                                         end
                                     end
                                 }
@@ -113,7 +112,7 @@ Garage.actionMenu = function ( data )
                         return
                     end
 
-                    spawn( data )
+                    spawnvehicle( data )
                 end
             },
             
@@ -239,7 +238,7 @@ Garage.actionMenu = function ( data )
 end
 
 
-Garage.openMenu = function ( data )
+local function openMenu ( data )
     if not data then return end
     data.type = data.type or "car"
     
@@ -250,8 +249,7 @@ Garage.openMenu = function ( data )
     }
 
     local vehData = lib.callback.await('rhd_garage:cb_server:getVehicleList', false, data.garage, data.impound, data.shared)
-
-    print(json.encode(vehData, {indent =  true}))
+    
     if not vehData then
         return    
     end
@@ -345,7 +343,7 @@ Garage.openMenu = function ( data )
                         lib.setVehicleProperties(VehicleShow, vehProp)
                     end
     
-                    Garage.actionMenu({
+                    actionMenu({
                         prop = vehProp,
                         engine = engine,
                         fuel = fuel,
@@ -375,7 +373,7 @@ Garage.openMenu = function ( data )
     Utils.createMenu(menuData)
 end
 
-Garage.storeVeh = function ( data )
+local function storeVeh ( data )
     local prop = lib.getVehicleProperties(data.vehicle)
     local plate = prop.plate:trim()
     local shared = data.shared
@@ -409,5 +407,5 @@ Garage.storeVeh = function ( data )
 end
 
 --- exports 
-exports('openMenu', Garage.openMenu)
-exports('storeVehicle', Garage.storeVeh)
+exports('openMenu', openMenu)
+exports('storeVehicle', storeVeh)
