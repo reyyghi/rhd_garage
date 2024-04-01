@@ -104,6 +104,14 @@ if isServer then
         return citizenid or false, license
     end
 
+    --- Get Player By Identifier
+    ---@param identifier string
+    ---@return table | boolean
+    function fw.gpbi(identifier)
+        local p = QBCore.Functions.GetPlayerByCitizenId(identifier)
+        return p and p.PlayerData or false
+    end
+
     --- Player Remove Money
     ---@param src number playerid
     ---@param type string cash | bank
@@ -264,34 +272,32 @@ if isServer then
                 pv.depotprice,
                 pv.balance,
                 p.charinfo
-            FROM player_vehicles pv LEFT JOIN players p ON pv.citizenid = p.citizenid WHERE plate = ? OR fakeplate = ?    
+            FROM player_vehicles pv LEFT JOIN players p ON pv.citizenid = p.citizenid WHERE pv.plate = ? OR pv.fakeplate = ?    
         ]], {plate, plate})
 
         local vehicles = {}
-        if results and results[1] then
-            for i=1, #results do
-                local data = results[i]
-                local charinfo = json.decode(data.charinfo)
-                local mods = json.decode(data.mods)
-                vehicles[#vehicles+1] = {
-                    owner = {
-                        name = ("%s %s"):format(charinfo.firstname, charinfo.lastname),
-                        citizenid = data.citizenid,
-                    },
-                    mods = mods,
-                    vehicle = data.vehicle,
-                    model = joaat(data.vehicle),
-                    plate = data.plate,
-                    fakeplate = data.fakeplate,
-                    garage = data.garage,
-                    fuel = data.fuel,
-                    engine = data.engine,
-                    body = data.body,
-                    state = data.state,
-                    depotprice = data.depotprice,
-                    balance = data.balance
-                }
-            end
+        if results then
+            local v = results
+            local charinfo = json.decode(v.charinfo)
+            local mods = json.decode(v.mods)
+            vehicles = {
+                owner = {
+                    name = ("%s %s"):format(charinfo.firstname, charinfo.lastname),
+                    citizenid = v.citizenid,
+                },
+                mods = mods,
+                vehicle = v.vehicle,
+                model = joaat(v.vehicle),
+                plate = v.plate,
+                fakeplate = v.fakeplate,
+                garage = v.garage,
+                fuel = v.fuel,
+                engine = v.engine,
+                body = v.body,
+                state = v.state,
+                depotprice = v.depotprice,
+                balance = v.balance
+            }
         end
 
         return vehicles
