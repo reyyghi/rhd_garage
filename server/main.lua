@@ -39,46 +39,41 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
 end)
 
 lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (_, plate)
-    local data = MySQL.single.await(DBFormat.getParameters("vehicledata"), DBFormat.getValue("vehicledata", plate))
-    if not data then return {} end
-    local mods = json.decode(data[DBFormat.column.properties])
-    local charinfo = IsQB and json.decode(data.charinfo) or {}
-    local deformation = json.decode(data.deformation)
-    local balance = IsQB and data.balance or 0
-    local ownername = ("%s %s"):format(IsQB and charinfo.firstname or data.firstname, IsQB and charinfo.lastname or data.lastname)
-    local vehicle = IsQB and data.vehicle or mods.model
-
-    return {
-        citizenid = data[DBFormat.column.owner],
-        owner = ownername,
-        vehicle = vehicle,
-        props = mods,
-        balance = balance,
-        deformation = deformation
-    }
+    return fw.gpvbp(plate)
 end)
 
 lib.callback.register("rhd_garage:cb_server:swapGarage", function (source, clientData)
-    local identifier = Framework.server.getIdentifier(source)
-    local changed = MySQL.update.await(DBFormat.getParameters("swapgarage"), DBFormat.getValue("swapgarage", clientData.newgarage, identifier, clientData.plate))
-    return changed > 0
+    return fw.svg(clientData.newgarage, clientData.plate)
 end)
 
 lib.callback.register("rhd_garage:cb_server:transferVehicle", function (src, clientData)
-    local TargetIdentifier = Framework.server.getIdentifier(clientData.targetSrc)
-    local myIdentifier = Framework.server.getIdentifier(src)
-    if not TargetIdentifier then return false, locale("rhd_garage:transferveh_plyoffline", clientData.targetSrc) end
-    if TargetIdentifier == myIdentifier then return false, locale("rhd_garage:transferveh_cannot_transfer") end
-    if not Framework.server.removeMoney(src, "cash", clientData.price) then return false, locale("rhd_garage:transferveh_no_money") end
-    local changed = MySQL.update.await(DBFormat.getParameters("transfervehicle"), DBFormat.getValue("transfervehicle", TargetIdentifier, clientData.plate, myIdentifier))
-    local success = changed > 0
-    if success then Utils.ServerNotify(clientData.targetSrc, locale("rhd_garage:transferveh_success_target", Framework.server.getName(src), clientData.garage), "success") end
-    return changed > 0, locale("rhd_garage:transferveh_success_src", Framework.server.getName(clientData.targetSrc))
+    if src == clientData.targetSrc then
+        return false, locale("rhd_garage:transferveh_cannot_transfer")
+    end
+
+    local tid = clientData.targetSrc
+    local mp = fw.gp(src)
+    local tp = fw.gp(tid)
+    if not mp then return end
+    if not tp then return false, locale("rhd_garage:transferveh_plyoffline", clientData.targetSrc) end
+    if fw.rm(src, "cash", clientData.price) then
+        return false, locale("rhd_garage:transferveh_no_money")
+    end
+    
+    local success = fw.uvo({
+        citizenid = mp.citizenid
+    }, {
+        citizenid = tp.citizenid,
+        license = tp.license
+    }, clientData.plate)
+
+    if success then Utils.ServerNotify(tid, locale("rhd_garage:transferveh_success_target", fw.gn(src), clientData.garage), "success") end
+    return success, locale("rhd_garage:transferveh_success_src", fw.gn(tid))
 end)
 
-lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src)
-    return GetPlayerVehiclesForPhone(src)
-end)
+-- lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src)
+--     return GetPlayerVehiclesForPhone(src)
+-- end)
 
 --- Event
 RegisterNetEvent("rhd_garage:server:updateState", function ( data )
