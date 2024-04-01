@@ -1,7 +1,7 @@
 Config = {}
 
-GarageZone = require "data.garage"
-CNV = require "data.customname"
+GarageZone = lib.load('data.garage')
+CNV = lib.load('data.customname')
 
 Config.RadialMenu = 'rhd' --- ox / qb / rhd
 Config.FuelScript = 'rhd_fuel' --- rhd_fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
