@@ -21,6 +21,34 @@ function utils.print(type, string)
     print(('%s %s'):format(printType[type], string))
 end
 
+---@param level any
+function utils.getColorLevel(level)
+    if not level then return end
+    return level < 25 and "red" or level >= 25 and level < 50 and  "#E86405" or level >= 50 and level < 75 and "#E8AC05" or level >= 75 and "green"
+end
+
+---@param vehicle integer
+---@param fuel number
+function utils.setFuel(vehicle, fuel)
+    Wait(100)
+    if Config.FuelScript == "ox_fuel" then
+        Entity(vehicle).state.fuel = fuel or 100
+    else
+        exports[Config.FuelScript]:SetFuel(vehicle, fuel or 100)
+    end
+end
+
+---@param vehicle integer
+function utils.getFuel(vehicle)
+    local fuelLevel = 0
+    if Config.FuelScript == "ox_fuel" then
+        fuelLevel = Entity(vehicle).state?.fuel or 100 
+    else
+        fuelLevel = exports[Config.FuelScript]:GetFuel(vehicle)
+    end
+    return fuelLevel
+end
+
 ---@param txt string
 ---@param type string
 function utils.notify (txt, type)
