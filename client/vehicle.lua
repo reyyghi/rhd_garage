@@ -8,14 +8,6 @@ function vehFunc.gvibp(plate)
     return vehInfo and next(vehInfo) and vehInfo or false 
 end
 
---- function
----@param plate string
----@return table | boolean
-local function getvehdataByPlate ( plate )
-    local Data = lib.callback.await("rhd_garage:cb_server:getvehicledatabyplate", false, plate:trim())
-    return next(Data) and Data or false
-end
-
 local function getvehdataForPhone ( )
     return lib.callback.await('rhd_garage:cb_server:getvehdataForPhone', false)
 end
@@ -60,6 +52,5 @@ end)
 
 --- exports
 exports('trackOutVeh', trackOutVeh)
-exports("getvehdataByPlate", getvehdataByPlate)
 exports('getvehdataForPhone', getvehdataForPhone)
 exports('getVehicleTypeByModel', getVehicleTypeByModel)
