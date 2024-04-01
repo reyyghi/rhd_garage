@@ -40,7 +40,6 @@ return {
             },
             thickness = "4.0"
         },
-        shared = true
     },
 
     ["Caears 24 Parking"] = {
