@@ -74,9 +74,6 @@ end)
 lib.callback.register('rhd_garage:cb_server:getVehicleInfoByPlate', function (_, plate)
     return fw.gpvbp(plate)
 end)
--- lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src)
---     return GetPlayerVehiclesForPhone(src)
--- end)
 
 --- Event
 RegisterNetEvent("rhd_garage:server:updateState", function ( data )
