@@ -26,6 +26,22 @@ function vehFunc.govbp(plate)
     return false
 end
 
+--- Track Vehicle By Plate
+---@param plate any
+---@param garage string
+function vehFunc.tvbp(plate, garage)
+    local coords = lib.callback.await("rhd_garage:cb_server:getoutsideVehicleCoords", false, plate)
+    if not coords then return false end
+    SetNewWaypoint(coords.x, coords.y)
+    return true
+end
+
+--- Get Players Vehicle For Phone
+---@return table
+function vehFunc.gpvfp()
+    return lib.callback.await('rhd_garage:cb_server:GetPlayerVehiclesForPhone')
+end
+
 --- Get Vehicle Properties
 ---@param vehicle string | integer
 function vehFunc.gvp(vehicle)
@@ -36,22 +52,6 @@ end
 ---@param props table
 function vehFunc.svp(vehicle, props)
     return lib.setVehicleProperties(vehicle, props)
-end
-
-local function getvehdataForPhone ( )
-    return lib.callback.await('rhd_garage:cb_server:getvehdataForPhone', false)
-end
-
----@param plate string
-local function trackOutVeh ( plate )
-    local coords = nil
-    local plate = plate:trim()
-    local vehExist = utils.getoutsidevehicleByPlate(plate)
-    
-    if DoesEntityExist(vehExist) then
-        coords = GetEntityCoords(vehExist)
-        SetNewWaypoint(coords.x, coords.y)
-    end
 end
 
 ---@param model string|integer
@@ -81,6 +81,6 @@ lib.callback.register('rhd_garage:cb_client:vehicleSpawned', function(netId, pro
 end)
 
 --- exports
-exports('trackOutVeh', trackOutVeh)
-exports('getvehdataForPhone', getvehdataForPhone)
+exports('trackveh', vehFunc.tvbp)
+exports('getvehForPhone', vehFunc.gpvfp)
 exports('getVehicleTypeByModel', getVehicleTypeByModel)
