@@ -221,17 +221,21 @@ end
 
 PoliceImpound.ImpoundVeh = function ( vehicle )
     local vehprop = lib.getVehicleProperties(vehicle)
-    local vehdata = exports.rhd_garage:getvehdataByPlate( vehprop.plate:trim() )
+    local plate = vehprop.plate
+    local vehdata = vehFunc.gvibp(plate:trim())
     local garageList = PoliceImpound.checkAvailableGarage()
 
     if not vehdata then return end
     if #garageList < 1 then return end
 
-    local vehname = CNV[vehprop.plate:trim()]?.name or fw.gvn(vehdata.vehicle)
+    local owner = vehdata.owner
+    local ownerName = owner.name
+    local ownerCitizenid = owner.citizenid
+    local vehname = CNV[plate:trim()]?.name or fw.gvn(vehdata.vehicle)
     local officerName = fw.gn()
 
-    local input = lib.inputDialog(("%s [%s]"):format(vehname, vehprop.plate:upper()), {
-        { type = 'input', label = 'PEMILIK', placeholder = vehdata.owner:upper(), disabled = true },
+    local input = lib.inputDialog(("%s [%s]"):format(vehname, plate:upper()), {
+        { type = 'input', label = 'PEMILIK', placeholder = ownerName:upper(), disabled = true },
         { type = 'number', label = 'DENDA', required = true, default = 10000, min = 1, max = 1000000 },
         { type = 'select', label = 'GARASI PENYITAAN', options = garageList, default = garageList[1] },
         { type = 'date', label = 'DI SITA SAMPAI?', icon = {'far', 'calendar'}, default = true, format = "DD/MM/YYYY" }
@@ -239,13 +243,13 @@ PoliceImpound.ImpoundVeh = function ( vehicle )
     
     if input then
         local sendToServer = {
-            citizenid = vehdata.citizenid,
-            owner = vehdata.owner,
+            citizenid = ownerCitizenid,
+            owner = ownerName,
             officer = officerName,
             fine = input[2],
             garage = input[3],
             prop = vehprop,
-            plate = vehprop.plate:trim(),
+            plate = plate:trim(),
             vehicle = vehname,
             date =  math.floor(input[4] / 1000),
             deformation = Deformation.get(vehicle)

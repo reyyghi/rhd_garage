@@ -26,8 +26,7 @@ lib.callback.register("rhd_garage:cb_server:policeImpound.impoundveh", function 
     local impounded = MySQL.insert.await('INSERT INTO `police_impound` (citizenid, plate, vehicle, props, owner, officer, date, fine, garage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', {
         impoundData.citizenid, impoundData.plate, impoundData.vehicle, json.encode(impoundData.prop), impoundData.owner, impoundData.officer, os.date('%d/%m/%Y', impoundData.date), impoundData.fine, impoundData.garage
     })
-    local update = MySQL.update.await(DBFormat.getParameters("state_policeImpound_insert"), DBFormat.getValue("state_policeImpound_insert", 2, json.encode(impoundData.prop), json.encode(impoundData.deformation), impoundData.plate))
-    return update > 0
+    return fw.uvspi(impoundData.plate, 2)
 end)
 
 lib.callback.register("rhd_garage:cb_server:policeImpound.cekDate", function (_, date )
@@ -43,16 +42,13 @@ end)
 --- events
 RegisterNetEvent('rhd_garage:server:removeFromPoliceImpound', function( plate )
     if GetInvokingResource() then return end
-    MySQL.query('DELETE FROM police_impound WHERE plate = ?', { plate })
-    MySQL.update(DBFormat.getParameters("state_policeImpound_remove"), DBFormat.getValue("state_policeImpound_remove", plate))
+    fw.uvspi(plate, 0)
 end)
 
 RegisterNetEvent('rhd_garage:server:policeImpound.sendBill', function( citizenid, fine, plate )
-    local src
     if GetInvokingResource() then return end
-    local Player = Framework.server.GetPlayerFromCitizenid(citizenid)
+    local Player = fw.gpbi(citizenid)
     if not Player then return end
-    if Framework.esx() then src = Player.source elseif Framework.qb() then src = Player.PlayerData.source end
-    local paid = lib.callback.await("rhd_garage:cb_client:sendFine", src, fine)
+    local paid = lib.callback.await("rhd_garage:cb_client:sendFine", Player.source, fine)
     if paid then MySQL.update("UPDATE police_impound SET paid = 1 WHERE plate = ?", { plate }) end
 end)
