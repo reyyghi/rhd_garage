@@ -1,17 +1,16 @@
-IsQB = Framework.qb()
-
-local Utils = require 'modules.utils'
+local Utils = lib.load('modules.utils')
 
 --- callback
 lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, amount)
-    return Framework.server.removeMoney(src, type, amount)
+    return fw.rm(src, type, amount)
 end)
 
-lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicleData )
+lib.callback.register('rhd_garage:cb_server:createVehicle', function (source, vehicleData )
     local props = {}
     local deformation = {}
     
     local veh = CreateVehicleServerSetter(vehicleData.model, vehicleData.vehtype, vehicleData.coords.x, vehicleData.coords.y, vehicleData.coords.z, vehicleData.coords.w)
+    Wait(100)
     
     while not DoesEntityExist(veh) do Wait(10) end
     while GetVehicleNumberPlateText(veh) == '' do Wait(10) end
@@ -19,50 +18,24 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (_, vehicle
     SetVehicleNumberPlateText(veh, vehicleData.plate)
     
     local netId, owner = NetworkGetNetworkIdFromEntity(veh), NetworkGetEntityOwner(veh)
-    local result = MySQL.query.await(DBFormat.getParameters("createvehicle"), DBFormat.getValue("createvehicle", vehicleData.plate))
-    if result then props = result[1][DBFormat.column.properties] deformation = result[1].deformation end
-    lib.callback.await('rhd_garage:cb_client:vehicleSpawned', owner, netId, json.decode(props))
-    return { netId = netId, props = json.decode(props), plate = vehicleData.plate, deformation = json.decode(deformation) }
+    local result = fw.gmdbp(vehicleData.plate)
+    props = result.prop deformation = result.deformation
+    lib.callback.await('rhd_garage:cb_client:vehicleSpawned', owner, netId, props)
+    return { netId = netId, props = props, plate = vehicleData.plate, deformation = deformation }
 end)
 
-lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared)
-    local identifier = Framework.server.getIdentifier(src)
-    local garageType = shared and "shared" or "normal"
-    return MySQL.single.await(DBFormat.getParameters("getowner", garageType), DBFormat.getValue("getowner", garageType, identifier, plate))
+lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared, pleaseUpdate)
+    return fw.gvobp(src, plate, {
+        owner = shared
+    }, pleaseUpdate)
 end)
 
 
 lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garage, impound, shared)
-    local VehicleResult = {}
-    local garageType = impound and "impound" or shared and "shared" or "normal"
-    local identifier = Framework.server.getIdentifier(src)
-    local result = MySQL.query.await(DBFormat.getParameters("vehiclelist", garageType), DBFormat.getValue("vehiclelist", garageType, garage, identifier))
-
-    if result and next(result) then
-        for k, v in pairs(result) do
-            local charinfo = IsQB and json.decode(v.charinfo) or {}
-            local vehicles = json.decode(IsQB and v.mods or v.vehicle)
-            local deformation = json.decode(v.deformation)
-            local state = IsQB and v.state or v.stored or 0
-            local model = IsQB and v.vehicle or vehicles.model
-            local plate = v.plate
-            local depotprice = IsQB and v.depotprice or 0
-            local fakeplate = IsQB and v.fakeplate or nil
-            local ownername = ("%s %s"):format(IsQB and charinfo.firstname or v.firstname, IsQB and charinfo.lastname or v.lastname)
-            
-            VehicleResult[#VehicleResult+1] = {
-                vehicle = vehicles,
-                state = state,
-                model = model,
-                plate = plate,
-                fakeplate = fakeplate,
-                owner = ownername,
-                depotprice = depotprice,
-                deformation = deformation
-            }
-        end
-    end
-    return VehicleResult
+    return fw.gpvbg(src, garage, {
+        impound = impound,
+        shared = shared
+    })
 end)
 
 lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (_, plate)
@@ -109,13 +82,8 @@ end)
 
 --- Event
 RegisterNetEvent("rhd_garage:server:updateState", function ( data )
-    local prop = data.prop
-    local deformation = data.deformation
-    local state = data.state
-    local garage = data.garage
-    local plate = data.plate
     if GetInvokingResource() then return end
-    MySQL.update(DBFormat.getParameters("state_garage"), DBFormat.getValue("state_garage", state, json.encode(prop), garage,  json.encode(deformation), plate))
+    fw.uvs(data.plate, data.state, data.garage)
 end)
 
 RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
