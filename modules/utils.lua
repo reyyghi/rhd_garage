@@ -289,7 +289,7 @@ end
 ---@param self table
 RegisterNetEvent("rhd_garage:radial:open", function (self)
     if not cache.vehicle then
-        Garage.openMenu( {garage = self.garage.label, impound = self.garage.impound, shared = self.garage.shared, type = self.garage.type} )
+        exports.rhd_garage:openMenu( {garage = self.garage.label, impound = self.garage.impound, shared = self.garage.shared, type = self.garage.type} )
     end
 end)
 
@@ -312,7 +312,7 @@ RegisterNetEvent("rhd_garage:radial:store", function (self)
             Wait(1000)
         end
 
-        Garage.storeVeh({
+        exports.rhd_garage:storeVehicle({
             vehicle = vehicle,
             garage = self.garage.label,
             shared = self.garage.shared
@@ -324,7 +324,7 @@ end)
 
 RegisterNetEvent('rhd_garage:radial:open_policeimpound', function(self)
     if not cache.vehicle then
-        PoliceImpound.open( self.garage )
+        exports.rhd_garage:openpoliceImpound( self.garage )
     end
 end)
 
