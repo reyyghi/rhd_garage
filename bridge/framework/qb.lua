@@ -413,6 +413,66 @@ if isServer then
         return vehicles
     end
 
+    --- Get Vehicles For Phone
+    ---@param src any
+    ---@return table
+    function fw.gvfp(src)
+        local idstr = tostring(src)
+        local citizenid = xPlayer[idstr]?.citizenid or false
+        if not citizenid then return end
+        
+        local results = MySQL.query.await([[
+                SELECT
+                    vehicle,
+                    plate,
+                    garage,
+                    fuel,
+                    engine,
+                    body,
+                    paymentsleft,
+                FROM player_vehicles WHERE citizenid = ?
+        ]], {citizenid})
+
+        local vehicles = {}
+        if results and results[1] then
+            for i=1, #results do
+                local v = results[i]
+                local plate = v.plate
+                local vd = QBCore.Shared.Vehicles[v.vehicle]
+                local brand = vd?.brand
+                local name = vd?.name
+                local defaultname = brand and ("%s %s"):format(brand, name)
+                local customName = CNV[v.plate:trim()] and CNV[v.plate:trim()].name
+                local vehname = customName or defaultname
+
+                local stateText = locale('rhd_garage:phone_veh_in_garage')
+
+                if v.state == 0 then
+                    stateText = vehFuncS.govbp(plate:trim()) and locale('rhd_garage:phone_veh_out_garage') or locale('rhd_garage:phone_veh_in_impound')
+                elseif v.state == 2 then
+                    stateText = locale('rhd_garage:phone_veh_in_policeimpound')
+                end
+
+                local engine = v.engine > 1000 and 1000 or v.engine
+                local body = v.body > 1000 and 1000 or v.body
+
+                vehicles[#vehicles+1] = {
+                    fullname = vehname,
+                    brand = brand or '',
+                    model = name or '',
+                    plate = v.plate,
+                    garage = v.garage,
+                    state = stateText,
+                    fuel = v.fuel,
+                    engine = engine,
+                    body = body,
+                    paymentsleft = v.paymentsleft
+                }
+            end
+        end
+        return vehicles
+    end
+
     RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
         local src = PlayerData.source
         local idstr = tostring(src)
