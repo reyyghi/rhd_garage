@@ -38,7 +38,7 @@ lib.callback.register('rhd_garage:cb_client:cekEntityVeh', function (plate)
     return false
 end)
 
-lib.callback.register('rhd_garage:cb_client:vehicleSpawned', function(netId, props)
+lib.callback.register('rhd_garage:cb_client:vehicleSpawned', function(netId, props, deformation)
     local veh = NetworkGetEntityFromNetworkId(netId)
 
     for i = -1, 0 do
@@ -50,6 +50,10 @@ lib.callback.register('rhd_garage:cb_client:vehicleSpawned', function(netId, pro
 
     if props then
         lib.setVehicleProperties(veh, props)
+    end
+
+    if deformation then
+        
     end
 end)
 
