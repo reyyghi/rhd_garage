@@ -1,6 +1,6 @@
 if GetResourceState('qb-core') == "missing" then return end
 
-local QBCore = exports['qb-core']:GetCoreObject()
+QBCore = exports['qb-core']:GetCoreObject()
 local Utils = require "modules.utils"
 local isServer = IsDuplicityVersion()
 
@@ -258,17 +258,6 @@ if isServer then
             ownername = ownername
         }
     end
-
-    --- Get Vehicle Data For Phone
-    -- function fw.gvdfp()
-    --     local results = MySQL.query.await([[
-    --         SELECT
-    --             vehicle_name,
-    --             mods,
-                
-
-    --     ]])
-    -- end
 
     --- Get Player Vehicle By Plate
     ---@param plate string
