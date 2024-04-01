@@ -7,6 +7,7 @@
     "Lua.completion.autoRequire": false,
     "Lua.diagnostics.disable": [
         "assign-type-mismatch",
-        "param-type-mismatch"
+        "param-type-mismatch",
+        "lowercase-global"
     ]
 }
