@@ -2,8 +2,6 @@ local Utils = require "modules.utils"
 local Deformation = require 'modules.deformation'
 local VehicleShow = nil
 
-Garage = {}
-
 local function spawnvehicle ( data )
     lib.requestModel(data.model)
     local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
@@ -43,6 +41,7 @@ local function spawnvehicle ( data )
         deformation = serverData.deformation
     })
     
+    Entity(veh).state:set('vehlabel', data.vehicle_name)
     TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
 end
 
@@ -258,15 +257,19 @@ local function openMenu ( data )
         local vd = vehData[i]
         local vehProp = vd.vehicle
         local vehModel = vd.model
+        local plate = vd.plate
         local vehDeformation = vd.deformation
         local gState = vd.state
         local pName = vd.owner or "Unkown Players"
-        local plate = vd.plate
         local fakeplate = vd.fakeplate
         local engine = vd.engine
         local body = vd.body
         local fuel = vd.fuel
         local dp = vd.depotprice
+
+        local vehName = vd.vehicle_name or fw.gvn( vehModel )
+        local customvehName = CNV[plate:trim()] and CNV[plate:trim()].name
+        local vehlabel = customvehName or vehName
 
         local shared_garage = data.shared
         local impound_garage = data.impound
@@ -315,7 +318,7 @@ local function openMenu ( data )
             end
         end
 
-        local vehicleLabel = ('%s [ %s ]'):format(CNV[plate:trim()] and CNV[plate:trim()].name or fw.gvn( vehModel ), plate)
+        local vehicleLabel = ('%s [ %s ]'):format(vehlabel, plate)
         
         if Utils.garageType("check", data.type, Utils.getTypeByClass(vehicleClass)) then
             menuData.options[#menuData.options+1] = {
@@ -353,6 +356,7 @@ local function openMenu ( data )
                         coords = coords,
                         garage = data.garage,
                         vehName = vehicleLabel,
+                        vehicle_name = vehlabel,
                         impound = data.impound,
                         shared = data.shared,
                         deformation = vehDeformation,
@@ -388,7 +392,8 @@ local function storeVeh ( data )
         deformation = deformation,
         fuel =  fuel,
         engine = engine,
-        body = body
+        body = body,
+        vehicle_name = Entity(data.vehicle).state.vehlabel
     })
 
     if not isOwned then return Utils.notify(locale('rhd_garage:not_owned'), 'error') end
