@@ -14,7 +14,7 @@ local function deletePreviewVehicle ()
     end
 end
 
-local spawn = function ( data )
+local function spawnvehicle ( data )
 
     lib.requestModel(data.props.model)
     local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
@@ -58,7 +58,7 @@ local spawn = function ( data )
     TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
 end
 
-PoliceImpound.open = function ( garage )
+local function openpoliceImpound ( garage )
     local garage = garage.label
 
     local vehicle = lib.callback.await("rhd_garage:cb_server:policeImpound.getVehicle", false, garage)
@@ -186,7 +186,7 @@ PoliceImpound.open = function ( garage )
                                         deformation = deformation
                                         
                                     }
-                                    spawn( data )
+                                    spawnvehicle( data )
                                 end
                             end
                         }
@@ -207,7 +207,7 @@ PoliceImpound.open = function ( garage )
     Utils.createMenu(context)
 end
 
-PoliceImpound.checkAvailableGarage = function ()
+local function checkAvailableGarage ()
     local AvailableGarage = {}
 
     for k,v in pairs(Config.PoliceImpound.location) do
@@ -219,11 +219,11 @@ PoliceImpound.checkAvailableGarage = function ()
     return AvailableGarage
 end
 
-PoliceImpound.ImpoundVeh = function ( vehicle )
+local function impoundVehicle (vehicle)
     local vehprop = lib.getVehicleProperties(vehicle)
     local plate = vehprop.plate
     local vehdata = vehFunc.gvibp(plate:trim())
-    local garageList = PoliceImpound.checkAvailableGarage()
+    local garageList = checkAvailableGarage()
 
     if not vehdata then return end
     if #garageList < 1 then return end
@@ -300,7 +300,7 @@ PoliceImpound.ImpoundVeh = function ( vehicle )
     end
 end
 
-PoliceImpound.setUpTarget = function ( )
+local function setUpTarget ( )
     local bones = {
         'door_dside_f',
         'seat_dside_f',
@@ -324,7 +324,7 @@ PoliceImpound.setUpTarget = function ( )
                 bones = bones,
                 groups = TargetData.groups,
                 onSelect = function (data)
-                    PoliceImpound.ImpoundVeh(data.entity)
+                    impoundVehicle(data.entity)
                 end,
                 distance = 1.5
             }
@@ -336,7 +336,7 @@ PoliceImpound.setUpTarget = function ( )
                     icon = 'fas fa-car',
                     label = "Sita Kendaraan",
                     action = function(veh)
-                        PoliceImpound.ImpoundVeh(veh)
+                        impoundVehicle(veh)
                     end,
                     job = TargetData.groups,
                     distance = 1.5
@@ -434,7 +434,7 @@ CreateThread(function()
     local Target = Config.PoliceImpound.Target
     if Config.UsePoliceImpound and next(Location) then
         
-        PoliceImpound.setUpTarget()
+        setUpTarget()
 
         for k,v in pairs(Location) do
             lib.zones.poly({
@@ -466,6 +466,8 @@ CreateThread(function()
         end
     end
 end)
+
+exports('openpoliceImpound', openpoliceImpound)
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() then
