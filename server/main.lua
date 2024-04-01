@@ -71,6 +71,9 @@ lib.callback.register("rhd_garage:cb_server:transferVehicle", function (src, cli
     return success, locale("rhd_garage:transferveh_success_src", fw.gn(tid))
 end)
 
+lib.callback.register('rhd_garage:cb_server:getVehicleInfoByPlate', function (_, plate)
+    return fw.gpvbp(plate)
+end)
 -- lib.callback.register('rhd_garage:cb_server:getvehdataForPhone', function(src)
 --     return GetPlayerVehiclesForPhone(src)
 -- end)
