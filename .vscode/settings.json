@@ -1,0 +1,12 @@
+{
+    "Lua.diagnostics.globals": [
+        "db",
+        "vehFunc",
+        "getVehicleModsByPlate",
+    ],
+    "Lua.completion.autoRequire": false,
+    "Lua.diagnostics.disable": [
+        "assign-type-mismatch",
+        "param-type-mismatch"
+    ]
+}
