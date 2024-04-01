@@ -65,20 +65,6 @@ function utils.getPlate ( vehicle )
     return GetVehicleNumberPlateText(vehicle):trim()
 end
 
----@param plate string
----@return integer?
-function utils.getoutsidevehicleByPlate( plate )
-    local GameVeh = GetGamePool("CVehicle")
-    for i=1, #GameVeh do
-        local veh = GameVeh[i]
-        if GetVehicleNumberPlateText(veh):trim() == plate then
-            return veh
-        end
-    end
-
-    return nil
-end
-
 function utils.getVehicleTypeByModel( model )
     model = type(model) == 'string' and joaat(model) or model
     if not IsModelInCdimage(model) then return end
