@@ -272,15 +272,10 @@ local function openMenu ( data )
         local vehlabel = customvehName or vehName
 
         local shared_garage = data.shared
-        local impound_garage = data.impound
         local disabled = false
         local description = ''
 
-        if fakeplate ~= nil then
-            plate = fakeplate:trim()
-        else
-            plate = plate:trim()
-        end
+        plate = fakeplate and fakeplate:trim() or plate:trim()
 
         local vehicleClass = GetVehicleClassFromName(vehModel)
         local vehicleType = Utils.classCheck(vehicleClass)
@@ -288,33 +283,16 @@ local function openMenu ( data )
         local ImpoundPrice = dp > 0 and dp or Config.ImpoundPrice[vehicleClass]
 
         if gState == 0 then
-            if DoesEntityExist(Utils.getoutsidevehicleByPlate(plate)) then
+            if vehFunc.govbp(plate) then
                 disabled = true
                 description = 'STATUS: ' ..  locale('rhd_garage:veh_out_garage')
-                if shared_garage then
-                    description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:veh_out_garage')
-                end
             else
-                if impound_garage then
-                    description = locale('rhd_garage:impound_price', ImpoundPrice)
-                else
-                    disabled = true
-                    description = 'STATUS: ' ..  locale('rhd_garage:veh_in_impound')
-                    if shared_garage then
-                        description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:veh_in_impound')
-                    end
-                end
+                description = locale('rhd_garage:impound_price', ImpoundPrice)
             end
         elseif gState == 1 then
             description = 'STATUS: ' ..  locale('rhd_garage:veh_in_garage')
             if shared_garage then
                 description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:veh_in_garage')
-            end
-        elseif gState == 2 then
-            disabled = true
-            description = 'STATUS: ' .. locale('rhd_garage:phone_veh_in_policeimpound')
-            if shared_garage then
-                description = locale('rhd_garage:shared_owner_label', pName) .. ' \n' .. 'STATUS: ' .. locale('rhd_garage:phone_veh_in_policeimpound')
             end
         end
 
@@ -343,7 +321,7 @@ local function openMenu ( data )
                     SetVehicleDoorsLocked(VehicleShow, 2)
 
                     if vehProp and next(vehProp) then
-                        lib.setVehicleProperties(VehicleShow, vehProp)
+                        vehFunc.svp(VehicleShow, vehProp)
                     end
     
                     actionMenu({
@@ -378,7 +356,7 @@ local function openMenu ( data )
 end
 
 local function storeVeh ( data )
-    local prop = lib.getVehicleProperties(data.vehicle)
+    local prop = vehFunc.gvp(data.vehicle)
     local plate = prop.plate:trim()
     local shared = data.shared
     local deformation = Deformation.get(data.vehicle)
