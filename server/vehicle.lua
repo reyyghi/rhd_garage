@@ -1,6 +1,23 @@
--- if GetCurrentResourceName() ~= "rhd_garage" then return end
+if GetCurrentResourceName() ~= "rhd_garage" then return end
 
--- vehFunc = {}
+vehFuncS = {}
+
+local utils = lib.load("modules.utils")
+
+--- Get Vehicle Out By Plate
+---@param plate any
+---@return unknown
+function vehFuncS.govbp(plate)
+    local veh = GetAllVehicles()
+    for i=1, #veh do
+        local entity = veh[i]
+        local Plate = utils.getPlate(entity)
+        if Plate == plate then
+            return entity
+        end
+    end
+    return false
+end
 
 -- --- Get Vehicle Mods By Plate
 -- ---@param plate string
@@ -121,17 +138,7 @@
 --     return MySQL.query.await("SELECT * FROM " .. table_vehicles .. " WHERE " .. owner_column, {identifier})
 -- end
 
--- function GetVehicleOutByPlate(plate)
---     local veh = GetAllVehicles()
---     for i=1, #veh do
---         local entity = veh[i]
---         local Plate = utils.getPlate(entity)
---         if Plate == plate then
---             return entity
---         end
---     end
---     return false
--- end
+
 
 -- function GetPlayerVehiclesForQBPhone(src)
 --     local Vehicles = {}
