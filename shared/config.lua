@@ -8,6 +8,7 @@ Config.FuelScript = 'rhd_fuel' --- rhd_fuel / ox_fuel / LegacyFuel / ps-fuel / c
 Config.changeNamePrice = 15000 --- price for changing the name of the vehicle in the garage
 Config.UsePoliceImpound = true --- change it to false if you don't want to use the police impound system from rhd
 Config.SpawnInVehicle = true --- change this to true if you want the player to immediately enter the vehicle when the vehicle is taken out of the garage
+Config.Phone = "qb-phone" --- "qb-phone / renewed-phone"
 
 Config.TransferVehicle = {
     enable = true,
