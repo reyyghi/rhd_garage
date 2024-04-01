@@ -109,7 +109,7 @@ local function openpoliceImpound ( garage )
                     FreezeEntityPosition(VehicleShow, true)
                     SetVehicleDoorsLocked(VehicleShow, 2)
                     if props and next(props) then
-                        lib.setVehicleProperties(VehicleShow, props)
+                        vehFunc.svp(VehicleShow, props)
                     end
 
                     local context2 = {
@@ -220,7 +220,7 @@ local function checkAvailableGarage ()
 end
 
 local function impoundVehicle (vehicle)
-    local vehprop = lib.getVehicleProperties(vehicle)
+    local vehprop = vehFunc.gvp(vehicle)
     local plate = vehprop.plate
     local vehdata = vehFunc.gvibp(plate:trim())
     local garageList = checkAvailableGarage()
@@ -439,7 +439,20 @@ CreateThread(function()
         
         setUpTarget()
 
-        for k,v in pairs(Location) do
+        for k, v in pairs(Location) do
+            if v.blip and v.blip.enable then
+                local coords = v.zones.points[1]
+                local piBlip = AddBlipForCoord(coords.x, coords.y, coords.z)
+                SetBlipSprite(piBlip, v.blip.sprite or 473)
+                SetBlipScale(piBlip, 0.9)
+                SetBlipColour(piBlip, v.blip.colour or 40)
+                SetBlipDisplay(piBlip, 4)
+                SetBlipAsShortRange(piBlip, true)
+                BeginTextCommandSetBlipName("STRING")
+                AddTextComponentString(v.label:upper())
+                EndTextCommandSetBlipName(piBlip)
+            end
+
             lib.zones.poly({
                 points  = v.zones.points,
                 thickness = v.zones.thickness,
