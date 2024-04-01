@@ -63,6 +63,11 @@ Config.PoliceImpound = {
     },
     location = {
         [1] = {
+            blip = {
+                enable = true,
+                sprite = 473,
+                colour = 40
+            },
             label = "Police Impound 1",
             zones = {
                 points = {
