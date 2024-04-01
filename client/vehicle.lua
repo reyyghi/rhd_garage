@@ -1,4 +1,12 @@
 local utils = require "modules.utils"
+vehFunc = {}
+
+--- Get Vehicle Info By Plate
+---@param plate string
+function vehFunc.gvibp(plate)
+    local vehInfo = lib.callback.await('rhd_garage:cb_server:getVehicleInfoByPlate', false, plate)
+    return vehInfo and next(vehInfo) and vehInfo or false 
+end
 
 --- function
 ---@param plate string
@@ -31,13 +39,6 @@ local function getVehicleTypeByModel ( model )
 end
 
 ---callback
-lib.callback.register('rhd_garage:cb_client:cekEntityVeh', function (plate)
-    if utils.getoutsidevehicleByPlate(plate:trim()) then
-        return true
-    end
-    return false
-end)
-
 lib.callback.register('rhd_garage:cb_client:vehicleSpawned', function(netId, props, deformation)
     local veh = NetworkGetEntityFromNetworkId(netId)
 
