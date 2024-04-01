@@ -87,7 +87,7 @@ if isServer then
 
     --- Get Player
     ---@param src number
-    ---@return boolean
+    ---@return table | boolean
     function fw.gp(src)
         if not xPlayer then return false end
         return xPlayer[tostring(src)] or false
@@ -95,9 +95,13 @@ if isServer then
 
     --- Get Identifier
     ---@param src number
+    ---@param withLicense boolean?
     ---@return string | boolean
-    function fw.gi(src)
-        return xPlayer[tostring(src)]?.citizenid or false
+    ---@return string | boolean
+    function fw.gi(src, withLicense)
+        local pData = xPlayer[tostring(src)]
+        local citizenid, license = pData?.citizenid, withLicense and pData?.license or false
+        return citizenid or false, license
     end
 
     --- Player Remove Money
@@ -145,11 +149,35 @@ if isServer then
         return Update > 0
     end
 
+    --- Swap Vehicle Garage
+    ---@param newgarage string
+    ---@param plate string
+    ---@return boolean
+    function fw.svg(newgarage, plate)
+        local update = MySQL.update.await("UPDATE player_vehicles SET garage = ? WHERE plate = ? OR fakeplate = ?", {newgarage, plate, plate})
+        return update > 0
+    end
+
+    --- Update Vehicle Owner
+    ---@param plate string
+    ---@param oldOwner table
+    ---@param newOwner table
+    function fw.uvo(oldOwner, newOwner, plate)
+        local update = MySQL.update.await("UPDATE player_vehicles SET license = ?, citizenid = ? WHERE citizenid = ? AND plate = ? OR fakeplate = ?", {
+            newOwner.license,
+            newOwner.citizenid,
+            oldOwner.citizenid,
+            plate,
+            plate
+        })
+        return update > 0
+    end
+
     ---- Get Vehicle Owner By Plate
     ---@param src number
     ---@param plate string
     ---@param filter {onlyOwner: boolean}
-    ---@param pleaseUpdate {mods: table, deformation: table}
+    ---@param pleaseUpdate { mods: table, deformation: table, fuel: number, engine: number, body: number }
     ---@return table | boolean
     function fw.gvobp(src, plate, filter, pleaseUpdate)
         local identifier = fw.gi(src)
@@ -187,10 +215,15 @@ if isServer then
                 UPDATE
                     player_vehicles
                         SET
-                mods = ?, deformation = ? WHERE plate = ?
+                mods = ?, fuel = ?, engine = ?, body = ?, deformation = ? WHERE plate = ? OR fakeplate = ?
             ]], {
                 json.encode(pleaseUpdate.mods),
-                json.encode(pleaseUpdate.deformation)
+                math.floor(pleaseUpdate.fuel),
+                math.floor(pleaseUpdate.engine),
+                math.floor(pleaseUpdate.body),
+                json.encode(pleaseUpdate.deformation),
+                plate,
+                plate
             })
         end
 
@@ -198,6 +231,58 @@ if isServer then
             vehmodel = results.vehicle,
             ownername = ownername
         }
+    end
+
+    --- Get Player Vehicle By Plate
+    ---@param plate string
+    ---@return table
+    function fw.gpvbp(plate)
+        local results = MySQL.single.await([[
+            SELECT 
+                pv.citizenid,
+                pv.vehicle,
+                pv.mods,
+                pv.plate,
+                pv.fakeplate,
+                pv.garage,
+                pv.fuel,
+                pv.engine,
+                pv.body,
+                pv.state,
+                pv.depotprice,
+                pv.balance,
+                p.charinfo
+            FROM player_vehicles pv LEFT JOIN players p ON pv.citizenid = p.citizenid WHERE plate = ? OR fakeplate = ?    
+        ]], {plate, plate})
+
+        local vehicles = {}
+        if results and results[1] then
+            for i=1, #results do
+                local data = results[i]
+                local charinfo = json.decode(data.charinfo)
+                local mods = json.decode(data.mods)
+                vehicles[#vehicles+1] = {
+                    owner = {
+                        name = ("%s %s"):format(charinfo.firstname, charinfo.lastname),
+                        citizenid = data.citizenid,
+                    },
+                    mods = mods,
+                    vehicle = data.vehicle,
+                    model = joaat(data.vehicle),
+                    plate = data.plate,
+                    fakeplate = data.fakeplate,
+                    garage = data.garage,
+                    fuel = data.fuel,
+                    engine = data.engine,
+                    body = data.body,
+                    state = data.state,
+                    depotprice = data.depotprice,
+                    balance = data.balance
+                }
+            end
+        end
+
+        return vehicles
     end
 
     --- Get Player Vehicles By Garage
@@ -208,7 +293,18 @@ if isServer then
         local Identifier = fw.gi(src)
         if not Identifier then return {} end
         local format = [[
-            SELECT vehicle, mods, state, depotprice, plate, fakeplate, deformation FROM player_vehicles WHERE citizenid = ? AND garage = ? AND state = ?
+            SELECT 
+                vehicle,
+                mods,
+                state,
+                depotprice,
+                plate,
+                fakeplate,
+                fuel,
+                engine,
+                body,
+                deformation
+            FROM player_vehicles WHERE citizenid = ? AND garage = ? AND state = ?
         ]]
 
         local value = {Identifier, garage, 1}
@@ -223,6 +319,9 @@ if isServer then
                             pv.depotprice,
                             pv.plate,
                             pv.fakeplate,
+                            pv.fuel,
+                            pv.engine,
+                            pv.body,
                             pv.deformation,
                             p.charinfo
                         FROM player_vehicles pv LEFT JOIN players p ON p.citizenid = pv.citizenid WHERE pv.garage = ? AND pv.state = ?
@@ -231,9 +330,9 @@ if isServer then
                 end
             else
                 format = [[
-                    SELECT vehicle, mods, state, depotprice, plate, fakeplate, deformation FROM player_vehicles WHERE citizenid = ? AND state = 0
+                    SELECT vehicle, mods, state, depotprice, plate, fakeplate, fuel, engine, body, deformation FROM player_vehicles WHERE citizenid = ? AND state = 0
                 ]]
-                value = {Identifier, 0}
+                value = {Identifier}
             end
         end
 
@@ -253,6 +352,9 @@ if isServer then
                 
                 vehicles[#vehicles+1] = {
                     vehicle = mods,
+                    fuel = data.fuel or 100,
+                    engine = data.engine,
+                    body = data.body,
                     state = state,
                     model = model,
                     plate = plate,
