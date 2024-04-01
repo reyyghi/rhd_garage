@@ -1,10 +1,8 @@
 local Utils = require "modules.utils"
 local Deformation = require 'modules.deformation'
+local VehicleShow = nil
 
 Garage = {}
-
-local ColorLevel = {}
-local VehicleShow = nil
 
 local spawn = function ( data )
 
@@ -27,23 +25,14 @@ local spawn = function ( data )
         SetVehicleNumberPlateText(veh, serverData.plate) Wait(10)
     end
 
-    local PedDriver = GetPedInVehicleSeat(veh, -1)
-    if PedDriver > 0 and PedDriver ~= cache.ped then
-        DeleteEntity(PedDriver)
-    end
-    
     SetVehicleOnGroundProperly(veh)
-
     if Config.SpawnInVehicle then
         TaskWarpPedIntoVehicle(cache.ped, veh, -1)
     end
 
-    if Config.FuelScript == 'ox_fuel' then
-        Entity(veh).state.fuel = serverData.props?.fuelLevel or 100
-    else
-        exports[Config.FuelScript]:SetFuel(veh, serverData.props?.fuelLevel or 100)
-    end
-    
+    SetVehicleEngineHealth(veh, data.engine + 0.0)
+    SetVehicleBodyHealth(veh, data.body + 0.0)
+    Utils.setFuel(veh, data.fuel)
     Deformation.set(veh, serverData.deformation)
 
     TriggerServerEvent("rhd_garage:server:updateState", {
@@ -217,7 +206,6 @@ Garage.actionMenu = function ( data )
 
         actionData.options[#actionData.options+1] = {
             title = locale('rhd_garage:change_veh_name'),
-            -- description = locale('rhd_garage:change_veh_name_price', lib.math.groupdigits(Config.changeNamePrice)),
             icon = 'pencil',
             iconAnimation = Config.IconAnimation,
             metadata = {
@@ -253,7 +241,6 @@ end
 
 Garage.openMenu = function ( data )
     if not data then return end
-
     data.type = data.type or "car"
     
     local menuData = {
@@ -264,18 +251,24 @@ Garage.openMenu = function ( data )
 
     local vehData = lib.callback.await('rhd_garage:cb_server:getVehicleList', false, data.garage, data.impound, data.shared)
 
+    print(json.encode(vehData, {indent =  true}))
+    if not vehData then
+        return    
+    end
+
     for i=1, #vehData do
-        local vehProp = vehData[i].vehicle
-        local vehModel = vehData[i].model
-        local vehDeformation = vehData[i].deformation
-        local gState = vehData[i].state
-        local pName = vehData[i].owner
-        local plate = vehData[i].plate
-        local fakeplate = vehData[i].fakeplate
-        local engine = vehProp?.engineHealth or 100
-        local body = vehProp?.bodyHealth or 100
-        local fuel = vehProp?.fuelLevel or 100
-        local dp = vehData[i].depotprice
+        local vd = vehData[i]
+        local vehProp = vd.vehicle
+        local vehModel = vd.model
+        local vehDeformation = vd.deformation
+        local gState = vd.state
+        local pName = vd.owner or "Unkown Players"
+        local plate = vd.plate
+        local fakeplate = vd.fakeplate
+        local engine = vd.engine
+        local body = vd.body
+        local fuel = vd.fuel
+        local dp = vd.depotprice
 
         local shared_garage = data.shared
         local impound_garage = data.impound
@@ -334,9 +327,9 @@ Garage.openMenu = function ( data )
                 description = description:upper(),
                 iconAnimation = Config.IconAnimation,
                 metadata = {
-                    { label = 'Fuel', value = math.floor(fuel) .. '%', progress = math.floor(fuel), colorScheme = ColorLevel[math.floor(fuel)]},
-                    { label = 'Body', value = math.floor(body / 10) .. '%', progress = math.floor(body / 10), colorScheme = ColorLevel[math.floor(body / 10)]},
-                    { label = 'Engine', value = math.floor(engine/ 10) .. '%', progress = math.floor(engine / 10), colorScheme = ColorLevel[math.floor(engine / 10)]}
+                    { label = 'Fuel', value = math.floor(fuel) .. '%', progress = math.floor(fuel), colorScheme = Utils.getColorLevel(math.floor(fuel))},
+                    { label = 'Body', value = math.floor(body / 10) .. '%', progress = math.floor(body / 10), colorScheme = Utils.getColorLevel(math.floor(body / 10))},
+                    { label = 'Engine', value = math.floor(engine/ 10) .. '%', progress = math.floor(engine / 10), colorScheme = Utils.getColorLevel(math.floor(engine / 10))}
                 },
                 onSelect = function ()
                     local coords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5), GetEntityHeading(cache.ped)+90)
@@ -354,6 +347,9 @@ Garage.openMenu = function ( data )
     
                     Garage.actionMenu({
                         prop = vehProp,
+                        engine = engine,
+                        fuel = fuel,
+                        body = body,
                         model = vehModel,
                         plate = plate,
                         coords = coords,
@@ -384,7 +380,19 @@ Garage.storeVeh = function ( data )
     local plate = prop.plate:trim()
     local shared = data.shared
     local deformation = Deformation.get(data.vehicle)
-    local isOwned = lib.callback.await('rhd_garage:cb_server:getvehowner', false, plate, shared, {mods = prop, deformation = deformation})
+    local fuel = Utils.getFuel(data.vehicle)
+    local engine = GetVehicleEngineHealth(data.vehicle)
+    local body = GetVehicleBodyHealth(data.vehicle)
+
+
+    local isOwned = lib.callback.await('rhd_garage:cb_server:getvehowner', false, plate, shared, {
+        mods = prop,
+        deformation = deformation,
+        fuel =  fuel,
+        engine = engine,
+        body = body
+    })
+
     if not isOwned then return Utils.notify(locale('rhd_garage:not_owned'), 'error') end
     if DoesEntityExist(data.vehicle) then
         SetEntityAsMissionEntity(data.vehicle, true, true)
@@ -399,23 +407,6 @@ Garage.storeVeh = function ( data )
         Utils.notify(locale('rhd_garage:success_stored'), 'success')
     end
 end
-
---- Thread
-CreateThread(function ()
-    if not next(ColorLevel) then
-        for i=1, 100 do
-            if i < 25 then
-                ColorLevel[i] = "red"
-            elseif i >= 25 and i < 50 then
-                ColorLevel[i] = "#E86405"
-            elseif i >= 50 and i < 75 then
-                ColorLevel[i] = "#E8AC05"
-            elseif i >= 75 then
-                ColorLevel[i] = "green"
-            end
-        end
-    end
-end)
 
 --- exports 
 exports('openMenu', Garage.openMenu)
