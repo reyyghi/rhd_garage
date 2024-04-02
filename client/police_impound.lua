@@ -1,9 +1,8 @@
 if not Config.UsePoliceImpound then return end
 
 local VehicleShow = nil
-
-local Utils = require "modules.utils"
-local Deformation = require "modules.deformation"
+local Utils = lib.load('modules.utils')
+local Deformation = lib.load('modules.deformation')
 
 PoliceImpound = {}
 
@@ -460,7 +459,7 @@ CreateThread(function()
                     if Utils.JobCheck({ job = Target.groups}) then
 
                         Utils.drawtext('show', v.label:upper(), 'warehouse')
-                        Utils.createRadial({
+                        radFunc.create({
                             id = "open_garage",
                             label = locale("rhd_garage:open_garage"),
                             icon = "warehouse",
@@ -475,8 +474,8 @@ CreateThread(function()
                 onExit = function ()
                     Utils.drawtext('hide')
     
-                    Utils.removeRadial("open_garage")
-                    Utils.removeRadial("store_veh")
+                    radFunc.remove("open_garage")
+                    radFunc.remove("store_veh")
                 end
             })
         end

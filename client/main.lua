@@ -1,6 +1,7 @@
-local Utils = require "modules.utils"
-local Deformation = require 'modules.deformation'
 local VehicleShow = nil
+
+local Utils = lib.load('modules.utils')
+local Deformation = lib.load('modules.deformation')
 
 local function spawnvehicle ( data )
     lib.requestModel(data.model)

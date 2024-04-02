@@ -1,7 +1,7 @@
 if GetResourceState('qb-core') == "missing" then return end
 
 QBCore = exports['qb-core']:GetCoreObject()
-local Utils = require "modules.utils"
+local Utils = lib.load('modules.utils')
 local isServer = IsDuplicityVersion()
 
 fw = {

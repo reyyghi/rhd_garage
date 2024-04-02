@@ -1,6 +1,6 @@
-local Zones = require "client.zone"
-local Zones_Creator = require "modules.zone"
-local Utils = require "modules.utils"
+local Zones = lib.load('client.zone')
+local Zones_Creator = lib.load('modules.zone')
+local Utils = lib.load('modules.utils')
 
 local function createGarage ()
     Zones_Creator.startCreator({

@@ -1,14 +1,13 @@
-local Utils = require "modules.utils"
-local blips = require "client.blip"
-
 local CreatedZone = {}
 local zone = {}
+
+local Utils = lib.load('modules.utils')
+local blips = lib.load('client.blip')
 
 function zone.refresh ()
     if not GarageZone or type(GarageZone) ~= "table" then return end
 
     blips.refresh(GarageZone)
-
     if next(CreatedZone) then
         for k, v in pairs(CreatedZone) do
             v:remove()
@@ -27,7 +26,7 @@ function zone.refresh ()
 
                 Utils.drawtext('show', k:upper(), 'warehouse')
 
-                Utils.createRadial({
+                radFunc.create({
                     id = "open_garage",
                     label = locale("rhd_garage:open_garage"),
                     icon = "warehouse",
@@ -41,7 +40,7 @@ function zone.refresh ()
                 })
 
                 if not v.impound then
-                    Utils.createRadial({
+                    radFunc.create({
                         id = "store_veh",
                         label = locale("rhd_garage:store_vehicle"),
                         icon = "parking",
@@ -58,8 +57,8 @@ function zone.refresh ()
             onExit = function ()
                 Utils.drawtext('hide')
 
-                Utils.removeRadial("open_garage")
-                Utils.removeRadial("store_veh")
+                radFunc.remove("open_garage")
+                radFunc.remove("store_veh")
             end
         })
     end

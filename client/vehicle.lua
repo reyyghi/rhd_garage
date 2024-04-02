@@ -1,6 +1,6 @@
 vehFunc = {}
 
-local utils = require "modules.utils"
+local utils = lib.load('modules.utils')
 
 --- Get Vehicle Info By Plate
 ---@param plate string
