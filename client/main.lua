@@ -298,7 +298,7 @@ local function openMenu ( data )
 
         local vehicleLabel = ('%s [ %s ]'):format(vehlabel, plate)
         
-        if Utils.garageType("check", data.type, Utils.getTypeByClass(vehicleClass)) then
+        if Utils.garageType("check", data.type, vehicleType) then
             menuData.options[#menuData.options+1] = {
                 title = vehicleLabel,
                 icon = icon,
