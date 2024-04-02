@@ -185,13 +185,18 @@ if isServer then
 
     --- Update Vehicle Owner
     ---@param plate string
-    ---@param oldOwner table
-    ---@param newOwner table
-    function fw.uvo(oldOwner, newOwner, plate)
+    ---@param oldOwnerId table
+    ---@param newOwnerId table
+    function fw.uvo(oldOwnerId, newOwnerId, plate)
+        local mp = fw.gp(oldOwnerId)
+        local tp = fw.gp(newOwnerId)
+        if not mp then return end
+        if not tp then return false, locale("rhd_garage:transferveh_plyoffline", newOwnerId) end
+        
         local update = MySQL.update.await("UPDATE player_vehicles SET license = ?, citizenid = ? WHERE citizenid = ? AND plate = ? OR fakeplate = ?", {
-            newOwner.license,
-            newOwner.citizenid,
-            oldOwner.citizenid,
+            tp.license,
+            tp.citizenid,
+            mp.citizenid,
             plate,
             plate
         })
