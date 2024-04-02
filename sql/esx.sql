@@ -1,10 +1,19 @@
-ALTER TABLE owned_vehicles CHANGE COLUMN stored stored INT(11) NOT NULL DEFAULT 0;
-ALTER TABLE player_vehicles ADD COLUMN vehicle_name LONGTEXT NULL AFTER vehicle;
-ALTER TABLE owned_vehicles ADD COLUMN garage LONGTEXT NULL AFTER stored;
-ALTER TABLE owned_vehicles ADD COLUMN fuel INT(11) NULL DEFAULT 100 AFTER garage;
-ALTER TABLE owned_vehicles ADD COLUMN engine FLOAT NULL DEFAULT 1000 AFTER fuel;
-ALTER TABLE owned_vehicles ADD COLUMN body FLOAT NULL DEFAULT 1000 AFTER engine;
-ALTER TABLE owned_vehicles ADD COLUMN deformation LONGTEXT NULL AFTER body;
+CREATE TABLE `owned_vehicles` (
+	`owner` VARCHAR(60) NOT NULL,
+	`plate` varchar(12) NOT NULL,
+	`vehicle` longtext,
+    `vehicle_name` longtext DEFAULT NULL,
+	`type` VARCHAR(20) NOT NULL DEFAULT 'car',
+	`job` VARCHAR(20) NULL DEFAULT NULL,
+	`stored` INT(1) NOT NULL DEFAULT '0',
+    `garage` longtext,
+    `fuel` INT(11) NULL DEFAULT 100,
+    `engine` FLOAT NULL DEFAULT 1000,
+    `body` FLOAT NULL DEFAULT 1000,
+    `deformation` longtext,
+
+	PRIMARY KEY (`plate`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DELIMITER //
 CREATE TRIGGER rhd_garage_update_impound_plate
