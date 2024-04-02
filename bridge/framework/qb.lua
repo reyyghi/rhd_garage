@@ -429,7 +429,8 @@ if isServer then
                     fuel,
                     engine,
                     body,
-                    paymentsleft,
+                    state,
+                    paymentsleft
                 FROM player_vehicles WHERE citizenid = ?
         ]], {citizenid})
 
@@ -453,6 +454,9 @@ if isServer then
                     stateText = locale('rhd_garage:phone_veh_in_policeimpound')
                 end
 
+                local inInsurance = v.state == 0
+                local inPoliceImpound = v.state == 2
+
                 local engine = v.engine > 1000 and 1000 or v.engine
                 local body = v.body > 1000 and 1000 or v.body
 
@@ -466,7 +470,8 @@ if isServer then
                     fuel = v.fuel,
                     engine = engine,
                     body = body,
-                    paymentsleft = v.paymentsleft
+                    paymentsleft = v.paymentsleft,
+                    disableTracking = inInsurance or inPoliceImpound,
                 }
             end
         end
