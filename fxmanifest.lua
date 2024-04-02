@@ -11,6 +11,7 @@ shared_scripts {
 }
 
 client_scripts {
+    'bridge/radialmenu/*.lua',
     'client/*.lua',
 }
 
