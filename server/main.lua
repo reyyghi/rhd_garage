@@ -38,10 +38,6 @@ lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garag
     })
 end)
 
-lib.callback.register('rhd_garage:cb_server:getvehicledatabyplate', function (_, plate)
-    return fw.gpvbp(plate)
-end)
-
 lib.callback.register("rhd_garage:cb_server:swapGarage", function (source, clientData)
     return fw.svg(clientData.newgarage, clientData.plate)
 end)
@@ -52,21 +48,11 @@ lib.callback.register("rhd_garage:cb_server:transferVehicle", function (src, cli
     end
 
     local tid = clientData.targetSrc
-    local mp = fw.gp(src)
-    local tp = fw.gp(tid)
-    if not mp then return end
-    if not tp then return false, locale("rhd_garage:transferveh_plyoffline", clientData.targetSrc) end
     if fw.rm(src, "cash", clientData.price) then
         return false, locale("rhd_garage:transferveh_no_money")
     end
     
-    local success = fw.uvo({
-        citizenid = mp.citizenid
-    }, {
-        citizenid = tp.citizenid,
-        license = tp.license
-    }, clientData.plate)
-
+    local success = fw.uvo(src, tid, clientData.plate)
     if success then Utils.ServerNotify(tid, locale("rhd_garage:transferveh_success_target", fw.gn(src), clientData.garage), "success") end
     return success, locale("rhd_garage:transferveh_success_src", fw.gn(tid))
 end)
