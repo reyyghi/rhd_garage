@@ -12,7 +12,7 @@ function vehFuncS.govbp(plate)
     for i=1, #veh do
         local entity = veh[i]
         local Plate = utils.getPlate(entity)
-        if Plate == plate then
+        if Plate == plate:trim() then
             return {
                 exist = DoesEntityExist(entity),
                 coords = GetEntityCoords(entity)
@@ -31,8 +31,9 @@ lib.callback.register('rhd_garage:cb_server:getoutsideVehicleCoords', function(_
     local coords = vehicle and vehicle.exist and vehicle.coords or false
     if not coords and garage then
         local gz = GarageZone[garage]
-        local gc = gz and gz.zones.points[1]
-        coords = gz and gz.zones.points[1] or false
+        local gp = gz and #gz.zones.points
+        local gc = gp and gz.zones.points[gp]
+        coords = gc or false
     end
     return coords
 end)
