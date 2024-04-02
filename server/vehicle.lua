@@ -34,6 +34,16 @@ lib.callback.register('rhd_garage:cb_server:getoutsideVehicleCoords', function(_
         local gp = gz and #gz.zones.points
         local gc = gp and gz.zones.points[gp]
         coords = gc or false
+        
+        if not coords then
+            local hg = Config.HouseGarages
+            for _, v in pairs(hg) do
+                if v.label == garage then
+                    local tl = v.takeVehicle
+                    coords = vec(tl.x, tl.y, tl.z)
+                end
+            end
+        end
     end
     return coords
 end)
