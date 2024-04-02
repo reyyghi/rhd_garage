@@ -30,7 +30,7 @@ end
 ---@param plate any
 ---@param garage string
 function vehFunc.tvbp(plate, garage)
-    local coords = lib.callback.await("rhd_garage:cb_server:getoutsideVehicleCoords", false, plate)
+    local coords = lib.callback.await("rhd_garage:cb_server:getoutsideVehicleCoords", false, plate, garage)
     if not coords then return false end
     SetNewWaypoint(coords.x, coords.y)
     return true
