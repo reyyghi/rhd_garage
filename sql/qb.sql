@@ -1,3 +1,4 @@
+ALTER TABLE player_vehicles ADD COLUMN vehicle_name LONGTEXT NULL AFTER vehicle;
 ALTER TABLE player_vehicles ADD COLUMN deformation LONGTEXT NULL AFTER garage;
 
 DELIMITER //

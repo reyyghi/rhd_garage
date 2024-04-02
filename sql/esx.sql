@@ -1,4 +1,5 @@
 ALTER TABLE owned_vehicles CHANGE COLUMN stored stored INT(11) NOT NULL DEFAULT 0;
+ALTER TABLE player_vehicles ADD COLUMN vehicle_name LONGTEXT NULL AFTER vehicle;
 ALTER TABLE owned_vehicles ADD COLUMN garage LONGTEXT NULL AFTER stored;
 ALTER TABLE owned_vehicles ADD COLUMN fuel INT(11) NULL DEFAULT 100 AFTER garage;
 ALTER TABLE owned_vehicles ADD COLUMN engine FLOAT NULL DEFAULT 1000 AFTER fuel;
@@ -24,10 +25,10 @@ BEGIN
 END;
 
 CREATE TRIGGER rhd_garage_state_update
-AFTER UPDATE ON player_vehicles
+AFTER UPDATE ON owned_vehicles
 FOR EACH ROW
 BEGIN
-    IF NEW.state <> 2 THEN
+    IF NEW.stored <> 2 THEN
         DELETE FROM police_impound
         WHERE plate = OLD.plate;
     END IF;
