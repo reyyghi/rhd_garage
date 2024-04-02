@@ -1,5 +1,4 @@
 local utils = {}
-local QBRadial = {}
 
 local printType = {
     error = "^1[ERROR]^7",
@@ -151,20 +150,6 @@ function utils.garageType ( action, ... )
     return result
 end
 
----@param class number
----@return string
-function utils.getTypeByClass ( class )
-    local vehType = 'car'
-    if class == 14 then
-        vehType = 'boat'
-    elseif class == 16 then
-        vehType = 'planes'
-    elseif class == 15 then
-        vehType = 'helicopter'
-    end
-    return vehType
-end
-
 ---@param data table
 ---@return boolean
 function utils.GangCheck ( data )
@@ -223,108 +208,6 @@ function utils.createMenu( data )
     lib.registerContext(data)
     lib.showContext(data.id)
 end
-
----@param data table
-function utils.createRadial ( data )
-    if Config.RadialMenu == "qb" then
-        QBRadial[data.id] = exports['qb-radialmenu']:AddOption({
-            id = data.id,
-            title = data.label,
-            icon = data.icon == "parking" and "square-parking" or data.icon,
-            type = 'client',
-            event = data.event,
-            garage = data.garage,
-            shouldClose = true
-        }, QBRadial[data.id])
-    elseif Config.RadialMenu == "ox" then
-        lib.addRadialItem({
-            {
-                id = data.id,
-                label = data.label,
-                icon = data.icon,
-                onSelect = function ()
-                    TriggerEvent(data.event, {garage = data.garage})
-                end
-            },
-        })
-    elseif Config.RadialMenu == "rhd" then
-        exports.rhd_radialmenu:addRadialItem({
-            id = data.id,
-            label = data.label,
-            icon = data.icon,
-            action = function ()
-                TriggerEvent(data.event, {garage = data.garage})
-            end
-        })
-    end
-end
-
----@param id string
-function utils.removeRadial ( id )
-    if Config.RadialMenu == "qb" then
-        if QBRadial[id] then
-            exports['qb-radialmenu']:RemoveOption(QBRadial[id])
-        end
-    elseif Config.RadialMenu == "ox" then
-        lib.removeRadialItem(id)
-    elseif Config.RadialMenu == "rhd" then
-        exports.rhd_radialmenu:removeRadialItem(id)
-    end
-end
-
----@param self table
-RegisterNetEvent("rhd_garage:radial:open", function (self)
-    if not cache.vehicle then
-        exports.rhd_garage:openMenu( {garage = self.garage.label, impound = self.garage.impound, shared = self.garage.shared, type = self.garage.type} )
-    end
-end)
-
----@param self table
-RegisterNetEvent("rhd_garage:radial:store", function (self)
-    local vehicle = cache.vehicle
-    if not vehicle then
-        vehicle = lib.getClosestVehicle(GetEntityCoords(cache.ped))
-    end
-
-    local vehicleType = utils.classCheck(GetVehicleClass(vehicle))
-    if not utils.garageType("check", self.garage.type, vehicleType) then return
-        utils.notify(locale('rhd_garage:invalid_vehicle_class', self.garage.label:lower()), "error")
-    end
-
-    if DoesEntityExist(vehicle) then
-        if cache.vehicle then
-            if cache.seat ~= -1 then return end
-            TaskLeaveAnyVehicle(cache.ped, true, 0)
-            Wait(1000)
-        end
-
-        exports.rhd_garage:storeVehicle({
-            vehicle = vehicle,
-            garage = self.garage.label,
-            shared = self.garage.shared
-        })
-    else
-        utils.notify(locale('rhd_garage:not_vehicle_exist'), 'error')
-    end
-end)
-
-RegisterNetEvent('rhd_garage:radial:open_policeimpound', function(self)
-    if not cache.vehicle then
-        exports.rhd_garage:openpoliceImpound( self.garage )
-    end
-end)
-
-AddEventHandler('onResourceStop', function(resourceName)
-    if (GetCurrentResourceName() ~= resourceName) then
-      return
-    end
-    
-    if Config.RadialMenu == "qb-radialmenu" then
-        for k,v in pairs(QBRadial) do
-            exports['qb-radialmenu']:RemoveOption(v)
-        end
-    end
-end)
 
 if IsDuplicityVersion() then
     ---@param src number
