@@ -345,8 +345,8 @@ local function listGarage ()
 end
 
 CreateThread(function ()
-    while not LocalPlayer.state.isLoggedIn do print("load garage data") Wait(100) end
-    if LocalPlayer.state.isLoggedIn then
+    while not fw.playerLoaded do print("load garage data") Wait(100) end
+    if fw.playerLoaded then
         Zones.refresh()
         print("Garage data has been successfully loaded")
     end
