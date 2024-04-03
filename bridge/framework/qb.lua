@@ -20,7 +20,8 @@ fw = {
             grade = 0
         }
     },
-    qb = true
+    qb = true,
+    playerLoaded = false
 }
 
 --- Get Money
@@ -66,6 +67,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
         name = Gang.name,
         grade = Gang.grade.level
     }
+    fw.playerLoaded = true
 end)
 
 RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
