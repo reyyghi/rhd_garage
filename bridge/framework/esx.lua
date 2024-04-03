@@ -46,6 +46,11 @@ end
 
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(playerData)
+    
+    if not playerData or type(playerData) ~= "table" then
+        return
+    end
+
     for i=1, #playerData.accounts do
         local data = playerData.accounts[i]
         if data.name == "money" then
@@ -56,10 +61,12 @@ AddEventHandler('esx:playerLoaded', function(playerData)
             fw.player.money.bank = data.money
         end
     end
+
     fw.player.job = {
         name = playerData.job.name,
         grade = playerData.job.grade
     }
+
     fw.player.name = playerData.name
     fw.playerLoaded = true
 end)
@@ -477,7 +484,7 @@ if isServer then
     end
 
     RegisterNetEvent('esx:playerLoaded', function(player, playerData)
-        local src = player.source
+        local src = playerData.source
         local idstr = tostring(src)
         xPlayer[idstr] = playerData
         Utils.print("success", ("Register new cache for %s"):format(GetPlayerName(src)))
