@@ -19,7 +19,6 @@ server_scripts {
     '@oxmysql/lib/MySQL.lua',
     'server/main.lua',
     'server/police_impound.lua',
-    'server/dbformat.lua',
     'server/storage.lua',
     'server/vehicle.lua',
     'server/version.lua',
