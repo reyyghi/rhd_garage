@@ -21,6 +21,7 @@ lib.callback.register('rhd_garage:cb_server:createVehicle', function (source, ve
     local result = fw.gmdbp(vehicleData.plate)
     props = result.prop deformation = result.deformation
     lib.callback.await('rhd_garage:cb_client:vehicleSpawned', owner, netId, props)
+    Entity(veh).state:set("VehicleProperties", props, true)
     return { netId = netId, props = props, plate = vehicleData.plate, deformation = deformation }
 end)
 
