@@ -51,7 +51,7 @@ function zone.refresh ()
                             shared = v.shared,
                             type = v.type
                         }
-                    }) 
+                    })
                 end
             end,
             onExit = function ()
