@@ -9,14 +9,9 @@ function radFunc.create(data)
             icon = data.icon,
             onSelect = function ()
                 if data.id == "open_garage" and not cache.vehicle then
-                    exports.rhd_garage:openMenu({
-                        garage = data.label,
-                        impound = data.garage.impound,
-                        shared = data.garage.shared,
-                        type = data.garage.type
-                    })
+                    exports.rhd_garage:openMenu(data.args)
                 elseif data.id == "store_veh" then
-                    exports.rhd_garage:storeVehicle({garage = data.garage.label, shared = data.garage.shared})
+                    exports.rhd_garage:storeVehicle(data.args)
                 end
             end
         },

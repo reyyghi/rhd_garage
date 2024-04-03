@@ -12,7 +12,7 @@ function radFunc.create(data)
         icon = data.icon == "parking" and "square-parking" or data.icon,
         type = 'client',
         event = data.event,
-        garage = data.garage,
+        garage = data.args,
         shouldClose = true
     }, radaial[id])
     return radaial[id]
@@ -28,16 +28,13 @@ end
 ---@param self table
 RegisterNetEvent("rhd_garage:radial:open", function (self)
     if not cache.vehicle then
-        exports.rhd_garage:openMenu( {garage = self.garage.label, impound = self.garage.impound, shared = self.garage.shared, type = self.garage.type} )
+        exports.rhd_garage:openMenu(self.garage)
     end
 end)
 
 ---@param self table
 RegisterNetEvent("rhd_garage:radial:store", function (self)
-    exports.rhd_garage:storeVehicle({
-        garage = self.garage.label,
-        shared = self.garage.shared
-    })
+    exports.rhd_garage:storeVehicle(self.garage)
 end)
 
 RegisterNetEvent('rhd_garage:radial:open_policeimpound', function(self)
