@@ -34,31 +34,10 @@ end)
 
 ---@param self table
 RegisterNetEvent("rhd_garage:radial:store", function (self)
-    local vehicle = cache.vehicle
-    if not vehicle then
-        vehicle = lib.getClosestVehicle(GetEntityCoords(cache.ped))
-    end
-
-    local vehicleType = utils.classCheck(GetVehicleClass(vehicle))
-    if not utils.garageType("check", self.garage.type, vehicleType) then return
-        utils.notify(locale('rhd_garage:invalid_vehicle_class', self.garage.label:lower()), "error")
-    end
-
-    if DoesEntityExist(vehicle) then
-        if cache.vehicle then
-            if cache.seat ~= -1 then return end
-            TaskLeaveAnyVehicle(cache.ped, true, 0)
-            Wait(1000)
-        end
-
-        exports.rhd_garage:storeVehicle({
-            vehicle = vehicle,
-            garage = self.garage.label,
-            shared = self.garage.shared
-        })
-    else
-        utils.notify(locale('rhd_garage:not_vehicle_exist'), 'error')
-    end
+    exports.rhd_garage:storeVehicle({
+        garage = self.garage.label,
+        shared = self.garage.shared
+    })
 end)
 
 RegisterNetEvent('rhd_garage:radial:open_policeimpound', function(self)
