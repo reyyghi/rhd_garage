@@ -357,14 +357,20 @@ local function openMenu ( data )
 end
 
 local function storeVeh ( data )
-    local prop = vehFunc.gvp(data.vehicle)
+    local myCoords = GetEntityCoords(cache.ped)
+    local vehicle = cache.vehicle and cache.vehicle or lib.getClosestVehicle(myCoords)
+
+    if not vehicle then return
+        Utils.notify(locale('rhd_garage:not_vehicle_exist'), 'error')
+    end
+
+    local prop = vehFunc.gvp(vehicle)
     local plate = prop.plate:trim()
     local shared = data.shared
-    local deformation = Deformation.get(data.vehicle)
-    local fuel = Utils.getFuel(data.vehicle)
-    local engine = GetVehicleEngineHealth(data.vehicle)
-    local body = GetVehicleBodyHealth(data.vehicle)
-
+    local deformation = Deformation.get(vehicle)
+    local fuel = Utils.getFuel(vehicle)
+    local engine = GetVehicleEngineHealth(vehicle)
+    local body = GetVehicleBodyHealth(vehicle)
 
     local isOwned = lib.callback.await('rhd_garage:cb_server:getvehowner', false, plate, shared, {
         mods = prop,
@@ -372,20 +378,22 @@ local function storeVeh ( data )
         fuel =  fuel,
         engine = engine,
         body = body,
-        vehicle_name = Entity(data.vehicle).state.vehlabel
+        vehicle_name = Entity(vehicle).state.vehlabel
     })
 
-    if not isOwned then return Utils.notify(locale('rhd_garage:not_owned'), 'error') end
-    if DoesEntityExist(data.vehicle) then
-        SetEntityAsMissionEntity(data.vehicle, true, true)
-        DeleteVehicle(data.vehicle)
-        
-        TriggerServerEvent('rhd_garage:server:updateState', {
-            plate = plate,
-            state = 1,
-            garage = data.garage
-        })
-        
+    if not isOwned then return
+        Utils.notify(locale('rhd_garage:not_owned'), 'error')
+    end
+
+    if cache.vehicle and cache.seat == -1 then
+        TaskLeaveAnyVehicle(cache.ped, true, 0)
+        Wait(1000)
+    end
+
+    if DoesEntityExist(vehicle) then
+        SetEntityAsMissionEntity(vehicle, true, true)
+        DeleteVehicle(vehicle)
+        TriggerServerEvent('rhd_garage:server:updateState', {plate = plate, state = 1, garage = data.garage})
         Utils.notify(locale('rhd_garage:success_stored'), 'success')
     end
 end
