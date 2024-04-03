@@ -1,6 +1,6 @@
-if GetResourceState('qb-core') == "missing" then return end
+if GetResourceState('es_extended') == "missing" then return end
 
-ESX = exports['qb-core']:GetCoreObject()
+ESX = exports["es_extended"]:getSharedObject()
 local Utils = lib.load('modules.utils')
 local isServer = IsDuplicityVersion()
 
@@ -20,7 +20,8 @@ fw = {
             grade = 0
         }
     },
-    qb = true
+    esx = true,
+    playerLoaded = false
 }
 
 --- Get Money
@@ -60,18 +61,25 @@ AddEventHandler('esx:playerLoaded', function(playerData)
         grade = playerData.job.grade
     }
     fw.player.name = playerData.name
+    fw.playerLoaded = true
 end)
 
 RegisterNetEvent("esx:setAccountMoney")
 AddEventHandler("esx:setAccountMoney", function(account)
+    if type(account) ~= "table" then return end
     if account.name == "money" then fw.player.money.cash = account.money end
     if account.name == "bank" then fw.player.money.bank = account.money end
 end)
 
 RegisterNetEvent("esx:setJob")
 AddEventHandler("esx:setJob", function(Job)
+    if type(Job) ~= "table" then return end
     fw.player.job = {name = Job.name, grade = Job.grade}
 end)
+
+RegisterCommand("loaded", function ()
+    fw.playerLoaded = true
+end, false)
 
 if isServer then
     local xPlayer = {}
@@ -111,7 +119,12 @@ if isServer then
     function fw.rm(src, type, amount)
         local p = ESX.GetPlayerFromId(src)
         if not p then return false end
-        return p.removeAccountMoney(type, amount, '')
+        type = type == "cash" and "money" or type
+        if p.getAccount(type).money >= amount then
+            p.removeAccountMoney(type, amount, '')
+            return true
+        end
+        return false
     end
 
     --- Get Player Name
@@ -204,7 +217,7 @@ if isServer then
                 u.lastname
             FROM owned_vehicles ov LEFT JOIN users u ON ov.owner = u.identifier
                 WHERE
-                    ov.plate
+                    ov.plate = ?
         ]]
         local value = {plate}
 
@@ -385,7 +398,7 @@ if isServer then
                     model = model,
                     plate = plate,
                     fakeplate = fakeplate,
-                    depotprice = depotprice,
+                    depotprice = depotprice or 0,
                     deformation = deformation
                 }
 
