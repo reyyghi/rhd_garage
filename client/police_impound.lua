@@ -1,7 +1,6 @@
 if not Config.UsePoliceImpound then return end
 
 local VehicleShow = nil
-local Utils = lib.load('modules.utils')
 local Deformation = lib.load('modules.deformation')
 
 PoliceImpound = {}
@@ -20,7 +19,7 @@ local function spawnvehicle ( data )
         model = data.props.model,
         plate = data.plate,
         coords = data.coords,
-        vehtype = Utils.getVehicleTypeByModel(data.props.model)
+        vehtype = utils.getVehicleTypeByModel(data.props.model)
     })
 
     if serverData.netId < 1 then
@@ -30,7 +29,7 @@ local function spawnvehicle ( data )
     while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
     local veh = NetworkGetEntityFromNetworkId(serverData.netId)
 
-    while Utils.getPlate(veh) ~= serverData.plate do
+    while utils.getPlate(veh) ~= serverData.plate do
         SetVehicleNumberPlateText(veh, serverData.plate) Wait(10)
     end
 
@@ -101,9 +100,9 @@ local function openpoliceImpound ( garage )
                 onSelect = function ()
                     local coords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5), GetEntityHeading(cache.ped)+90)
                     local vehInArea = lib.getClosestVehicle(coords.xyz)
-                    if DoesEntityExist(vehInArea) then return Utils.notify(locale('rhd_garage:no_parking_spot'), 'error') end
+                    if DoesEntityExist(vehInArea) then return utils.notify(locale('rhd_garage:no_parking_spot'), 'error') end
 
-                    VehicleShow = Utils.createPlyVeh(props.model, coords)
+                    VehicleShow = utils.createPlyVeh(props.model, coords)
                     NetworkFadeInEntity(VehicleShow, true, false)
                     FreezeEntityPosition(VehicleShow, true)
                     SetVehicleDoorsLocked(VehicleShow, 2)
@@ -191,7 +190,7 @@ local function openpoliceImpound ( garage )
                         }
                     end
 
-                    Utils.createMenu(context2)
+                    utils.createMenu(context2)
                 end
             }
         end
@@ -203,7 +202,7 @@ local function openpoliceImpound ( garage )
             disabled = true
         }
     end
-    Utils.createMenu(context)
+    utils.createMenu(context)
 end
 
 local function checkAvailableGarage ()
@@ -292,7 +291,7 @@ local function impoundVehicle (vehicle)
             lib.callback('rhd_garage:cb_server:policeImpound.impoundveh', false, function ( success )
                 SetEntityAsMissionEntity(vehicle, true, true)
                 DeleteVehicle(vehicle)
-                Utils.notify("Kendaraan berhasil di sita!", "success")
+                utils.notify("Kendaraan berhasil di sita!", "success")
             end, sendToServer)
 
             ClearPedTasks(cache.ped)
@@ -364,7 +363,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
     })
 
     if alert == "confirm" then
-        Utils.createMenu({
+        utils.createMenu({
             id = 'rhd_garage:policeImpound.payoptions',
             title = 'PILIH METODE PEMBAYARAN',
             onExit = function ()
@@ -380,7 +379,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
 
                         if fw.gm('cash') < fine then
                             continue = true
-                            Utils.notify(locale('rhd_garage:not_enough_cash_policeImpound'), 'error')
+                            utils.notify(locale('rhd_garage:not_enough_cash_policeImpound'), 'error')
                             return
                         end
 
@@ -389,7 +388,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
                         if success then
                             paid = true
                             continue = true
-                            Utils.notify("Anda berhasil membayar denda kendaraan anda", "success")
+                            utils.notify("Anda berhasil membayar denda kendaraan anda", "success")
                         else
                             continue = true
                         end
@@ -403,7 +402,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
                     onSelect = function ()  
                         if fw.gm('bank') < fine then
                             continue = true
-                            Utils.notify(locale('rhd_garage:not_enough_bank_policeImpound'), 'error') 
+                            utils.notify(locale('rhd_garage:not_enough_bank_policeImpound'), 'error') 
                             return
                         end
 
@@ -412,7 +411,7 @@ lib.callback.register("rhd_garage:cb_client:sendFine", function ( fine )
                         if success then
                             paid = true
                             continue = true
-                            Utils.notify("Anda berhasil membayar denda kendaraan anda", "success")
+                            utils.notify("Anda berhasil membayar denda kendaraan anda", "success")
                         else
                             continue = true
                         end
@@ -456,9 +455,9 @@ CreateThread(function()
                 points  = v.zones.points,
                 thickness = v.zones.thickness,
                 onEnter = function ()
-                    if Utils.JobCheck({ job = Target.groups}) then
+                    if utils.JobCheck({ job = Target.groups}) then
 
-                        Utils.drawtext('show', v.label:upper(), 'warehouse')
+                        utils.drawtext('show', v.label:upper(), 'warehouse')
                         radFunc.create({
                             id = "open_garage",
                             label = locale("rhd_garage:open_garage"),
@@ -472,7 +471,7 @@ CreateThread(function()
                     end
                 end,
                 onExit = function ()
-                    Utils.drawtext('hide')
+                    utils.drawtext('hide')
     
                     radFunc.remove("open_garage")
                     radFunc.remove("store_veh")

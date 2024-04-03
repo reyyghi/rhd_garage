@@ -2,7 +2,6 @@ if Config.RadialMenu ~= "qb" then return end
 
 radFunc = {}
 local radaial = {}
-local utils = lib.load("modules.utils")
 
 function radFunc.create(data)
     local id = data.id:gsub("%s+", "")

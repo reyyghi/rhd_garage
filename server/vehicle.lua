@@ -2,8 +2,6 @@ if GetCurrentResourceName() ~= "rhd_garage" then return end
 
 vehFuncS = {}
 
-local utils = lib.load("modules.utils")
-
 --- Get Vehicle Out By Plate
 ---@param plate any
 ---@return table | boolean

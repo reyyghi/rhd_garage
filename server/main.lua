@@ -1,5 +1,3 @@
-local Utils = lib.load('modules.utils')
-
 --- callback
 lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, amount)
     return fw.rm(src, type, amount)
@@ -54,7 +52,7 @@ lib.callback.register("rhd_garage:cb_server:transferVehicle", function (src, cli
     end
     
     local success = fw.uvo(src, tid, clientData.plate)
-    if success then Utils.ServerNotify(tid, locale("rhd_garage:transferveh_success_target", fw.gn(src), clientData.garage), "success") end
+    if success then utils.notify(tid, locale("rhd_garage:transferveh_success_target", fw.gn(src), clientData.garage), "success") end
     return success, locale("rhd_garage:transferveh_success_src", fw.gn(tid))
 end)
 

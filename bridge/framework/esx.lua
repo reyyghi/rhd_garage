@@ -1,7 +1,6 @@
 if GetResourceState('es_extended') == "missing" then return end
 
 ESX = exports["es_extended"]:getSharedObject()
-local Utils = lib.load('modules.utils')
 local isServer = IsDuplicityVersion()
 
 fw = {
@@ -487,14 +486,14 @@ if isServer then
         local src = playerData.source
         local idstr = tostring(src)
         xPlayer[idstr] = playerData
-        Utils.print("success", ("Register new cache for %s"):format(GetPlayerName(src)))
+        utils.print("success", ("Register new cache for %s"):format(GetPlayerName(src)))
     end)
 
     AddEventHandler("playerDropped", function ()
         local src = source
         local idstr = tostring(src)
         xPlayer[idstr] = nil
-        Utils.print("success", ("Remove cache from %s"):format(GetPlayerName(src)))
+        utils.print("success", ("Remove cache from %s"):format(GetPlayerName(src)))
     end)
 
     RegisterCommand("reloadcache", function (src)

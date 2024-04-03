@@ -5,7 +5,6 @@ local isServer = IsDuplicityVersion()
 local lasthouse = nil
 local houseZone = {}
 
-local Utils = lib.load('modules.utils')
 
 --- for qb-houses or ps-housing
 if qbHousing or psHousing then
@@ -51,12 +50,12 @@ if qbHousing or psHousing then
                                         }
                                     })
         
-                                    Utils.drawtext('show', label:upper(), 'warehouse')
+                                    utils.drawtext('show', label:upper(), 'warehouse')
                                 end
                             end, house)
                         end,
                         onExit = function ()
-                            Utils.drawtext('hide')
+                            utils.drawtext('hide')
                             radFunc.remove("open_garage")
                             radFunc.remove("store_veh")
                         end

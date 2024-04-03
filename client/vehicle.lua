@@ -1,7 +1,5 @@
 vehFunc = {}
 
-local utils = lib.load('modules.utils')
-
 --- Get Vehicle Info By Plate
 ---@param plate string
 function vehFunc.gvibp(plate)
