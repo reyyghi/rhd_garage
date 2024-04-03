@@ -5,7 +5,7 @@ version '1.3.4'
 
 shared_scripts {
     '@ox_lib/init.lua',
-    'shared/config.lua',
+    'shared/*.lua',
     'bridge/houses/*.lua',
     'bridge/framework/*.lua'
 }
@@ -26,9 +26,9 @@ server_scripts {
 }
 
 files {
-    'modules/utils.lua',
     'modules/zone.lua',
     'modules/deformation.lua',
+    'modules/spawnpoint.lua',
 
     'data/customname.lua',
     'data/garage.lua',
