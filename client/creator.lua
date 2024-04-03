@@ -1,6 +1,24 @@
 local Zones = lib.load('client.zone')
 local Zones_Creator = lib.load('modules.zone')
-local Utils = lib.load('modules.utils')
+local spawnPoint = lib.load('modules.spawnpoint')
+
+local function blipInput(impound)
+    local p = promise.new()
+    CreateThread(function()
+        local results = {type = impound and 68 or 357, color = 3}
+        local blipinput = lib.inputDialog('BLIP', {
+            { type = 'number', label = locale("rhd_garage:input.admin.creator_bliptype"), placeholder = '357'},
+            { type = 'number', label = locale("rhd_garage:input.admin.creator_blipcolor"), placeholder = '3'},
+        })
+    
+        local hi = blipinput
+        results.type = hi and hi[1] or results.type
+        results.color = hi and hi[2] or results.color
+        p:resolve(results)
+    end)
+
+    return p
+end
 
 local function createGarage ()
     Zones_Creator.startCreator({
@@ -19,64 +37,44 @@ local function createGarage ()
                 { type = 'checkbox', label = "Use Blip"},
                 { type = 'checkbox', label = "Impound"},
                 { type = 'checkbox', label = "Shared"},
+                { type = 'checkbox', label = "Specific Spawn Point"},
             })
-            
             if input then
-
                 local Impound = not input[5] and input[4] or false
 
                 local newData = {
                     label = input[1],
                     type = input[2],
-                    blip = nil,
+                    blip = input[3] and Citizen.Await(blipInput(Impound)) or nil,
                     zones = zones,
                     impound = Impound,
-                    shared = input[5]
+                    shared = input[5],
+                    spawnPoint = input[6] and Citizen.Await(spawnPoint.create()) or nil
                 }
-
-                if input[3] then
-                    local blipinput = lib.inputDialog('BLIP', {
-                        { type = 'number', label = locale("rhd_garage:input.admin.creator_bliptype"), placeholder = '357', required = true},
-                        { type = 'number', label = locale("rhd_garage:input.admin.creator_blipcolor"), placeholder = '3', required = true},
-                    })
-
-                    newData.blip = {}
-                    newData.blip.type = Impound and 68 or 357
-                    newData.blip.color = 3
-
-                    if blipinput then
-                        newData.blip.type = blipinput[1]
-                        newData.blip.color = blipinput[2]
-                    end
-
-                    GarageZone[newData.label] = {
-                        type = newData.type,
-                        blip = newData.blip,
-                        zones = newData.zones,
-                        impound = newData.impound,
-                        shared = newData.shared
-                    }
-                    
-                    Utils.notify(locale("rhd_garage:notify.admin.success_create", newData.label:upper()), "success")
-                    Zones.save( GarageZone )
-                    return
-                end
 
                 GarageZone[newData.label] = {
                     type = newData.type,
                     blip = newData.blip,
                     zones = newData.zones,
                     impound = newData.impound,
-                    shared = newData.shared
+                    shared = newData.shared,
+                    spawnPoint = newData.spawnPoint
                 }
+
+                print(json.encode(GarageZone, {indent = true}))
                 
-                Utils.notify(locale("rhd_garage:notify.admin.success_create", newData.label:upper()), "success")
+                utils.notify(locale("rhd_garage:notify.admin.success_create", newData.label:upper()), "success")
                 Zones.save( GarageZone )
             end
             
         end
     })
 end
+
+RegisterCommand("testsp", function ()
+    local sp = Citizen.Await(spawnPoint.create())
+    print(sp and json.encode(sp) or sp)
+end, false)
 
 local function listGarage ()
     local context = {
@@ -88,7 +86,7 @@ local function listGarage ()
         context.options[#context.options+1] = {
             title = k:upper(),
             icon = "warehouse",
-            description = locale("rhd_garage:context.admin.listgarage_description", v.impound and "Impound" or v.shared and "Shared" or "Public", Utils.garageType("getstring", v.type)),
+            description = locale("rhd_garage:context.admin.listgarage_description", v.impound and "Impound" or v.shared and "Shared" or "Public", utils.garageType("getstring", v.type)),
             onSelect = function ()
                 local context2 = {
                     id = "rhd:action_garage",
@@ -103,7 +101,7 @@ local function listGarage ()
                             icon = "trash",
                             onSelect = function ()
                                 GarageZone[k] = nil
-                                Utils.notify(locale("rhd_garage:notify.admin.success_deleted", k), "success")
+                                utils.notify(locale("rhd_garage:notify.admin.success_deleted", k), "success")
                                 Zones.save( GarageZone )
                             end
                         },
@@ -133,7 +131,7 @@ local function listGarage ()
                                                         type = blipinput[1],
                                                         color = blipinput[2]
                                                     }
-                                                    Utils.notify(locale("rhd_garage:notify.admin.success_editblip"), "success")
+                                                    utils.notify(locale("rhd_garage:notify.admin.success_editblip"), "success")
                                                     Zones.save( GarageZone )
                                                 end
                                             end
@@ -143,13 +141,13 @@ local function listGarage ()
                                             icon = "trash",
                                             onSelect = function()
                                                 GarageZone[k].blip = nil
-                                                Utils.notify("Blip berhasil di hapus", "success")
+                                                utils.notify("Blip berhasil di hapus", "success")
                                                 Zones.save( GarageZone )
                                             end
                                         }
                                     }
                                 }
-                                Utils.createMenu(blipContext)
+                                utils.createMenu(blipContext)
                             end
                         },
                         {
@@ -160,7 +158,7 @@ local function listGarage ()
                                     type = "poly",
                                     onCreated = function (zones)
                                         GarageZone[k].zones = zones
-                                        Utils.notify(locale("rhd_garage:notify.admin.success_changelocation"), "success")
+                                        utils.notify(locale("rhd_garage:notify.admin.success_changelocation"), "success")
                                         Zones.save( GarageZone )
                                     end
                                 })
@@ -188,7 +186,7 @@ local function listGarage ()
                                 if inputLabel and #inputLabel[1] > 0 then
                                     GarageZone[inputLabel[1]] = v
                                     GarageZone[k] = nil
-                                    Utils.notify(locale("rhd_garage:notify.admin.success_changelabel", inputLabel[1]))
+                                    utils.notify(locale("rhd_garage:notify.admin.success_changelabel", inputLabel[1]))
                                     Zones.save( GarageZone )
                                 end
                             end
@@ -231,13 +229,13 @@ local function listGarage ()
                                                                 v.job = nil
                                                             end
 
-                                                            Utils.notify(locale("rhd_garage:notify.admin.success_deleted_access"), "success")
+                                                            utils.notify(locale("rhd_garage:notify.admin.success_deleted_access"), "success")
                                                             Zones.save( GarageZone )
                                                         end
                                                     }
                                                 }
                                             }
-                                            Utils.createMenu(contextJob2)
+                                            utils.createMenu(contextJob2)
                                         end
                                     }
                                 end
@@ -255,13 +253,13 @@ local function listGarage ()
                                     if input then
                                         if not v.job then v.job = {} end
                                         v.job[input[1]] = tonumber(input[2])
-                                        Utils.notify(locale("rhd_garage:notify.admin.success_added_access", input[1]))
+                                        utils.notify(locale("rhd_garage:notify.admin.success_added_access", input[1]))
                                         Zones.save( GarageZone )
                                     end
                                 end
                             }
                             
-                            Utils.createMenu(contextJob)
+                            utils.createMenu(contextJob)
                         end
                     }    
                 end
@@ -301,13 +299,13 @@ local function listGarage ()
                                                                 v.gang = nil
                                                             end
                                                             
-                                                            Utils.notify(locale("rhd_garage:notify.admin.success_deleted_access"), "success")
+                                                            utils.notify(locale("rhd_garage:notify.admin.success_deleted_access"), "success")
                                                             Zones.save( GarageZone )
                                                         end
                                                     }
                                                 }
                                             }
-                                            Utils.createMenu(contextGang2)
+                                            utils.createMenu(contextGang2)
                                         end
                                     }
                                 end
@@ -325,23 +323,23 @@ local function listGarage ()
                                     if input then
                                         if not v.gang then v.gang = {} end
                                         v.gang[input[1]] = tonumber(input[2])
-                                        Utils.notify(locale("rhd_garage:notify.admin.success_added_access", input[1]))
+                                        utils.notify(locale("rhd_garage:notify.admin.success_added_access", input[1]))
                                         Zones.save( GarageZone )
                                     end
                                 end
                             }
                             
-                            Utils.createMenu(contextGang)
+                            utils.createMenu(contextGang)
                         end
                     }    
                 end
 
-                Utils.createMenu(context2)
+                utils.createMenu(context2)
             end
         }   
     end
 
-    Utils.createMenu(context)
+    utils.createMenu(context)
 end
 
 CreateThread(function ()
