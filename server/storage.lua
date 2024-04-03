@@ -27,6 +27,7 @@ local function SaveGarage(garageData)
             },
             thickness = "%s"
         },
+        spawnPoint = %s
         job = %s,
         gang = %s,
         impound = %s,
@@ -36,12 +37,25 @@ local function SaveGarage(garageData)
     for label, data in pairs(garageData) do
 
         local points = {}
-        for _, point in ipairs(data.zones.points) do
+        for _, point in pairs(data.zones.points) do
             points[#points + 1] = ('vec3(%s, %s, %s)'):format(point.x, point.y, point.z)
+        end
+
+        local spawnpoint = nil
+        if data.spawnPoint then
+        local pf = [[{
+            %s
+        }
+        ]]
+            spawnpoint = {}
+            for _, p in pairs(data.spawnPoint) do
+                spawnpoint[#spawnpoint+1] = ('vec4(%s, %s, %s, %s)'):format(p.x, p.y, p.z, p.w)
+            end
+            spawnpoint = pf:format(table.concat(spawnpoint, ',\n\t\t\t'))
         end
     
         local gType = {}
-        for _, t in ipairs(data.type) do
+        for _, t in pairs(data.type) do
             gType[#gType+1] = ('%q'):format(tostring(t))
         end
 
@@ -51,11 +65,13 @@ local function SaveGarage(garageData)
             data.blip and ('{ type = %s, color = %s }'):format(data.blip.type, data.blip.color) or 'nil',
             table.concat(points, ',\n\t\t\t\t'),
             data.zones.thickness,
+            spawnpoint,
             GroupFormat(data.job),
             GroupFormat(data.gang),
             data.impound or 'nil',
             data.shared or 'nil'
         ):gsub('[%s]-[%w]+ = "?nil"?,?', '')
+
     end
     GarageZone = garageData
     GlobalState.rhd_garage_zone = garageData
