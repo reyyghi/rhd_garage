@@ -42,7 +42,7 @@ local function SaveGarage(garageData)
         end
 
         local spawnpoint = nil
-        if data.spawnPoint then
+        if data.spawnPoint and #data.spawnPoint > 0 then
         local pf = [[{
             %s
         }
