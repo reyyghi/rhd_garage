@@ -228,6 +228,49 @@ function utils.JobCheck ( data )
     return allowed
 end
 
+--- Refresh table after removed
+---@param t table array | hash
+---@return table?
+function utils.refreshTable(t)
+    local results = {}
+    
+    if type(t) ~= "table" then
+        return
+    elseif table.type(t) == "hash" then
+        for key, val  in pairs(t) do
+            results[key] = val
+        end
+    elseif table.type(t) == "array" then
+        for i=1, #t do
+            results[#results+1] = t[i]
+        end
+    end
+
+    return results
+end
+
+--- Merge array tables
+---@param o table
+---@param n table
+---@return table
+function utils.mergeArray(o, n)
+    local results = {}
+
+    if #o > 0 then
+        for i=1, #o do
+            results[#results+1] = o[i]
+        end
+    end
+
+    if #n > 0 then
+        for i=1, #n do
+            results[#results+1] = n[i]
+        end
+    end
+
+    return results
+end
+
 if server then
     --- Send Notification
     ---@param src number
