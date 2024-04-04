@@ -147,7 +147,7 @@ function spawnPoint.create()
             Wait(1)
         end
 
-        results:resolve(#vc > 1 and vc or false)
+        results:resolve(#vc > 0 and vc or false)
         lib.hideTextUI()
     end)
 
