@@ -12,6 +12,8 @@ function radFunc.create(data)
                     exports.rhd_garage:openMenu(data.args)
                 elseif data.id == "store_veh" then
                     exports.rhd_garage:storeVehicle(data.args)
+                elseif data.id == "open_garage_pi" then
+                    exports.rhd_garage:openpoliceImpound(data.args)
                 end
             end
         },
