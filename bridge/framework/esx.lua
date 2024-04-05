@@ -83,9 +83,9 @@ AddEventHandler("esx:setJob", function(Job)
     fw.player.job = {name = Job.name, grade = Job.grade}
 end)
 
-RegisterCommand("loaded", function ()
-    fw.playerLoaded = true
-end, false)
+-- RegisterCommand("loaded", function ()
+--     fw.playerLoaded = true
+-- end, false)
 
 if isServer then
     local xPlayer = {}
@@ -275,19 +275,15 @@ if isServer then
     function fw.gpvbp(plate)
         local results = MySQL.single.await([[
             SELECT 
-                ov.citizenid,
+                ov.owner,
+                ov.plate,
                 ov.vehicle,
                 ov.vehicle_name,
-                ov.mods,
-                ov.plate,
-                ov.fakeplate,
+                ov.stored,
                 ov.garage,
                 ov.fuel,
                 ov.engine,
                 ov.body,
-                ov.stored,
-                ov.depotprice,
-                ov.balance,
                 u.firstname,
                 u.lastname
             FROM owned_vehicles ov LEFT JOIN users u ON ov.owner = u.identifier WHERE ov.plate = ?   
@@ -300,7 +296,7 @@ if isServer then
             vehicles = {
                 owner = {
                     name = ("%s %s"):format(v.firstname, v.lastname),
-                    citizenid = v.identifier,
+                    citizenid = v.owner,
                 },
                 vehicle_name = v.vehicle_name,
                 mods = mods,
@@ -496,10 +492,10 @@ if isServer then
         utils.print("success", ("Remove cache from %s"):format(GetPlayerName(src)))
     end)
 
-    RegisterCommand("reloadcache", function (src)
-        local p = ESX.GetPlayerFromId(src)
-        if not p then return false end
-        local idstr = tostring(src)
-        xPlayer[idstr] = p
-    end, false)
+    -- RegisterCommand("reloadcache", function (src)
+    --     local p = ESX.GetPlayerFromId(src)
+    --     if not p then return false end
+    --     local idstr = tostring(src)
+    --     xPlayer[idstr] = p
+    -- end, false)
 end
