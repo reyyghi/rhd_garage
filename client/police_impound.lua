@@ -459,11 +459,11 @@ CreateThread(function()
 
                         utils.drawtext('show', v.label:upper(), 'warehouse')
                         radFunc.create({
-                            id = "open_garage",
+                            id = "open_garage_pi",
                             label = locale("rhd_garage:open_garage"),
                             icon = "warehouse",
                             event = "rhd_garage:radial:open_policeimpound",
-                            garage = {
+                            args = {
                                 label = v.label,
                             }
                         })
