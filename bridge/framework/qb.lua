@@ -88,9 +88,9 @@ RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
     }
 end)
 
-RegisterCommand("loaded", function ()
-    fw.playerLoaded = true
-end, false)
+-- RegisterCommand("loaded", function ()
+--     fw.playerLoaded = true
+-- end, false)
 
 if isServer then
     local xPlayer = {}
@@ -508,10 +508,10 @@ if isServer then
         utils.print("success", ("Remove cache from %s"):format(GetPlayerName(src)))
     end)
 
-    RegisterCommand("reloadcache", function (src)
-        local p = QBCore.Functions.GetPlayer(src)
-        if not p then return false end
-        local idstr = tostring(src)
-        xPlayer[idstr] = p.PlayerData
-    end, false)
+    -- RegisterCommand("reloadcache", function (src)
+    --     local p = QBCore.Functions.GetPlayer(src)
+    --     if not p then return false end
+    --     local idstr = tostring(src)
+    --     xPlayer[idstr] = p.PlayerData
+    -- end, false)
 end
