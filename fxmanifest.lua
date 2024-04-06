@@ -29,10 +29,8 @@ files {
     'modules/zone.lua',
     'modules/deformation.lua',
     'modules/spawnpoint.lua',
-
     'data/customname.lua',
     'data/garage.lua',
-
     'locales/*.json',
 }
 
