@@ -1,3 +1,9 @@
+CreateThread(function()
+    while not GlobalState.rhd_garage do GlobalState.rhd_garage = {} Wait(10) end
+    Wait(100)
+    GlobalState.rhd_garage = GarageZone
+end)
+
 --- callback
 lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, amount)
     return fw.rm(src, type, amount)
