@@ -51,12 +51,14 @@ local function actionMenu ( data )
         menu = 'garage_menu',
         onBack = function ()
             if DoesEntityExist(VehicleShow) then
+                utils.destroyPreviewCam(VehicleShow)
                 DeleteVehicle(VehicleShow)
                 VehicleShow = nil
             end
         end,
         onExit = function ()
             if DoesEntityExist(VehicleShow) then
+                utils.destroyPreviewCam(VehicleShow)
                 DeleteVehicle(VehicleShow)
                 VehicleShow = nil
             end
@@ -68,6 +70,7 @@ local function actionMenu ( data )
                 iconAnimation = Config.IconAnimation,
                 onSelect = function ()
                     if DoesEntityExist(VehicleShow) then
+                        utils.destroyPreviewCam(VehicleShow, true)
                         DeleteVehicle(VehicleShow)
                         VehicleShow = nil
                     end
@@ -127,6 +130,7 @@ local function actionMenu ( data )
                     price = lib.math.groupdigits(Config.TransferVehicle.price, '.')
                 },
                 onSelect = function ()
+                    utils.destroyPreviewCam(VehicleShow)
                     DeleteVehicle(VehicleShow)
                     VehicleShow = nil
 
@@ -162,6 +166,7 @@ local function actionMenu ( data )
                     price = lib.math.groupdigits(Config.SwapGarage.price, '.')
                 },
                 onSelect = function ()
+                    utils.destroyPreviewCam(VehicleShow)
                     DeleteVehicle(VehicleShow)
                     VehicleShow = nil
 
@@ -209,6 +214,7 @@ local function actionMenu ( data )
                 price = lib.math.groupdigits(Config.SwapGarage.price, '.')
             },
             onSelect = function ()
+                utils.destroyPreviewCam(VehicleShow)
                 DeleteVehicle(VehicleShow)
                 VehicleShow = nil
                 
@@ -235,7 +241,11 @@ local function actionMenu ( data )
     utils.createMenu(actionData)
 end
 
-local function getAvailableSP(point)
+--- Get available spawn point
+---@param point table
+---@param targetPed boolean
+---@return vector4?
+local function getAvailableSP(point, targetPed)
     local results = nil
     local targetCoords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5))
 
@@ -247,11 +257,19 @@ local function getAvailableSP(point)
         for i=1, #point do
             local c = point[i]
             local vec3 = vec(c.x, c.y, c.z)
-            local dist = #(targetCoords - vec3)
+            local dist = #(targetCoords - vec(vec3.x, vec3.y, vec3.z))
             local closestveh = lib.getClosestVehicle(vec3, 3.0, true)
-            if not closestveh and dist < 3.0 then
-                results = c
-                break
+            if not targetPed then
+                if not closestveh and dist < 3.0 then
+                    results = c
+                    break
+                end
+            else
+                if not closestveh then
+                    results = c
+                    break
+                end
+                
             end
         end
     end
@@ -336,7 +354,7 @@ local function openMenu ( data )
                     local defaultcoords = vec(GetOffsetFromEntityInWorldCoords(cache.ped, 0.0, 2.0, 0.5), GetEntityHeading(cache.ped)+90)
 
                     if data.spawnpoint then
-                        defaultcoords = getAvailableSP(data.spawnpoint)
+                        defaultcoords = getAvailableSP(data.spawnpoint, data.targetped)
                     end
 
                     if not defaultcoords then
@@ -350,6 +368,7 @@ local function openMenu ( data )
                     SetEntityAlpha(VehicleShow, 120, false)
                     FreezeEntityPosition(VehicleShow, true)
                     SetVehicleDoorsLocked(VehicleShow, 2)
+                    utils.createPreviewCam(VehicleShow)
 
                     if vehProp and next(vehProp) then
                         vehFunc.svp(VehicleShow, vehProp)
