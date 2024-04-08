@@ -1,7 +1,8 @@
 fx_version 'cerulean'
 game 'gta5'
-author 'Reyghita Hafizh Firmanda'
 version '1.3.4'
+author 'Reyghita Hafizh Firmanda'
+description 'Garage system for ESX & QBCore made by RHD Team'
 
 shared_scripts {
     '@ox_lib/init.lua',
@@ -29,7 +30,9 @@ files {
     'modules/zone.lua',
     'modules/deformation.lua',
     'modules/spawnpoint.lua',
+    'modules/pedcreator.lua',
     'data/customname.lua',
+    'data/pedlist.lua',
     'data/garage.lua',
     'locales/*.json',
 }
