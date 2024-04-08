@@ -314,10 +314,8 @@ local function setUpTarget ( )
         'bonnet',
         'boot'
     }
-
     local TargetData = Config.PoliceImpound.Target
-
-    if TargetData.type == "ox" then
+    if Config.Target == "ox" then
         exports.ox_target:addGlobalVehicle({
             {
                 label = "Sita Kendaraan",
@@ -330,7 +328,7 @@ local function setUpTarget ( )
                 distance = 1.5
             }
         })
-    elseif TargetData.type == "qb" then
+    elseif Config.Target == "qb" then
         exports['qb-target']:AddTargetBone(bones, {
             options = {
                 ["Sita Kendaraan"] = {
