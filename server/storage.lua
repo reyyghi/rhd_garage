@@ -31,7 +31,8 @@ local function SaveGarage(garageData)
         job = %s,
         gang = %s,
         impound = %s,
-        shared = %s
+        shared = %s,
+        interaction = %s
     },
 ]]
     for label, data in pairs(garageData) do
@@ -45,13 +46,29 @@ local function SaveGarage(garageData)
         if data.spawnPoint and #data.spawnPoint > 0 then
         local pf = [[{
             %s
-        }
+        },
         ]]
             spawnpoint = {}
             for _, p in pairs(data.spawnPoint) do
                 spawnpoint[#spawnpoint+1] = ('vec4(%s, %s, %s, %s)'):format(p.x, p.y, p.z, p.w)
             end
             spawnpoint = pf:format(table.concat(spawnpoint, ',\n\t\t\t'))
+        end
+
+        local interaction = nil
+        if data.interaction then
+            if type(data.interaction) == "table" then
+                local f = [[{
+            model = "%s",
+            coords = vec4(%s, %s, %s, %s)
+        },]]
+                local model = data.interaction.model
+                local coords = data.interaction.coords
+                interaction = f:format(model, coords.x, coords.y, coords.z, coords.w)
+            else
+                local f = [["%s"]]
+                interaction = f:format(data.interaction)
+            end
         end
     
         local gType = {}
@@ -69,7 +86,8 @@ local function SaveGarage(garageData)
             GroupFormat(data.job),
             GroupFormat(data.gang),
             data.impound or 'nil',
-            data.shared or 'nil'
+            data.shared or 'nil',
+            interaction
         ):gsub('[%s]-[%w]+ = "?nil"?,?', '')
 
     end
