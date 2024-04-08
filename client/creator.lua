@@ -1,6 +1,7 @@
 local Zones = lib.load('client.zone')
 local Zones_Creator = lib.load('modules.zone')
 local spawnPoint = lib.load('modules.spawnpoint')
+local pedcreator = lib.load('modules.pedcreator')
 
 --- Blip Input
 ---@param impound boolean
@@ -42,30 +43,38 @@ local function createGarage ()
                 { type = 'checkbox', label = "Impound"},
                 { type = 'checkbox', label = "Shared"},
                 { type = 'checkbox', label = "Specific Spawn Point"},
+                { type = 'select', label = "Interaction", options = {
+                    {value = "radial", label = "Radial Menu"},
+                    {value = "keypressed", label = "Key Pressed"},
+                    {value = "targetped", label = "Target Ped"}
+                }, required = true},
             })
             if input then
+                local tPed = input[7] == 'targetped'
                 local Impound = not input[5] and input[4] or false
+                local label = input[1]
+                local gtype = input[2]
+                local blip = input[3] and Citizen.Await(blipInput(Impound)) or nil
+                local shared = input[5]
+                local sp = input[6] and Citizen.Await(spawnPoint.create(zones, true)) or nil
+                local interact = tPed and Citizen.Await(pedcreator.start(zones)) or input[7]
 
-                local newData = {
-                    label = input[1],
-                    type = input[2],
-                    blip = input[3] and Citizen.Await(blipInput(Impound)) or nil,
+                if tPed and not input[6] then
+                    Wait(1000)
+                    sp = Citizen.Await(spawnPoint.create(zones, true)) or nil
+                end
+
+                GarageZone[label] = {
+                    type = gtype,
+                    blip = blip,
                     zones = zones,
                     impound = Impound,
-                    shared = input[5],
-                    spawnPoint = input[6] and Citizen.Await(spawnPoint.create()) or nil
-                }
-
-                GarageZone[newData.label] = {
-                    type = newData.type,
-                    blip = newData.blip,
-                    zones = newData.zones,
-                    impound = newData.impound,
-                    shared = newData.shared,
-                    spawnPoint = newData.spawnPoint
+                    shared = shared,
+                    spawnPoint = sp,
+                    interaction = interact
                 }
                 
-                utils.notify(locale("rhd_garage:notify.admin.success_create", newData.label:upper()), "success")
+                utils.notify(locale("rhd_garage:notify.admin.success_create", label:upper()), "success")
                 Zones.save( GarageZone )
             end
         end
@@ -481,6 +490,7 @@ CreateThread(function ()
 end)
 
 AddStateBagChangeHandler("rhd_garage_zone", "global", function (bagName, key, value)
+    print(json.encode(value, {indent = true}))
     if value then
         GarageZone = value
         Zones.refresh()
