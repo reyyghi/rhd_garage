@@ -3,6 +3,7 @@ Config = {}
 GarageZone = lib.load('data.garage')
 CNV = lib.load('data.customname')
 
+Config.Target = 'ox' -- ox / qb
 Config.RadialMenu = 'rhd' --- ox / qb / rhd
 Config.FuelScript = 'rhd_fuel' --- rhd_fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 Config.changeNamePrice = 15000 --- price for changing the name of the vehicle in the garage
@@ -56,7 +57,6 @@ Config.ImpoundPrice = {
 
 Config.PoliceImpound = {
     Target = {
-        type = "ox", -- ox/qb
         groups = {
             police = 0
         }
