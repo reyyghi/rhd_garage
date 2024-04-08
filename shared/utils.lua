@@ -2,6 +2,13 @@ utils = {}
 
 local server = IsDuplicityVersion()
 
+-- Coming Soon
+-- utils.keylist = {
+--     ["A"] = 34, ["B"] = 29, ["C"] = 26, ["D"] = 9, ["E"] = 38, ["F"] = 23, ["G"] = 47, ["H"] = 74, ["I"] = 73, ["J"] = 311,
+--     ["K"] = 182, ["L"] = 243, ["M"] = 244, ["N"] = 249, ["O"] = 246, ["P"] = 199, ["Q"] = 44, ["R"] = 45, ["S"] = 8, ["T"] = 245,
+--     ["U"] = 303, ["V"] = 0, ["W"] = 32, ["X"] = 73, ["Y"] = 246, ["Z"] = 20
+-- }
+
 ---@param string string
 ---@return string?
 string.trim = function ( string )
@@ -42,6 +49,108 @@ end
 function utils.createMenu( data )
     lib.registerContext(data)
     lib.showContext(data.id)
+end
+
+--- Create a camera for vehicle review
+---@param vehicle integer
+function utils.createPreviewCam(vehicle)
+    if not DoesEntityExist(vehicle) then return end
+    local cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
+    RenderScriptCams(true, true, 1500,  true,  true)
+    local vehpos = GetEntityCoords(vehicle)
+    local pos = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, 15.0, 1.0)
+    local camF = GetGameplayCamFov()
+    SetCamCoord(cam, pos.x, pos.y, pos.z + 4.2)
+    PointCamAtCoord(cam, vehpos.x,vehpos.y,vehpos.z + 0.2)
+    SetCamFov(cam, camF - 20)
+end
+
+--- destroying the camera to review the vehicle
+---@param vehicle integer
+function utils.destroyPreviewCam(vehicle, enterVehicle)
+    if not DoesEntityExist(vehicle) then return end
+    local cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
+    local vehpos = GetEntityCoords(vehicle)
+    local pos = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, 5.0, 1.0)
+    SetCamCoord(cam, pos.x, pos.y, pos.z + 0.4)
+    PointCamAtCoord(cam, vehpos.x,vehpos.y,vehpos.z + 0.2)
+    
+    if enterVehicle then
+        DoScreenFadeOut(500)
+        Wait(1000)
+        DoScreenFadeIn(500)
+        RenderScriptCams(false, true, 1500,  false,  false)
+    else
+        RenderScriptCams(false, true, 1500,  false,  false)
+    end
+
+end
+
+--- Create target ped
+---@param model string | integer
+---@param coords vector4
+---@param options {label: string, icon: string, distance: number, job:string|table, gang:string|table, action: fun(data:table|integer)}
+function utils.createTargetPed(model, coords, options)
+    local newoptions = {}
+    local qbtd = nil --- qb-target distance options
+    
+    lib.requestModel(model, 1500)
+    local ped = CreatePed(0, model, coords.x, coords.y, coords.z - 1, coords.w, false, false)
+    SetEntityInvincible(ped, true)
+    SetBlockingOfNonTemporaryEvents(ped, true)
+    FreezeEntityPosition(ped, true)
+
+    if type(options) == "table" and #options > 0 then
+        for i=1, #options do
+            local data = options[i]
+            local opt = {
+                name = data.name,
+                label = data.label,
+                icon = data.icon,
+            }
+            if Config.Target == "ox" then
+                opt.distance = data.distance
+                opt.onSelect = function (d)
+                    data.action(d)
+                end
+            elseif Config.Target == "qb" then
+                opt.action = function (d)
+                    data.action(d)
+                end
+            end
+            qbtd = data.distance
+            newoptions[#newoptions+1] = opt
+        end
+    end
+
+    if #newoptions > 0 then
+        if Config.Target == "ox" then
+            exports.ox_target:addLocalEntity(ped, newoptions)
+        elseif Config.Target == "qb" then
+            local param = {
+                options = newoptions,
+                distance = qbtd
+            }
+            exports['qb-target']:AddTargetEntity(ped, param)
+        end
+    end
+
+    return ped
+end
+
+--- Remove target ped
+---@param entity integer
+---@param label string
+function utils.removeTargetPed(entity, label)
+    if DoesEntityExist(entity) then
+        if Config.Target == "ox" then
+            exports.ox_target:removeLocalEntity(entity, label)
+            DeleteEntity(entity)
+        elseif Config.Target == "qb" then
+            exports['qb-target']:RemoveTargetEntity(entity, label)
+            DeleteEntity(entity)
+        end
+    end
 end
 
 --- Debug Print
