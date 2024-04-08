@@ -7,6 +7,7 @@ local vehicleList = {
 
 local curVehicle = nil
 local busy = false
+local glm = require "glm"
 
 local function CancelPlacement()
     DeleteVehicle(curVehicle)
@@ -32,11 +33,12 @@ local function RayCastGamePlayCamera(distance)
     return hit, endPos, entityHit, surfaceNormal
 end
 
-function spawnPoint.create()
+function spawnPoint.create(zone, required)
+    if not zone then return end
     if busy then return end
-
     local vehIndex = 1
     local vehicle = vehicleList[vehIndex]
+    local polygon = glm.polygon.new(zone.points)
 
     local text = [[
     [X]: Cancel
@@ -64,6 +66,11 @@ function spawnPoint.create()
         while busy do
             local hit, coords, entity = RayCastGamePlayCamera(20.0)
             CurrentCoords = GetEntityCoords(curVehicle)
+            
+            local inZone = glm.polygon.contains(polygon, CurrentCoords, zone.thickness / 4)
+            local outlineColour = inZone and {255, 255, 255, 255} or {240, 5, 5, 1}
+            SetEntityDrawOutline(curVehicle, true)
+            SetEntityDrawOutlineColor(outlineColour[1], outlineColour[2], outlineColour[3], outlineColour[4])
 
             if hit == 1 then
                 SetEntityCoords(curVehicle, coords.x, coords.y, coords.z + prefixZ)
@@ -132,15 +139,24 @@ function spawnPoint.create()
             end
             
             if IsDisabledControlJustPressed(0, 73) then
-                CancelPlacement()
+                if required and #vc < 1 then
+                    utils.notify("You must create at least x1 spawn points", "error", 8000)
+                else
+                    CancelPlacement()
+                end
             end
 
             SetEntityHeading(curVehicle, heading)
 
             if IsDisabledControlJustPressed(0, 176) then
                 if hit == 1 then
-                    vc[#vc+1] = vec4(CurrentCoords.x, CurrentCoords.y, CurrentCoords.z, heading)
-                    utils.notify("location successfully created " .. #vc, "success", 8000)
+
+                    if inZone then
+                        vc[#vc+1] = vec4(CurrentCoords.x, CurrentCoords.y, CurrentCoords.z, heading)
+                        utils.notify("location successfully created " .. #vc, "success", 8000)
+                    else
+                        utils.notify("cannot add spawn points outside the zone", "error", 8000)
+                    end
                 end
             end
             
