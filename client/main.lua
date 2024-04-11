@@ -1,6 +1,14 @@
 local VehicleShow = nil
 local Deformation = lib.load('modules.deformation')
 
+local function destroyPreview()
+    if VehicleShow and DoesEntityExist(VehicleShow) then
+        utils.destroyPreviewCam(VehicleShow)
+        DeleteVehicle(VehicleShow)
+        VehicleShow = nil
+    end
+end
+
 local function spawnvehicle ( data )
     lib.requestModel(data.model)
     local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
@@ -49,32 +57,14 @@ local function actionMenu ( data )
         id = 'garage_action',
         title = data.vehName:upper(),
         menu = 'garage_menu',
-        onBack = function ()
-            if DoesEntityExist(VehicleShow) then
-                utils.destroyPreviewCam(VehicleShow)
-                DeleteVehicle(VehicleShow)
-                VehicleShow = nil
-            end
-        end,
-        onExit = function ()
-            if DoesEntityExist(VehicleShow) then
-                utils.destroyPreviewCam(VehicleShow)
-                DeleteVehicle(VehicleShow)
-                VehicleShow = nil
-            end
-        end,
+        onBack = destroyPreview,
+        onExit = destroyPreview,
         options = {
             {
                 title = data.impound and locale('rhd_garage:pay_impound') or locale('rhd_garage:take_out_veh'),
                 icon = data.impound and 'hand-holding-dollar' or 'sign-out-alt',
                 iconAnimation = Config.IconAnimation,
                 onSelect = function ()
-                    if DoesEntityExist(VehicleShow) then
-                        utils.destroyPreviewCam(VehicleShow, true)
-                        DeleteVehicle(VehicleShow)
-                        VehicleShow = nil
-                    end
-
                     if data.impound then
                         utils.createMenu({
                             id = 'pay_methode',
@@ -85,7 +75,8 @@ local function actionMenu ( data )
                                     icon = 'dollar-sign',
                                     description = locale('rhd_garage:pay_with_cash'),
                                     iconAnimation = Config.IconAnimation,
-                                    onSelect = function ()  
+                                    onSelect = function ()
+                                        destroyPreview()
                                         if fw.gm('cash') < data.depotprice then return utils.notify(locale('rhd_garage:not_enough_cash'), 'error') end
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'cash', data.depotprice)
                                         if success then
@@ -100,6 +91,7 @@ local function actionMenu ( data )
                                     description = locale('rhd_garage:pay_with_bank'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
+                                        destroyPreview()
                                         if fw.gm('bank') < data.depotprice then return utils.notify(locale('rhd_garage:not_enough_bank'), 'error') end
                                         local success = lib.callback.await('rhd_garage:cb_server:removeMoney', false, 'bank', data.depotprice)
                                         if success then
@@ -112,7 +104,7 @@ local function actionMenu ( data )
                         })
                         return
                     end
-
+                    destroyPreview()
                     spawnvehicle( data )
                 end
             },
@@ -130,14 +122,11 @@ local function actionMenu ( data )
                     price = lib.math.groupdigits(Config.TransferVehicle.price, '.')
                 },
                 onSelect = function ()
-                    utils.destroyPreviewCam(VehicleShow)
-                    DeleteVehicle(VehicleShow)
-                    VehicleShow = nil
-
+                    destroyPreview()
                     local transferInput = lib.inputDialog(data.vehName:upper(), {
                         { type = 'number', label = 'Player Id', required = true },
                     })
-                    
+
                     if transferInput then
                         local clData = {
                             targetSrc = transferInput[1],
@@ -166,9 +155,7 @@ local function actionMenu ( data )
                     price = lib.math.groupdigits(Config.SwapGarage.price, '.')
                 },
                 onSelect = function ()
-                    utils.destroyPreviewCam(VehicleShow)
-                    DeleteVehicle(VehicleShow)
-                    VehicleShow = nil
+                    destroyPreview()
 
                     local garageTable = function ()
                         local result = {}
@@ -214,9 +201,7 @@ local function actionMenu ( data )
                 price = lib.math.groupdigits(Config.SwapGarage.price, '.')
             },
             onSelect = function ()
-                utils.destroyPreviewCam(VehicleShow)
-                DeleteVehicle(VehicleShow)
-                VehicleShow = nil
+                destroyPreview()
                 
                 local input = lib.inputDialog(data.vehName, {
                     { type = 'input', label = '', placeholder = locale('rhd_garage:change_veh_name_input'), required = true, max = 20 },
