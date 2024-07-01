@@ -6,6 +6,8 @@
 ---@field spawnpoint? vector3[] Garage Spawn Point
 ---@field targetped? boolean Garage Using Ped
 ---@field depotprice? number Depot Price
+---@field props? table Vehicle Properties
+---@field deformation? table Vehicle Deformation
 ---@field body? number Vehicle BodyHealth
 ---@field engine? number Vehicle EngineHealth
 ---@field fuel? number Vehicle Fuel Level

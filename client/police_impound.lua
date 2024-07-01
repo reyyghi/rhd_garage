@@ -12,6 +12,7 @@ local function deletePreviewVehicle ()
     end
 end
 
+---@param data GarageVehicleData
 local function spawnvehicle ( data )
 
     lib.requestModel(data.props.model)
@@ -56,6 +57,7 @@ local function spawnvehicle ( data )
     TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
 end
 
+---@param garage table
 local function openpoliceImpound ( garage )
     local garage = garage.label
 
