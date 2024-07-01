@@ -111,7 +111,7 @@ function zone.refresh ()
 
                 radFunc.create({
                     id = "open_garage",
-                    label = locale("rhd_garage:open_garage"),
+                    label = v.impound and locale('garage.access_impound') or locale("garage.open"),
                     icon = "warehouse",
                     event = "rhd_garage:radial:open",
                     args = {
@@ -126,7 +126,7 @@ function zone.refresh ()
                 if not v.impound then
                     radFunc.create({
                         id = "store_veh",
-                        label = locale("rhd_garage:store_vehicle"),
+                        label = locale("garage.store"),
                         icon = "parking",
                         event = "rhd_garage:radial:store",
                         args = {

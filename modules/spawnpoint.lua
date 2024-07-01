@@ -15,24 +15,10 @@ local function CancelPlacement()
     curVehicle = nil
 end
 
-local RotationToDirection = function(rot)
-    local rotZ = math.rad(rot.z)
-    local rotX = math.rad(rot.x)
-    local cosOfRotX = math.abs(math.cos(rotX))
-    return vector3(-math.sin(rotZ) * cosOfRotX, math.cos(rotZ) * cosOfRotX, math.sin(rotX))
-end
-
-local function RayCastGamePlayCamera(distance)
-    local camRot = GetGameplayCamRot()
-    local camPos = GetGameplayCamCoord()
-    local dir = RotationToDirection(camRot)
-    local dest = camPos + (dir * distance)
-    local ray = StartShapeTestRay(camPos, dest, 17, -1, 0)
-    local _, hit, endPos, surfaceNormal, entityHit = GetShapeTestResult(ray)
-    if hit == 0 then endPos = dest end
-    return hit, endPos, entityHit, surfaceNormal
-end
-
+--- Create Spawn Points
+---@param zone OxZone
+---@param required boolean
+---@return promise?
 function spawnPoint.create(zone, required)
     if not zone then return end
     if busy then return end
@@ -41,14 +27,14 @@ function spawnPoint.create(zone, required)
     local polygon = glm.polygon.new(zone.points)
 
     local text = [[
-    [X]: Cancel
-    [Enter]: Confirm
+    [X]: Confirm
+    [Enter]: Add Points
     [Arrow Up/Down]: Height
     [Arrow Right/Left]: Rotate Vehicle
     [Mouse Scroll Up/Down]: Change Vehicle
     ]]
 
-    lib.showTextUI(text)
+    utils.drawtext('show', text)
     lib.requestModel(vehicle, 1500)
     curVehicle = CreateVehicle(vehicle, 1.0, 1.0, 1.0, 0, false, false)
     SetEntityAlpha(curVehicle, 150, true)
@@ -64,7 +50,7 @@ function spawnPoint.create(zone, required)
         busy = true
 
         while busy do
-            local hit, coords, entity = RayCastGamePlayCamera(20.0)
+            local hit, coords, entity = utils.raycastCam(20.0)
             CurrentCoords = GetEntityCoords(curVehicle)
             
             local inZone = glm.polygon.contains(polygon, CurrentCoords, zone.thickness / 4)
@@ -164,7 +150,7 @@ function spawnPoint.create(zone, required)
         end
 
         results:resolve(#vc > 0 and vc or false)
-        lib.hideTextUI()
+        utils.drawtext('hide')
     end)
 
     return results

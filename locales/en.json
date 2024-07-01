@@ -1,99 +1,149 @@
 {
-    "rhd_garage:open_garage" : "Open Garage",
-    "rhd_garage:store_vehicle" : "Save Vehicle",
-    "rhd_garage:access_impound" : "Vehicle Insurance",
-    "rhd_garage:not_vehicle_exist" : "No vehicles near you !",
-    "rhd_garage:invalid_vehicle_class" : "Vehicles with this class cannot be stored at %s !",
-    "rhd_garage:no_vehicles_in_garage" : "No vehicles",
-    "rhd_garage:take_out_veh" : "Use Vehicle",
-    "rhd_garage:no_parking_spot" : "Not enough parking space !",
-    "rhd_garage:veh_in_garage" : "Inside garage",
-    "rhd_garage:veh_out_garage" : "Outside garage",
-    "rhd_garage:veh_in_impound" : "In Insurance",
-    "rhd_garage:phone_veh_in_garage" : "In Garage",
-    "rhd_garage:phone_veh_out_garage" : "Out Garage",
-    "rhd_garage:phone_veh_in_impound" : "In Insurance",
-    "rhd_garage:phone_veh_in_policeimpound" : "Confiscated By The Police",
-    "rhd_garage:not_enough_cash" : "You don't have enough money in your pocket to pay for insurance!",
-    "rhd_garage:not_enough_bank" : "There is not enough money in your account to pay for insurance!",
-    "rhd_garage:not_enough_cash_policeImpound" : "The money in your pocket is not enough to pay the fine !",
-    "rhd_garage:not_enough_bank_policeImpound" : "The money in your account is not enough to pay the fine !",
-    "rhd_garage:impound_price" : "Insurance fee $%s",
-    "rhd_garage:success_pay_impound" : "Successfully paid the insurance fee !",
-    "rhd_garage:pay_impound" : "Pay insurance fees",
-    "rhd_garage:pay_methode" : "Select payment type",
-    "rhd_garage:pay_with_cash" : "Pay using the money in your pocket",
-    "rhd_garage:pay_with_bank" : "Pay using bank savings",
-    "rhd_garage:pay_methode_cash" : "use the money in your pocket",
-    "rhd_garage:pay_methode_bank" : "use credit card",
-    "rhd_garage:not_owned" : "This vehicle is not yours!",
-    "rhd_garage:success_stored" : "The vehicle was successfully stored in the garage !",
-    "rhd_garage:shared_owner_label" : "Owner: %s",
-    "rhd_garage:change_veh_name" : "Change Vehicle Name",
-    "rhd_garage:change_veh_name_input" : "Enter New Name",
-    "rhd_garage:change_veh_name_nocash" : "You do not have enough money to pay the vehicle name change fee!",
-    "rhd_garage:swapgarage_title" : "Swap Garage",
-    "rhd_garage:swapgarage_input_label" : "swap to which garage?",
-    "rhd_garage:swapgarage_need_money" : "You need $%s to do this",
-    "rhd_garage:swapgarage_error" : "A problem occurred !",
-    "rhd_garage:swapgarage_success" : "The vehicle was successfully moved to the garage %s.",
-    "rhd_garage:transferveh_title" : "Transfer Vehicle",
-    "rhd_garage:transferveh_plyoffline" : "There is no player with id %s",
-    "rhd_garage:transferveh_no_money" : "You don't have enough money to do this!",
-    "rhd_garage:transferveh_cannot_transfer": "Cannot transfer to yourself!",
-    "rhd_garage:transferveh_success_target" : "%s has just given you a vehicle, you can check it at %s",
-    "rhd_garage:transferveh_success_src" : "The vehicle was successfully transferred to %s",
-    "rhd_garage:command.admin.CreateGarage": "creategarage",
-    "rhd_garage:command.admin.CreateGarageHelp": "Create New Garage (Admin Only)",
-    "rhd_garage:command.admin.listgarage": "listgarage",
-    "rhd_garage:command.admin.listgarageHelp": "View list of all garages (Admin Only)",
-    "rhd_garage:context.admin.listgarage_title": "List Garages",
-    "rhd_garage:context.admin.listgarage_description": "Garage Type: %s | Class Type: %s",
-    "rhd_garage:context.admin.options_delete": "Delete Garage",
-    "rhd_garage:context.admin.options_changelocation": "Edit Garage Location",
-    "rhd_garage:context.admin.options_changelabel": "Edit Garage Label",
-    "rhd_garage:context.admin.job_title": "Jobs",
-    "rhd_garage:context.admin.gang_title": "Gangs",
-    "rhd_garage:context.admin.job_description": "Name: %s | Rank: %s",
-    "rhd_garage:context.admin.gang_description": "Name: %s | Rank: %s",
-    "rhd_garage:context.admin.delete": "Delete",
-    "rhd_garage:context.admin.add_job": "Add Job",
-    "rhd_garage:context.admin.add_gang": "Add Gang",
-    "rhd_garage:context.admin.blip_setting": "Blip Setting",
-    "rhd_garage:context.admin.blip_edit": "Edit Blip",
-    "rhd_garage:context.admin.blip_remove": "Remove Blip",
-    "rhd_garage:context.admin.tptoloc": "Teleport To Location",
-    "rhd_garage:context.policeImpound.not_paid": "not yet paid",
-    "rhd_garage:context.policeImpound.vehdescription": "Fine: %s | Fine Status: %s",
-    "rhd_garage:context.policeImpound.sendBill": "Send Bill",
-    "rhd_garage:context.policeImpound.takeOutVeh": "Take Out Vehicle",
-    "rhd_garage:context.policeImpound.paid": "already paid",
-    "rhd_garage:input.admin.creator_labelgarage": "Garage Label",
-    "rhd_garage:input.admin.creator_typevehicle": "Vehicle Type",
-    "rhd_garage:input.admin.creator_bliptype": "Blip Type",
-    "rhd_garage:input.admin.creator_blipcolor": "Blip Color",
-    "rhd_garage:input.admin.header_changelabel": "Edit Garage Label",
-    "rhd_garage:input.admin.label_changelabel": "New Label",
-    "rhd_garage:input.admin.garage_access": "Garage Access",
-    "rhd_garage:input.admin.garage_access_job": "Job Name",
-    "rhd_garage:input.admin.garage_access_grade_job": "Job Rank",
-    "rhd_garage:input.admin.garage_access_gang": "Gang Name",
-    "rhd_garage:input.admin.garage_access_grade_gang": "Gang Rank",
-    "rhd_garage:notify.admin.success_create": "Successfully created a new garage with the label %s",
-    "rhd_garage:notify.admin.success_deleted": "Garage with the label %s has been successfully deleted",
-    "rhd_garage:notify.admin.success_changelocation": "Garage location has been successfully updated",
-    "rhd_garage:notify.admin.success_changelabel": "Garage label has been changed to %s",
-    "rhd_garage:notify.admin.success_deleted_access": "Access has been successfully removed",
-    "rhd_garage:notify.admin.success_added_access": "Successfully added access for %s",
-    "rhd_garage:notify.admin.success_editblip": "Blip updated successfully",
-    "rhd_garage:notify.admin.success_deletedBlip": "blip successfully deleted",
-    "rhd_garage:createzone.admin.1": "------ Zone Creator ------  \n",
-    "rhd_garage:createzone.admin.2": "X coord [Left/Right]: %s  \n",
-    "rhd_garage:createzone.admin.3": "Y coord [Up/Down]: %s  \n",
-    "rhd_garage:createzone.admin.4": "Z coord [R/F]: %s  \n",
-    "rhd_garage:createzone.admin.5": "Height [Shift + Scroll]: %s  \n",
-    "rhd_garage:createzone.admin.6": "Create new point - [Space]  \n",
-    "rhd_garage:createzone.admin.7": "Edit last point - [Backspace]  \n",
-    "rhd_garage:createzone.admin.8": "Save - [Enter]  \n",
-    "rhd_garage:createzone.admin.9": "Cancel - [Esc]  \n"
+    "notify": {
+        "error": {
+            "no_parking_spot": "Not enough parking space!",
+            "not_veh_exist": "No vehicles near you!",
+            "not_enough_cash": "You don't have enough money in your pocket!",
+            "not_enough_bank": "There is not enough money in your bank account!",
+            "not_owned" : "This vehicle is not yours!",
+            "npc_vehicle" : "Cannot confiscate illegal vehicles!",
+            "need_money" : "You need $%s to do this",
+            "swapgarage": "A problem occurred !",
+            "player_offline" : "There is no player with id %s",
+            "cannot_transfer_to_myself": "Cannot transfer to yourself!",
+            "no_available_policeimpound_location": "Garage locations for confiscated vehicles are not yet available! ask your server developer to make it."
+        },
+        "info":{
+            "invalid_veh_classs": "Vehicles with this class cannot be stored at %s!"
+        },
+        "success": {
+            "store_veh": "The vehicle was successfully stored in the garage!",
+            "swapgarage" : "The vehicle was successfully moved to the garage %s.",
+            "transferveh": {
+                "target":  "%s has just given you a vehicle, you can check it at %s",
+                "source": "The vehicle was successfully transferred to %s"
+            },
+            "confiscate_vehicle": "%s's vehicle has been confiscated and stored in the %s."
+        },
+        "admin": {
+            "success_create": "Successfully created a new garage with the label %s",
+            "success_deleted": "Garage with the label %s has been successfully deleted",
+            "success_changelocation": "Garage location has been successfully updated",
+            "success_changelabel": "Garage label has been changed to %s",
+            "success_deleted_access": "Access has been successfully removed",
+            "success_added_access": "Successfully added access for %s",
+            "success_editblip": "Blip updated successfully",
+            "success_deletedBlip": "blip successfully deleted"
+        }
+    },
+    "progressbar": {
+        "confiscate_vehicle": "Confiscating a vehicle"
+    },
+    "target": {
+        "confiscate_veh": "Confiscate Vehicle"
+    },
+    "context": {
+        "insurance": {
+            "pay_methode_header" : "Select payment type",
+            "pay_methode_cash_title" : "Use the money in your pocket",
+            "pay_methode_bank_title" : "Use credit card",
+            "pay_methode_cash_desc" : "Pay using the money in your pocket",
+            "pay_methode_bank_desc" : "Pay using bank savings"
+        },
+        "garage":{
+            "owner_label": "Owner: %s",
+            "change_veh_name" : "Change Vehicle Name",
+            "swapgarage" : "Swap Garage",
+            "transferveh_title" : "Transfer Vehicle"
+        },
+        "admin": {
+            "addnewgarage": "Add New Garage (Admin Only)",
+            "listgarage_title": "Garage List",
+            "listgarage_description": "Garage Type: %s | Class Type: %s",
+            "options_delete": "Delete Garage",
+            "options_changelocation": "Edit Garage Location",
+            "options_changelabel": "Edit Garage Label",
+            "job_title": "Jobs",
+            "gang_title": "Gangs",
+            "job_description": "Name: %s | Rank: %s",
+            "gang_description": "Name: %s | Rank: %s",
+            "delete": "Delete",
+            "add_job": "Add Job",
+            "add_gang": "Add Gang",
+            "blip_setting": "Blip Setting",
+            "blip_edit": "Edit Blip",
+            "blip_remove": "Remove Blip",
+            "tptoloc": "Teleport To Location"
+        },
+        "policeImpound": {
+            "not_paid": "not yet paid",
+            "vehdescription": "Fine: %s | Fine Status: %s",
+            "sendBill": "Send Bill",
+            "takeOutVeh": "Take Out Vehicle",
+            "paid": "already paid"
+        }
+    },
+    "input": {
+        "garage": {
+            "change_veh_name" : "Enter New Name",
+            "swapgarage": "swap to which garage?"
+        },
+        "police_impound": {
+            "veh_owner": "Vehicle Owner",
+            "veh_fine": "Fine",
+            "fine_header": "Hello %s👋",
+            "fine_content": "You are asked to pay the bill for your vehicle that was confiscated by the police in the amount of $%s",
+            "fine_pay": "Pay",
+            "fine_ignore": "Ignore",
+            "confiscate_garage_loc": "Where do you want it to be confiscated?",
+            "confiscate_until": "Confiscated Until?"
+        },
+        "admin": {
+            "creator_labelgarage": "Garage Label",
+            "creator_typevehicle": "Vehicle Type",
+            "creator_bliptype": "Blip Type",
+            "creator_blipcolor": "Blip Color",
+            "header_changelabel": "Edit Garage Label",
+            "label_changelabel": "New Label",
+            "garage_access": "Garage Access",
+            "garage_access_job": "Job Name",
+            "garage_access_grade_job": "Job Rank",
+            "garage_access_gang": "Gang Name",
+            "garage_access_grade_gang": "Gang Rank"
+        }
+    },
+    "garage": {
+        "open": "Open Garage",
+        "store": "Save Vehicle",
+        "no_vehicles": "No Vehicles",
+        "take_out_veh": "Take Out",
+        
+        "access_impound": "Open Insurance",
+        "impound_price": "Insurance fee $%s",
+        "pay_impound": "Pay insurance fees",
+        "success_pay_impound": "Successfully paid the insurance fee!"
+    },
+    "status": {
+        "in": "In Garage",
+        "out": "Out Garage",
+        "insurance": "In Insurance",
+        "confiscated": "Confiscated By The Police"
+    },
+    "command": {
+        "admin": {
+            "garagelist": "garagelist",
+            "garagelistHelp": "View list of all garages (Admin Only)"
+        }
+    },
+    "createzone": {
+        "1": "------ Zone Creator ------  \n",
+        "2": "X coord [Left/Right]: %s  \n",
+        "3": "Y coord [Up/Down]: %s  \n",
+        "4": "Z coord [R/F]: %s  \n",
+        "5": "Height [Shift + Scroll]: %s  \n",
+        "6": "Create new point - [Space]  \n",
+        "7": "Edit last point - [Backspace]  \n",
+        "8": "Save - [Enter]  \n",
+        "9": "Cancel - [Esc]  \n"
+    }
 }

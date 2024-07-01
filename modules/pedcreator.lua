@@ -12,24 +12,6 @@ local function CancelPlacement()
     curPed = nil
 end
 
-local RotationToDirection = function(rot)
-    local rotZ = math.rad(rot.z)
-    local rotX = math.rad(rot.x)
-    local cosOfRotX = math.abs(math.cos(rotX))
-    return vector3(-math.sin(rotZ) * cosOfRotX, math.cos(rotZ) * cosOfRotX, math.sin(rotX))
-end
-
-local function RayCastGamePlayCamera(distance)
-    local camRot = GetGameplayCamRot()
-    local camPos = GetGameplayCamCoord()
-    local dir = RotationToDirection(camRot)
-    local dest = camPos + (dir * distance)
-    local ray = StartShapeTestRay(camPos, dest, 17, -1, 0)
-    local _, hit, endPos, surfaceNormal, entityHit = GetShapeTestResult(ray)
-    if hit == 0 then endPos = dest end
-    return hit, endPos, entityHit, surfaceNormal
-end
-
 function pedcreator.start(zone)
     if not zone then return end
     if busycreate then return end
@@ -44,7 +26,7 @@ function pedcreator.start(zone)
     [Mouse Scroll Up/Down]: Change Ped
     ]]
 
-    lib.showTextUI(text)
+    utils.drawtext('show', text)
     lib.requestModel(pedmodels, 1500)
     curPed = CreatePed(0, pedmodels, 1.0, 1.0, 1.0, 0.0, false, false)
     SetEntityAlpha(curPed, 150, false)
@@ -60,7 +42,7 @@ function pedcreator.start(zone)
         busycreate = true
 
         while busycreate do
-            local hit, coords, entity = RayCastGamePlayCamera(20.0)
+            local hit, coords, entity = utils.raycastCam(20.0)
             CurrentCoords = GetEntityCoords(curPed)
             
             local inZone = glm.polygon.contains(polygon, CurrentCoords, zone.thickness / 4)
@@ -146,7 +128,7 @@ function pedcreator.start(zone)
         end
 
         results:resolve(pc)
-        lib.hideTextUI()
+        utils.drawtext('hide')
     end)
 
     return results

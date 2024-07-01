@@ -1,12 +1,6 @@
-lib.addCommand(locale("rhd_garage:command.admin.CreateGarage"), {
-    help = locale("rhd_garage:command.admin.CreateGarageHelp"),
+lib.addCommand(locale("command.admin.garagelist"), {
+    help = locale("command.admin.garagelistHelp"),
     restricted = 'group.admin'
 }, function(source, args, raw)
-    TriggerClientEvent("rhd_garage:client:createGarage", source)
-end)
-lib.addCommand(locale("rhd_garage:command.admin.listgarage"), {
-    help = locale("rhd_garage:command.admin.listgarageHelp"),
-    restricted = 'group.admin'
-}, function(source, args, raw)
-    TriggerClientEvent("rhd_garage:client:listgarage", source)
+    TriggerClientEvent("rhd_garage:client:garagelist", source)
 end)

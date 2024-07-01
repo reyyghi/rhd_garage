@@ -1,99 +1,151 @@
 {
-    "rhd_garage:open_garage" : "Buka Garasi",
-    "rhd_garage:store_vehicle" : "Simpan Kendaraan",
-    "rhd_garage:access_impound" : "Asuransi Kendaraan",
-    "rhd_garage:not_vehicle_exist" : "Tidak ada kendaraan di dekat mu !",
-    "rhd_garage:invalid_vehicle_class" : "Kendaraan dengan class ini tidak dapat di simpan di %s !",
-    "rhd_garage:no_vehicles_in_garage" : "Tidak ada kendaran",
-    "rhd_garage:take_out_veh" : "Pakai Kendaraan",
-    "rhd_garage:no_parking_spot" : "Tidak cukup tempat untuk mengeluarkan kendaraan !",
-    "rhd_garage:veh_in_garage" : "Di dalam garasi",
-    "rhd_garage:veh_out_garage" : "Di luar garasi",
-    "rhd_garage:veh_in_impound" : "Di Asuransi",
-    "rhd_garage:phone_veh_in_garage" : "Di Garasi",
-    "rhd_garage:phone_veh_out_garage" : "Di Luar Garasi",
-    "rhd_garage:phone_veh_in_impound" : "Di Asuransi",
-    "rhd_garage:phone_veh_in_policeimpound" : "Di sita polisi",
-    "rhd_garage:not_enough_cash" : "Uang di kantong mu tidak cukup untuk membayar biaya asuransi !",
-    "rhd_garage:not_enough_bank" : "Uang di rekening mu tidak cukup untuk membayar biaya asuransi !",
-    "rhd_garage:not_enough_cash_policeImpound" : "Uang di kantong mu tidak cukup untuk membayar denda !",
-    "rhd_garage:not_enough_bank_policeImpound" : "Uang di rekening mu tidak cukup untuk membayar denda !",
-    "rhd_garage:impound_price" : "Biaya asuransi $%s",
-    "rhd_garage:success_pay_impound" : "Berhasil membayar biaya asuransi !",
-    "rhd_garage:pay_impound" : "Bayar biaya asuransi",
-    "rhd_garage:pay_methode" : "Pilih tipe pembayaran",
-    "rhd_garage:pay_with_cash" : "Bayar menggunakan uang di kantong mu",
-    "rhd_garage:pay_with_bank" : "Bayar menggunakan uang tabungan di bank",
-    "rhd_garage:pay_methode_cash" : "pakai uang di kantong",
-    "rhd_garage:pay_methode_bank" : "pakai kartu kredit",
-    "rhd_garage:not_owned" : "Kendaraan ini bukan milik mu !",
-    "rhd_garage:success_stored" : "Kendaran berhasil di simpan ke dalam garasi !",
-    "rhd_garage:shared_owner_label" : "Pemilik: %s",
-    "rhd_garage:change_veh_name" : "Ganti Nama Kendaraan",
-    "rhd_garage:change_veh_name_input" : "Masukkan Nama Baru",
-    "rhd_garage:change_veh_name_nocash" : "Kamu tidak memiliki cukup uang untuk membayar biaya penggantian nama kendaraan !",
-    "rhd_garage:swapgarage_title" : "Tukar Garasi",
-    "rhd_garage:swapgarage_input_label" : "tukar ke garasi yang mana?",
-    "rhd_garage:swapgarage_need_money" : "Anda memerlukan $%s untuk melakukan ini",
-    "rhd_garage:swapgarage_error" : "Terjadi Masalah !",
-    "rhd_garage:swapgarage_success" : "Kendaraan berhasil dipindahkan ke garasi %s.",
-    "rhd_garage:transferveh_title" : "Transfer Kendaraan",
-    "rhd_garage:transferveh_plyoffline" : "Tidak ada pemain dengan id %s",
-    "rhd_garage:transferveh_no_money" : "Anda tidak memiliki cukup uang untuk melakukan ini!",
-    "rhd_garage:transferveh_cannot_transfer": "Tidak dapat ditransfer ke diri Anda sendiri!",
-    "rhd_garage:transferveh_success_target" : "%s baru saja memberi Anda kendaraan, Anda dapat memeriksanya di %s",
-    "rhd_garage:transferveh_success_src" : "Kendaraan berhasil ditransfer ke %s",
-    "rhd_garage:command.admin.CreateGarage": "buatgarasi",
-    "rhd_garage:command.admin.CreateGarageHelp": "Buat Garasi Baru (Hanya Admin)",
-    "rhd_garage:command.admin.listgarage": "daftargarasi",
-    "rhd_garage:command.admin.listgarageHelp": "Lihat daftar semua garasi (Hanya Admin)",
-    "rhd_garage:context.admin.listgarage_title": "Daftar Garasi",
-    "rhd_garage:context.admin.listgarage_description": "Tipe Garasi: %s | Tipe Klas: %s",
-    "rhd_garage:context.admin.options_delete": "Hapus Garasi",
-    "rhd_garage:context.admin.options_changelocation": "Edit Lokasi Garasi",
-    "rhd_garage:context.admin.options_changelabel": "Edit Label Garasi",
-    "rhd_garage:context.admin.job_title": "Pekerjaan",
-    "rhd_garage:context.admin.gang_title": "Gang",
-    "rhd_garage:context.admin.job_description": "Nama: %s | Pangkat: %s",
-    "rhd_garage:context.admin.gang_description": "Nama: %s | Pangkat: %s",
-    "rhd_garage:context.admin.delete": "Hapus",
-    "rhd_garage:context.admin.add_job": "Tambah Pekerjaan",
-    "rhd_garage:context.admin.add_gang": "Tambah Pekerjaan",
-    "rhd_garage:context.admin.blip_setting": "Pengaturan Blip",
-    "rhd_garage:context.admin.blip_edit": "Atur Blip",
-    "rhd_garage:context.admin.blip_remove": "Hapus Blip",
-    "rhd_garage:context.admin.tptoloc": "Teleport Ke Lokasi",
-    "rhd_garage:context.policeImpound.not_paid": "belum di bayar",
-    "rhd_garage:context.policeImpound.paid": "sudah di bayar",
-    "rhd_garage:context.policeImpound.vehdescription": "Denda: %s | Status Denda: %s",
-    "rhd_garage:context.policeImpound.sendBill": "Kirim Tagihan Denda",
-    "rhd_garage:context.policeImpound.takeOutVeh": "Keluarkan Kendaraan",
-    "rhd_garage:input.admin.creator_labelgarage": "Label Garasi",
-    "rhd_garage:input.admin.creator_typevehicle": "Tipe Kendaraan",
-    "rhd_garage:input.admin.creator_bliptype": "Tipe Blip",
-    "rhd_garage:input.admin.creator_blipcolor": "Warna Blip",
-    "rhd_garage:input.admin.header_changelabel": "Label Garasi",
-    "rhd_garage:input.admin.label_changelabel": "Label Baru",
-    "rhd_garage:input.admin.garage_access": "Akses Garasi",
-    "rhd_garage:input.admin.garage_access_job": "Nama Pekerjaan",
-    "rhd_garage:input.admin.garage_access_grade_job": "Pangkat Pekerjaan",
-    "rhd_garage:input.admin.garage_access_gang": "Nama Gang",
-    "rhd_garage:input.admin.garage_access_grade_gang": "Pangkat Gang",
-    "rhd_garage:notify.admin.success_create": "Berhasil membuat garasi baru dengan label %s",
-    "rhd_garage:notify.admin.success_deleted": "Garasi dengan label %s berhasil di hapus",
-    "rhd_garage:notify.admin.success_changelocation": "Lokasi garasi berhasil di perbarui",
-    "rhd_garage:notify.admin.success_changelabel": "Label garasi berhasil di rubah menjadi %s",
-    "rhd_garage:notify.admin.success_deleted_access": "Akses berhasil di hapus",
-    "rhd_garage:notify.admin.success_added_access": "Berhasil menambah akses untuk %s",
-    "rhd_garage:notify.admin.success_editblip": "Blip berhasil di perbarui",
-    "rhd_garage:notify.admin.success_deletedBlip": "Blip berhasil di hapus",
-    "rhd_garage:createzone.admin.1": "------ Pembuatan Zona ------  \n",
-    "rhd_garage:createzone.admin.2": "Koordinat X [Left/Right]: %s  \n",
-    "rhd_garage:createzone.admin.3": "Koordinat Y [Up/Down]: %s  \n",
-    "rhd_garage:createzone.admin.4": "Koordinat Z [R/F]: %s  \n",
-    "rhd_garage:createzone.admin.5": "Tinggi / Rendah [Shift + Scroll]: %s  \n",
-    "rhd_garage:createzone.admin.6": "Buat Point Baru - [Space]  \n",
-    "rhd_garage:createzone.admin.7": "Edit Point Sebelumnya - [Backspace]  \n",
-    "rhd_garage:createzone.admin.8": "Simpan - [Enter]  \n",
-    "rhd_garage:createzone.admin.9": "Batalkan - [Esc]  \n"
+    "notify": {
+        "error": {
+            "no_parking_spot": "Tempat parkir tidak mencukupi!",
+            "not_veh_exist": "Tidak ada kendaraan di sekitar Anda!",
+            "not_enough_cash": "Anda tidak memiliki cukup uang di saku Anda!",
+            "not_enough_bank": "Tidak cukup uang di rekening bank Anda!",
+            "not_owned" : "Kendaraan ini bukan milik Anda!",
+            "npc_vehicle" : "Cannot confiscate illegal vehicles!",
+            "need_money" : "Anda membutuhkan $%s untuk melakukan ini",
+            "swapgarage": "Terjadi masalah!",
+            "player_offline" : "Tidak ada pemain dengan ID %s",
+            "cannot_transfer_to_myself": "Tidak dapat mentransfer kepada diri sendiri!",
+            "no_available_policeimpound_location": "Garage locations for confiscated vehicles are not yet available! ask your server developer to make it."
+        },
+        "info":{
+            "invalid_veh_classs": "Kendaraan dengan kelas ini tidak dapat disimpan di %s!"
+        },
+        "success": {
+            "store_veh": "Kendaraan berhasil disimpan di garasi!",
+            "swapgarage" : "Kendaraan berhasil dipindahkan ke garasi %s.",
+            "transferveh": {
+                "target":  "%s baru saja memberi Anda sebuah kendaraan, Anda bisa cek di %s",
+                "source": "Kendaraan berhasil ditransfer ke %s"
+            },
+            "confiscate_vehicle": "Kendaraan milik %s telah disita dan disimpan di %s."
+        },
+        "admin": {
+            "success_create": "Berhasil membuat garasi baru dengan label %s",
+            "success_deleted": "Garasi dengan label %s berhasil dihapus",
+            "success_changelocation": "Lokasi garasi berhasil diperbarui",
+            "success_changelabel": "Label garasi berhasil diubah menjadi %s",
+            "success_deleted_access": "Akses berhasil dihapus",
+            "success_added_access": "Berhasil menambahkan akses untuk %s",
+            "success_editblip": "Blip berhasil diperbarui",
+            "success_deletedBlip": "Blip berhasil dihapus"
+        }
+    },
+    "progressbar": {
+        "confiscate_vehicle": "Menyita Kendaraan"
+    },
+    "target": {
+        "confiscate_veh": "Sita Kendaraan"
+    },
+    "context": {
+        "insurance": {
+            "pay_methode_header" : "Pilih jenis pembayaran",
+            "pay_methode_cash_title" : "Gunakan uang di saku Anda",
+            "pay_methode_bank_title" : "Gunakan kartu kredit",
+            "pay_methode_cash_desc" : "Bayar menggunakan uang di saku Anda",
+            "pay_methode_bank_desc" : "Bayar menggunakan tabungan bank"
+        },
+        "garage":{
+            "owner_label": "Pemilik: %s",
+            "change_veh_name" : "Ubah Nama Kendaraan",
+            "swapgarage" : "Tukar Garasi",
+            "transferveh_title" : "Transfer Kendaraan"
+        },
+        "admin": {
+            "addnewgarage": "Tambah Garasi Baru (Hanya Admin)",
+            "listgarage_title": "Daftar Garasi",
+            "listgarage_description": "Tipe Garasi: %s | Tipe Kelas: %s",
+            "options_delete": "Hapus Garasi",
+            "options_changelocation": "Edit Lokasi Garasi",
+            "options_changelabel": "Edit Label Garasi",
+            "job_title": "Pekerjaan",
+            "gang_title": "Geng",
+            "job_description": "Nama: %s | Pangkat: %s",
+            "gang_description": "Nama: %s | Pangkat: %s",
+            "delete": "Hapus",
+            "add_job": "Tambah Pekerjaan",
+            "add_gang": "Tambah Geng",
+            "blip_setting": "Pengaturan Blip",
+            "blip_edit": "Edit Blip",
+            "blip_remove": "Hapus Blip",
+            "tptoloc": "Teleportasi ke Lokasi"
+        },
+        "policeImpound": {
+            "not_paid": "belum dibayar",
+            "vehdescription": "Denda: %s | Status Denda: %s",
+            "sendBill": "Kirim Tagihan",
+            "takeOutVeh": "Ambil Kendaraan",
+            "paid": "sudah dibayar"
+        }
+    },
+    "input": {
+        "garage": {
+            "change_veh_name" : "Masukkan Nama Baru",
+            "swapgarage": "Tukar ke garasi mana?"
+        },
+        "police_impound": {
+            "veh_owner": "Pemilik Kendaraan",
+            "veh_fine": "Denda",
+            "fine_header": "Hallo %s👋",
+            "fine_content": "Anda diminta untuk membayar tagihan kendaraan Anda yang disita polisi sebesar $%s",
+            "fine_pay": "Bayar",
+            "fine_ignore": "Abaikan",
+            "confiscate_garage_loc": "Mau disita dimana?",
+            "confiscate_until": "Mau disita sampai kapan?"
+        },
+        "admin": {
+            "creator_labelgarage": "Label Garasi",
+            "creator_typevehicle": "Tipe Kendaraan",
+            "creator_bliptype": "Tipe Blip",
+            "creator_blipcolor": "Warna Blip",
+            "header_changelabel": "Edit Label Garasi",
+            "label_changelabel": "Label Baru",
+            "garage_access": "Akses Garasi",
+            "garage_access_job": "Nama Pekerjaan",
+            "garage_access_grade_job": "Pangkat Pekerjaan",
+            "garage_access_gang": "Nama Geng",
+            "garage_access_grade_gang": "Pangkat Geng"
+        }
+    },
+    "garage": {
+        "open": "Buka Garasi",
+        "store": "Simpan Kendaraan",
+        "no_vehicles": "Tidak Ada Kendaraan",
+        "take_out_veh": "Ambil",
+        
+        "access_impound": "Buka Asuransi",
+        "impound_price": "Biaya asuransi $%s",
+        "pay_impound": "Bayar biaya asuransi",
+        "success_pay_impound": "Berhasil membayar biaya asuransi!"
+    },
+    "status": {
+        "in": "Di Garasi",
+        "out": "Keluar Garasi",
+        "insurance": "Di Asuransi",
+        "confiscated": "Disita oleh Polisi"
+    },
+    "command": {
+        "admin": {
+            "CreateGarage": "creategarage",
+            "CreateGarageHelp": "Buat Garasi Baru (Hanya Admin)",
+            "listgarage": "listgarage",
+            "listgarageHelp": "Lihat daftar semua garasi (Hanya Admin)"
+        }
+    },
+    "createzone": {
+        "1": "------ Pembuat Zona ------  \n",
+        "2": "Koordinat X [Kiri/Kanan]: %s  \n",
+        "3": "Koordinat Y [Atas/Bawah]: %s  \n",
+        "4": "Koordinat Z [R/F]: %s  \n",
+        "5": "Tinggi [Shift + Scroll]: %s  \n",
+        "6": "Buat titik baru - [Spasi]  \n",
+        "7": "Edit titik terakhir - [Backspace]  \n",
+        "8": "Simpan - [Enter]  \n",
+        "9": "Batal - [Esc]  \n"
+    }
 }

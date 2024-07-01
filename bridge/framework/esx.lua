@@ -83,9 +83,11 @@ AddEventHandler("esx:setJob", function(Job)
     fw.player.job = {name = Job.name, grade = Job.grade}
 end)
 
--- RegisterCommand("loaded", function ()
---     fw.playerLoaded = true
--- end, false)
+if Config.InDevelopment then
+    RegisterCommand("loaded", function ()
+        fw.playerLoaded = true
+    end, false)
+end
 
 if isServer then
     local xPlayer = {}
@@ -196,7 +198,7 @@ if isServer then
         local mp = fw.gp(oldOwnerId)
         local tp = fw.gp(newOwnerId)
         if not mp then return end
-        if not tp then return false, locale("rhd_garage:transferveh_plyoffline", newOwnerId) end
+        if not tp then return false, locale("notify.error.player_offline", newOwnerId) end
         
         local update = MySQL.update.await("UPDATE owned_vehicles SET owner = ? WHERE owner = ? AND plate = ?", {
             tp.identifier,
@@ -446,12 +448,12 @@ if isServer then
                 local customName = CNV[v.plate:trim()] and CNV[v.plate:trim()].name
                 local vehname = customName or defaultname
 
-                local stateText = locale('rhd_garage:phone_veh_in_garage')
+                local stateText = locale('status.in')
 
                 if v.stored == 0 then
-                    stateText = vehFuncS.govbp(plate:trim()) and locale('rhd_garage:phone_veh_out_garage') or locale('rhd_garage:phone_veh_in_impound')
+                    stateText = vehFuncS.govbp(plate:trim()) and locale('status.out') or locale('status.insurance')
                 elseif v.stored == 2 then
-                    stateText = locale('rhd_garage:phone_veh_in_policeimpound')
+                    stateText = locale('status.confiscated')
                 end
 
                 local inInsurance = v.stored == 0
@@ -492,10 +494,12 @@ if isServer then
         utils.print("success", ("Remove cache from %s"):format(GetPlayerName(src)))
     end)
 
-    -- RegisterCommand("reloadcache", function (src)
-    --     local p = ESX.GetPlayerFromId(src)
-    --     if not p then return false end
-    --     local idstr = tostring(src)
-    --     xPlayer[idstr] = p
-    -- end, false)
+    if Config.InDevelopment then
+        RegisterCommand("reloadcache", function (src)
+            local p = ESX.GetPlayerFromId(src)
+            if not p then return false end
+            local idstr = tostring(src)
+            xPlayer[idstr] = p
+        end, false)
+    end
 end

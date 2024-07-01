@@ -13,31 +13,35 @@ local freecam = exports['fivem-freecam']
 
 local function updateText()
 	local text = {
-        locale("rhd_garage:createzone.admin.1"),
-        locale("rhd_garage:createzone.admin.2", xCoord),
-        locale("rhd_garage:createzone.admin.3", yCoord),
-        locale("rhd_garage:createzone.admin.4", zCoord),
-        locale("rhd_garage:createzone.admin.5", height),
-        locale("rhd_garage:createzone.admin.6"),
-        locale("rhd_garage:createzone.admin.7"),
-        locale("rhd_garage:createzone.admin.8"),
-        locale("rhd_garage:createzone.admin.9"),
+        locale("createzone.1"),
+        locale("createzone.2", xCoord),
+        locale("createzone.3", yCoord),
+        locale("createzone.4", zCoord),
+        locale("createzone.5", height),
+        locale("createzone.6"),
+        locale("createzone.7"),
+        locale("createzone.8"),
+        locale("createzone.9"),
 	}
 
-	lib.showTextUI(table.concat(text))
+	utils.drawtext('show',table.concat(text))
 end
 
+---@param number number
 local function round(number)
 	return number >= 0 and math.floor(number + 0.5) or math.ceil(number - 0.5)
 end
 
+--- Close Zone Creator
+---@param cancel? boolean
+---@param data? {onCreated:function}
 local function closeCreator(cancel, data)
     
     freecam:SetActive(false)
 
 	if not cancel then
 		points[#points + 1] = vec(xCoord, yCoord, zCoord)
-        if data.onCreated then
+        if data and data.onCreated then
             local zoneData = {}
             zoneData.points = points
             zoneData.thickness = height
@@ -47,7 +51,7 @@ local function closeCreator(cancel, data)
 
 	creatorActive = false
 	controlsActive = false
-	lib.hideTextUI()
+	utils.drawtext('hide')
 	zoneType = nil
 end
 
@@ -109,18 +113,20 @@ local function getRelativePos(origin, point, theta)
     return x, y
 end
 
-local isFivem = cache.game == 'fivem'
 local controls = {
-    ['INPUT_LOOK_LR'] = isFivem and 1 or 0xA987235F,
-    ['INPUT_LOOK_UD'] = isFivem and 2 or 0xD2047988,
-    ['INPUT_MP_TEXT_CHAT_ALL'] = isFivem and 245 or 0x9720FCEE
+    ['INPUT_LOOK_LR'] = 1,
+    ['INPUT_LOOK_UD'] = 2,
+    ['INPUT_MP_TEXT_CHAT_ALL'] = 245
 }
 
 function Zones.startCreator( data )
 	creatorActive = true
     controlsActive = true
 
+    local lStep = 0.05
+    local rStep = 0.05
 	local coords = GetEntityCoords(cache.ped)
+
 	xCoord = round(coords.x) + 0.0
 	yCoord = round(coords.y) + 0.0
 	zCoord = round(coords.z) + 0.0
@@ -159,8 +165,6 @@ function Zones.startCreator( data )
             EnableControlAction(0, controls['INPUT_MP_TEXT_CHAT_ALL'], true)
 
             local change = false
-            local lStep = 0.08
-            local rStep = 0.08
 
             if IsDisabledControlJustReleased(0, 17) then -- scroll up
                 if IsDisabledControlPressed(0, 21) then -- shift held down
@@ -172,6 +176,9 @@ function Zones.startCreator( data )
                 elseif IsDisabledControlPressed(0, 19) then -- alt held down
                     change = true
                     length += lStep
+                else
+                    lStep += 0.05
+                    rStep += 0.05
                 end
             elseif IsDisabledControlJustReleased(0, 16) then -- scroll down
                 if IsDisabledControlPressed(0, 21) then -- shift held down
@@ -198,8 +205,12 @@ function Zones.startCreator( data )
                     elseif length - lStep > 0 then
                         length = lStep
                     end
+                else
+                    lStep -= 0.05 rStep -= 0.05
+                    if lStep < 0.02 or rStep < 0.02 then
+                        lStep = 0.02 rStep = 0.02
+                    end
                 end
-            -- elseif IsDisabledControlJustReleased(0, 32) then -- w
             elseif IsDisabledControlPressed(0, 188) then --- arrow up
                 change = true
 
@@ -225,7 +236,6 @@ function Zones.startCreator( data )
 
                     yCoord = newValue
                 end
-            -- elseif IsDisabledControlJustReleased(0, 33) then -- s
             elseif IsDisabledControlPressed(0, 187) then --- arrow down
                 change = true
 
@@ -251,7 +261,6 @@ function Zones.startCreator( data )
 
                     yCoord = newValue
                 end
-            -- elseif IsDisabledControlJustReleased(0, 35) then -- d
             elseif IsDisabledControlPressed(0, 190) then --- arrow right
                 change = true
 
@@ -277,7 +286,6 @@ function Zones.startCreator( data )
 
                     xCoord = newValue
                 end
-            -- elseif IsDisabledControlJustReleased(0, 34) then -- a
             elseif IsDisabledControlPressed(0, 189) then --- arrow left
                 change = true
 

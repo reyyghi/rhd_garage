@@ -1,6 +1,8 @@
 local blip = {}
 local GarageBlip = {}
 
+--- Refresh Blip
+---@param data table <string, integer>
 function blip.refresh ( data )
     data = data or GarageZone
     if not data or type(data) ~= "table" then return end

@@ -1,3 +1,5 @@
+if not lib.checkDependency('ox_lib', '3.23.1') then error() end
+
 CreateThread(function()
     while not GlobalState.rhd_garage do GlobalState.rhd_garage = {} Wait(10) end
     Wait(100)
@@ -49,17 +51,18 @@ end)
 
 lib.callback.register("rhd_garage:cb_server:transferVehicle", function (src, clientData)
     if src == clientData.targetSrc then
-        return false, locale("rhd_garage:transferveh_cannot_transfer")
+        return false, locale("notify.error.cannot_transfer_to_myself")
     end
 
     local tid = clientData.targetSrc
+
     if fw.rm(src, "cash", clientData.price) then
-        return false, locale("rhd_garage:transferveh_no_money")
+        return false, locale("notify.error.need_money", lib.math.groupdigits(clientData.price, '.'))
     end
     
     local success = fw.uvo(src, tid, clientData.plate)
-    if success then utils.notify(tid, locale("rhd_garage:transferveh_success_target", fw.gn(src), clientData.garage), "success") end
-    return success, locale("rhd_garage:transferveh_success_src", fw.gn(tid))
+    if success then utils.notify(tid, locale("notify.success.transferveh.target", fw.gn(src), clientData.garage), "success") end
+    return success, locale("notify.success.transferveh.source", fw.gn(tid))
 end)
 
 lib.callback.register('rhd_garage:cb_server:getVehicleInfoByPlate', function (_, plate)

@@ -2,12 +2,12 @@ utils = {}
 
 local server = IsDuplicityVersion()
 
--- Coming Soon
--- utils.keylist = {
---     ["A"] = 34, ["B"] = 29, ["C"] = 26, ["D"] = 9, ["E"] = 38, ["F"] = 23, ["G"] = 47, ["H"] = 74, ["I"] = 73, ["J"] = 311,
---     ["K"] = 182, ["L"] = 243, ["M"] = 244, ["N"] = 249, ["O"] = 246, ["P"] = 199, ["Q"] = 44, ["R"] = 45, ["S"] = 8, ["T"] = 245,
---     ["U"] = 303, ["V"] = 0, ["W"] = 32, ["X"] = 73, ["Y"] = 246, ["Z"] = 20
--- }
+local RotationToDirection = function(rot)
+    local rotZ = math.rad(rot.z)
+    local rotX = math.rad(rot.x)
+    local cosOfRotX = math.abs(math.cos(rotX))
+    return vector3(-math.sin(rotZ) * cosOfRotX, math.cos(rotZ) * cosOfRotX, math.sin(rotX))
+end
 
 ---@param string string
 ---@return string?
@@ -16,18 +16,39 @@ string.trim = function ( string )
     return (string.gsub(string, '^%s*(.-)%s*$', '%1'))
 end
 
+--- Raycast Camera
+---@param distance number
+---@return boolean|integer
+---@return vector3
+---@return integer
+---@return vector3
+function utils.raycastCam(distance)
+    local camRot = GetGameplayCamRot()
+    local camPos = GetGameplayCamCoord()
+    local dir = RotationToDirection(camRot)
+    local dest = camPos + (dir * distance)
+    local ray = StartShapeTestRay(camPos, dest, 17, -1, 0)
+    local _, hit, endPos, surfaceNormal, entityHit = GetShapeTestResult(ray)
+    if hit == 0 then endPos = dest end
+    return hit, endPos, entityHit, surfaceNormal
+end
+
 --- Send Notification
 ---@param msg string
----@param type string
----@param duration number?
+---@param type? string
+---@param duration? number
 function utils.notify(msg, type, duration)
-    exports.rhd_notify:send(msg, type, duration)
+    lib.notify({
+        description = msg,
+        type = type,
+        duration = duration or 5000
+    })
 end
 
 --- Show & Hide drawtext
 ---@param type string
----@param text string
----@param icon string
+---@param text? string
+---@param icon? string
 function utils.drawtext (type, text, icon)
     if type == 'show' then
         lib.showTextUI(text,{
@@ -35,8 +56,6 @@ function utils.drawtext (type, text, icon)
             icon = icon or '',
             style = {
                 borderRadius= 5,
-                backgroundColor = '#0985e3f8',
-                color = 'white'
             }
         })
     elseif type == 'hide' then
@@ -83,7 +102,6 @@ function utils.destroyPreviewCam(vehicle, enterVehicle)
     else
         RenderScriptCams(false, true, 1500,  false,  false)
     end
-
 end
 
 --- Create target ped
@@ -247,8 +265,8 @@ end
 --- Create vehicle by client side
 ---@param model string | integer
 ---@param coords vector4
----@param cb fun(veh: integer)
----@param network boolean
+---@param cb? fun(veh: integer)
+---@param network? boolean
 ---@return integer?
 function utils.createPlyVeh ( model, coords, cb, network )
     network = network == nil and true or network
@@ -384,9 +402,13 @@ if server then
     --- Send Notification
     ---@param src number
     ---@param msg string
-    ---@param type string
-    ---@param duration string?
+    ---@param type? string
+    ---@param duration? string
     function utils.notify(src, msg, type, duration)
-        exports.rhd_notify:send(src, msg, type, duration)
+        lib.notify(src, {
+            description = msg,
+            type = type,
+            duration = duration or 5000
+        })
     end
 end

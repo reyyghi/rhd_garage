@@ -10,6 +10,8 @@ Config.changeNamePrice = 15000 --- price for changing the name of the vehicle in
 Config.UsePoliceImpound = true --- change it to false if you don't want to use the police impound system from rhd
 Config.SpawnInVehicle = true --- change this to true if you want the player to immediately enter the vehicle when the vehicle is taken out of the garage
 
+Config.InDevelopment = true --- Turn this off when you have finished setting up this garage
+
 Config.TransferVehicle = {
     enable = true,
     price = 100
