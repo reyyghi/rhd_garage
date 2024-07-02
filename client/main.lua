@@ -93,12 +93,14 @@ local function actionMenu ( data )
                     if data.impound then
                         utils.createMenu({
                             id = 'pay_methode',
-                            title = locale('context.insurance.pay_methode'):upper(),
+                            title = locale('context.insurance.pay_methode_header'):upper(),
+                            onExit = destroyPreview,
+                            menu = 'garage_action',
                             options = {
                                 {
                                     title = locale('context.insurance.pay_methode_cash_title'):upper(),
                                     icon = 'dollar-sign',
-                                    description = locale('context.insurance.pay_methode_cash_title_desc'),
+                                    description = locale('context.insurance.pay_methode_cash_desc'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()
                                         destroyPreview()
@@ -113,7 +115,7 @@ local function actionMenu ( data )
                                 {
                                     title = locale('context.insurance.pay_methode_bank_title'):upper(),
                                     icon = 'fab fa-cc-mastercard',
-                                    description = locale('context.insurance.pay_methode_bank_title_desc'),
+                                    description = locale('context.insurance.pay_methode_bank_desc'),
                                     iconAnimation = Config.IconAnimation,
                                     onSelect = function ()  
                                         destroyPreview()

@@ -209,7 +209,7 @@ local function setspawnpoint(garage)
         title = "Add Point",
         icon = "plus",
         onSelect = function ()
-            local pr = Citizen.Await(spawnPoint.create())
+            local pr = Citizen.Await(spawnPoint.create(garage.value.zones))
             if not pr then return end
             GarageZone[garage.index].spawnPoint = utils.mergeArray(asp, pr)
             utils.notify("The spawn point has been successfully set", "success", 8000)
@@ -457,7 +457,8 @@ local function listGarage ()
                             icon = "location-dot",
                             onSelect = setspawnpoint,
                             args = {
-                                index = k
+                                index = k,
+                                value = v
                             }
                         },
                     }

@@ -7,7 +7,9 @@ local vehicleList = {
 
 local curVehicle = nil
 local busy = false
+local mode = 'raycast'
 local glm = require "glm"
+local debugzone = require 'modules.debugzone'
 
 local function CancelPlacement()
     DeleteVehicle(curVehicle)
@@ -44,19 +46,25 @@ function spawnPoint.create(zone, required)
     local vc = {}
     local heading = 0.0
     local prefixZ = 0.0
-
+    
     local results = promise.new()
     CreateThread(function()
         busy = true
 
         while busy do
-            local hit, coords, entity = utils.raycastCam(20.0)
+            local hit, coords
+
             CurrentCoords = GetEntityCoords(curVehicle)
             
+            if mode == 'raycast' then
+                hit, coords = utils.raycastCam(20.0)
+            end
+           
             local inZone = glm.polygon.contains(polygon, CurrentCoords, zone.thickness / 4)
             local outlineColour = inZone and {255, 255, 255, 255} or {240, 5, 5, 1}
             SetEntityDrawOutline(curVehicle, true)
             SetEntityDrawOutlineColor(outlineColour[1], outlineColour[2], outlineColour[3], outlineColour[4])
+            debugzone.start(polygon, zone.thickness)
 
             if hit == 1 then
                 SetEntityCoords(curVehicle, coords.x, coords.y, coords.z + prefixZ)
@@ -70,6 +78,7 @@ function spawnPoint.create(zone, required)
             DisableControlAction(0, 15, true)
             DisableControlAction(0, 172, true)
             DisableControlAction(0, 173, true)
+            DisableControlAction(0, 21, true)
             
             if IsDisabledControlPressed(0, 174) then
                 heading = heading + 0.5

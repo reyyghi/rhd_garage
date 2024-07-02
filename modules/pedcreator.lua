@@ -5,6 +5,7 @@ local pedlist = lib.load('data.pedlist')
 local curPed = nil
 local busycreate = false
 local glm = require "glm"
+local debugzone = require 'modules.debugzone'
 
 local function CancelPlacement()
     DeletePed(curPed)
@@ -46,7 +47,8 @@ function pedcreator.start(zone)
             CurrentCoords = GetEntityCoords(curPed)
             
             local inZone = glm.polygon.contains(polygon, CurrentCoords, zone.thickness / 4)
-            
+            debugzone.start(polygon, zone.thickness)
+
             if hit == 1 then
                 SetEntityCoords(curPed, coords.x, coords.y, coords.z)
             end

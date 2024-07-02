@@ -1,4 +1,4 @@
-if not lib.checkDependency('ox_lib', '3.23.1') then error() end
+if not lib.checkDependency('ox_lib', '3.23.1') then error('This resource requires ox_lib version 3.23.1') end
 
 CreateThread(function()
     while not GlobalState.rhd_garage do GlobalState.rhd_garage = {} Wait(10) end

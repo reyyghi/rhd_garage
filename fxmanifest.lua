@@ -1,6 +1,6 @@
 fx_version 'cerulean'
 game 'gta5'
-version '1.3.6'
+version '1.3.7'
 author 'Reyghita Hafizh Firmanda'
 description 'Garage system for ESX & QBCore made by RHD Team'
 
@@ -27,6 +27,7 @@ server_scripts {
 }
 
 files {
+    'modules/debugzone.lua',
     'modules/zone.lua',
     'modules/deformation.lua',
     'modules/spawnpoint.lua',

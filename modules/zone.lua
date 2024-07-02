@@ -52,7 +52,6 @@ local function closeCreator(cancel, data)
 	creatorActive = false
 	controlsActive = false
 	utils.drawtext('hide')
-	zoneType = nil
 end
 
 local function drawRectangle(rec)
