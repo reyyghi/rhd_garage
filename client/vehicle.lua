@@ -58,44 +58,6 @@ local function getVehicleTypeByModel ( model )
     return utils.getVehicleTypeByModel( model )
 end
 
----callback
-lib.callback.register('rhd_garage:cb_client:vehicleSpawned', function(netId, props, deformation)
-    local veh = NetworkGetEntityFromNetworkId(netId)
-    for i = -1, 0 do
-        local ped = GetPedInVehicleSeat(veh, i)
-        if ped ~= cache.ped and ped > 0 and NetworkGetEntityOwner(ped) == cache.playerId then
-            DeleteEntity(ped)
-        end
-    end
-end)
-
--- Credit: https://github.com/LukeWasTakenn, https://github.com/LukeWasTakenn/luke_garages/blob/master/client/client.lua#L331-L352
-AddStateBagChangeHandler("VehicleProperties", nil, function(bagName, _, value)
-    if not value then
-        return
-    end
-
-    local netId = bagName:gsub("entity:", "")
-    local timer = GetGameTimer()
-    while not NetworkDoesEntityExistWithNetworkId(tonumber(netId)) do
-        Wait(0)
-        if GetGameTimer() - timer > 10000 then
-            return
-        end
-    end
-
-    local vehicle = NetToVeh(tonumber(netId))
-    local timer2 = GetGameTimer()
-    while NetworkGetEntityOwner(vehicle) ~= PlayerId() do
-        Wait(0)
-        if GetGameTimer() - timer2 > 10000 then
-            return
-        end
-    end
-
-    vehFunc.svp(vehicle, value)
-end)
-
 --- exports
 exports('trackveh', vehFunc.tvbp)
 exports('getvehForPhone', vehFunc.gpvfp)

@@ -32,47 +32,19 @@ end
 --- Spawn Vehicle
 ---@param data GarageVehicleData
 local function spawnvehicle ( data )
-    lib.requestModel(data.model)
-
-    local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
-        model = data.model,
-        plate = data.plate,
-        coords = data.coords,
-        vehtype = utils.getVehicleTypeByModel(data.model)
-    })
-
-    if serverData.netId < 1 then
-        return
-    end
-
-    while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
-    local veh = NetworkGetEntityFromNetworkId(serverData.netId)
-    
-    while utils.getPlate(veh) ~= serverData.plate do
-        SetVehicleNumberPlateText(veh, serverData.plate) Wait(10)
-    end
-
-    SetVehicleOnGroundProperly(veh)
-    if Config.SpawnInVehicle then
-        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
-    end
-
-    SetVehicleEngineHealth(veh, data.engine + 0.0)
-    SetVehicleBodyHealth(veh, data.body + 0.0)
-    utils.setFuel(veh, data.fuel)
-    Deformation.set(veh, serverData.deformation)
-
-    TriggerServerEvent("rhd_garage:server:updateState", {
-        vehicle = veh,
-        prop = serverData.props,
-        plate = serverData.plate,
-        state = 0,
-        garage = data.garage,
-        deformation = serverData.deformation
-    })
-    
-    Entity(veh).state:set('vehlabel', data.vehicle_name)
-    TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
+    local vehData = lib.callback.await('rhd_garage:cb_server:getvehiclePropByPlate', false, data.plate)
+    if not vehData then return error('Failed to load vehicle data with number plate ' .. data.plate) end
+    local vehEntity = utils.createPlyVeh(vehData.model, data.coords)
+    SetVehicleOnGroundProperly(vehEntity)
+    if Config.SpawnInVehicle then TaskWarpPedIntoVehicle(cache.ped, vehEntity, -1) end
+    SetVehicleEngineHealth(vehEntity, vehData.engine + 0.0)
+    SetVehicleBodyHealth(vehEntity, vehData.body + 0.0)
+    utils.setFuel(vehEntity, vehData.fuel)
+    vehFunc.svp(vehEntity, vehData.mods)
+    Deformation.set(vehEntity, vehData.deformation)
+    TriggerServerEvent("rhd_garage:server:updateState", { plate = vehData.plate, state = 0, garage = vehData.garage, })
+    Entity(vehEntity).state:set('vehlabel', vehData.vehicle_name)
+    TriggerEvent("vehiclekeys:client:SetOwner", vehData.plate:trim())
 end
 
 --- Garage Action

@@ -14,47 +14,18 @@ end
 
 ---@param data GarageVehicleData
 local function spawnvehicle ( data )
-
-    lib.requestModel(data.props.model)
-    local serverData = lib.callback.await("rhd_garage:cb_server:createVehicle", false, {
-        model = data.props.model,
-        plate = data.plate,
-        coords = data.coords,
-        vehtype = utils.getVehicleTypeByModel(data.props.model)
-    })
-
-    if serverData.netId < 1 then
-        return
-    end
-    
-    while not NetworkDoesEntityExistWithNetworkId(serverData.netId) do Wait(10) end
-    local veh = NetworkGetEntityFromNetworkId(serverData.netId)
-
-    while utils.getPlate(veh) ~= serverData.plate do
-        SetVehicleNumberPlateText(veh, serverData.plate) Wait(10)
-    end
-
-    local PedDriver = GetPedInVehicleSeat(veh, -1)
-    if PedDriver > 0 and PedDriver ~= cache.ped then
-        DeleteEntity(PedDriver)
-    end
-
-    SetVehicleOnGroundProperly(veh)
-
-    if Config.SpawnInVehicle then
-        Wait(200)
-        TaskWarpPedIntoVehicle(cache.ped, veh, -1)
-    end
-
-    if Config.FuelScript == 'ox_fuel' then
-        Entity(veh).state.fuel = serverData.props?.fuelLevel or 100
-    else
-        exports[Config.FuelScript]:SetFuel(veh, serverData.props?.fuelLevel or 100)
-    end
-       
-    Deformation.set(veh, data.deformation)
-    TriggerServerEvent("rhd_garage:server:removeFromPoliceImpound", serverData.plate)
-    TriggerEvent("vehiclekeys:client:SetOwner", serverData.plate:trim())
+    local vehData = lib.callback.await('rhd_garage:cb_server:getvehiclePropByPlate', false, data.plate)
+    if not vehData then return error('Failed to load vehicle data with number plate ' .. data.plate) end
+    local vehEntity = utils.createPlyVeh(vehData.model, data.coords)
+    SetVehicleOnGroundProperly(vehEntity)
+    if Config.SpawnInVehicle then TaskWarpPedIntoVehicle(cache.ped, vehEntity, -1) end
+    SetVehicleEngineHealth(vehEntity, vehData.engine + 0.0)
+    SetVehicleBodyHealth(vehEntity, vehData.body + 0.0)
+    utils.setFuel(vehEntity, vehData.fuel)
+    vehFunc.svp(vehEntity, vehData.mods)
+    Deformation.set(vehEntity, vehData.deformation)
+    TriggerServerEvent("rhd_garage:server:removeFromPoliceImpound", vehData.plate)
+    TriggerEvent("vehiclekeys:client:SetOwner", vehData.plate:trim())
 end
 
 ---@param garage table

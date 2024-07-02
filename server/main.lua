@@ -11,32 +11,15 @@ lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, am
     return fw.rm(src, type, amount)
 end)
 
-lib.callback.register('rhd_garage:cb_server:createVehicle', function (source, vehicleData )
-    local props = {}
-    local deformation = {}
-    
-    local veh = CreateVehicleServerSetter(vehicleData.model, vehicleData.vehtype, vehicleData.coords.x, vehicleData.coords.y, vehicleData.coords.z, vehicleData.coords.w)
-    Wait(100)
-    
-    while not DoesEntityExist(veh) do Wait(10) end
-    while GetVehicleNumberPlateText(veh) == '' do Wait(10) end
-    while NetworkGetEntityOwner(veh) == -1 do Wait(10) end
-    SetVehicleNumberPlateText(veh, vehicleData.plate)
-    
-    local netId, owner = NetworkGetNetworkIdFromEntity(veh), NetworkGetEntityOwner(veh)
-    local result = fw.gmdbp(vehicleData.plate)
-    props = result.prop deformation = result.deformation
-    lib.callback.await('rhd_garage:cb_client:vehicleSpawned', owner, netId, props)
-    Entity(veh).state:set("VehicleProperties", props, true)
-    return { netId = netId, props = props, plate = vehicleData.plate, deformation = deformation }
-end)
-
 lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared, pleaseUpdate)
     return fw.gvobp(src, plate, {
         owner = shared
     }, pleaseUpdate)
 end)
 
+lib.callback.register('rhd_garage:cb_server:getvehiclePropByPlate', function (_, plate)
+    return fw.gpvbp(plate)
+end)
 
 lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garage, impound, shared)
     return fw.gpvbg(src, garage, {
