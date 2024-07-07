@@ -3,6 +3,7 @@ if Config.RadialMenu ~= "qb" then return end
 radFunc = {}
 local radaial = {}
 
+---@param data RadialData
 function radFunc.create(data)
     local id = data.id:gsub("%s+", "")
     radaial[id] = exports['qb-radialmenu']:AddOption({
@@ -17,6 +18,7 @@ function radFunc.create(data)
     return radaial[id]
 end
 
+---@param id string
 function radFunc.remove(id)
     if radaial[id] then
         exports['qb-radialmenu']:RemoveOption(radaial[id])

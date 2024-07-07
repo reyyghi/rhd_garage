@@ -1,6 +1,8 @@
 if Config.RadialMenu == "qb" or Config.RadialMenu == "rhd" then return end
 
 radFunc = {}
+
+---@param data RadialData
 function radFunc.create(data)
     lib.addRadialItem({
         {
@@ -20,6 +22,7 @@ function radFunc.create(data)
     })
 end
 
+---@param id string
 function radFunc.remove(id)
     lib.removeRadialItem(id)
 end

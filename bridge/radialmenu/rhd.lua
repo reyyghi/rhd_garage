@@ -2,6 +2,7 @@ if Config.RadialMenu ~= "rhd" then return end
 
 radFunc = {}
 
+---@param data RadialData
 function radFunc.create(data)
     exports.rhd_radialmenu:addRadialItem({
         id = data.id,
@@ -19,6 +20,7 @@ function radFunc.create(data)
     })
 end
 
+---@param id string
 function radFunc.remove(id)
     exports.rhd_radialmenu:removeRadialItem(id)
 end
