@@ -1,6 +1,6 @@
 fx_version 'cerulean'
 game 'gta5'
-version '1.3.7'
+version '1.3.8'
 author 'Reyghita Hafizh Firmanda'
 description 'Garage system for ESX & QBCore made by RHD Team'
 
@@ -27,15 +27,16 @@ server_scripts {
 }
 
 files {
+    'locales/*.json',
+    'data/peds.json',
+    'data/garages.json',
+    'data/vehiclesname.json',
+
     'modules/debugzone.lua',
     'modules/zone.lua',
     'modules/deformation.lua',
     'modules/spawnpoint.lua',
     'modules/pedcreator.lua',
-    'data/customname.lua',
-    'data/pedlist.lua',
-    'data/garage.lua',
-    'locales/*.json',
 }
 
 ox_lib "locale"
