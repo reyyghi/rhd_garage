@@ -1,7 +1,7 @@
 Config = {}
 
-GarageZone = lib.load('data.garage')
-CNV = lib.load('data.customname')
+GarageZone = lib.loadJson('data.garages') ---@type table<string, GarageData>
+CNV = lib.loadJson('data.vehiclesname') ---@type table<string, CustomName>
 
 Config.Target = 'ox' -- ox / qb
 Config.RadialMenu = 'rhd' --- ox / qb / rhd
@@ -24,12 +24,11 @@ Config.SwapGarage = {
 
 Config.IconAnimation = "fade"
 Config.Icons = {
-    car = "car",
-    boat = "sailboat",
-    planes = "plane",
-    helicopter = "helicopter",
-    motorcycle = "motorcycle",
-    cycles = "bicycle"
+    [8] = "motorcycle",
+    [13] = "bicycle",
+    [14] = "sailboat",
+    [15] = "helicopter",
+    [16] = "plane",
 }
 
 Config.ImpoundPrice = {
