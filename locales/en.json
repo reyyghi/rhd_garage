@@ -103,6 +103,7 @@
             "creator_typevehicle": "Vehicle Type",
             "creator_bliptype": "Blip Type",
             "creator_blipcolor": "Blip Color",
+            "creator_bliplabel": "Blip Name",
             "header_changelabel": "Edit Garage Label",
             "label_changelabel": "New Label",
             "garage_access": "Garage Access",

@@ -103,6 +103,7 @@
             "creator_typevehicle": "Tipe Kendaraan",
             "creator_bliptype": "Tipe Blip",
             "creator_blipcolor": "Warna Blip",
+            "creator_bliplabel": "Nama Blip",
             "header_changelabel": "Edit Label Garasi",
             "label_changelabel": "Label Baru",
             "garage_access": "Akses Garasi",
