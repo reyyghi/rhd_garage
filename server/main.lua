@@ -1,11 +1,5 @@
 if not lib.checkDependency('ox_lib', '3.23.1') then error('This resource requires ox_lib version 3.23.1') end
 
-CreateThread(function()
-    while not GlobalState.rhd_garage do GlobalState.rhd_garage = {} Wait(10) end
-    Wait(100)
-    GlobalState.rhd_garage = GarageZone
-end)
-
 --- callback
 lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, amount)
     return fw.rm(src, type, amount)
@@ -61,13 +55,13 @@ end)
 RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
     if GetInvokingResource() then return end
     if type(fileData) ~= "table" or type(fileData) == "nil" then return end
-    return Storage.save.garage(fileData)
+    return storage.SaveGarage(fileData)
 end)
 
 RegisterNetEvent("rhd_garage:server:saveCustomVehicleName", function (fileData)
     if GetInvokingResource() then return end
     if type(fileData) ~= "table" or type(fileData) == "nil" then return end
-    return Storage.save.vehname(fileData)
+    return storage.SaveVehicleName(fileData)
 end)
 
 --- exports
