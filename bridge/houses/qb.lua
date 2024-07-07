@@ -29,8 +29,8 @@ if qbHousing or psHousing then
                                         label = locale("rhd_garage:open_garage"),
                                         icon = "warehouse",
                                         event = "rhd_garage:radial:open",
-                                        garage = {
-                                            label = label,
+                                        args = {
+                                            garage = label,
                                             impound = false,
                                             shared = false,
                                             type = "car"
@@ -42,8 +42,8 @@ if qbHousing or psHousing then
                                         label = locale("rhd_garage:store_vehicle"),
                                         icon = "parking",
                                         event = "rhd_garage:radial:store",
-                                        garage = {
-                                            label = label,
+                                        args = {
+                                            garage = label,
                                             impound = false,
                                             shared = false,
                                             type = "car"
@@ -108,11 +108,6 @@ if qbHousing or psHousing then
     
         RegisterNetEvent('rhd_garage:server:addHouseGarage', function(house, garageInfo)
             Config.HouseGarages[house] = garageInfo
-        end)
-    
-    
-        AddEventHandler('QBCore:Server:PlayerLoaded', function(Player)
-            GlobalState.rhd_garage_zone = GarageZone
         end)
     end
 end
