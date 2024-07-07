@@ -1,9 +1,12 @@
 local Deformation = {}
 
+---@param value number
+---@param numDecimals number
 local function Round (value, numDecimals)
 	return math.floor(value * 10^numDecimals) / 10^numDecimals
 end
 
+---@param vehicle integer
 local function GetVehicleOffsetsForDeformation (vehicle)
 	local min, max = GetModelDimensions(GetEntityModel(vehicle))
 	local X = Round((max.x - min.x) * 0.5, 2)
@@ -63,8 +66,9 @@ local function GetVehicleOffsetsForDeformation (vehicle)
 	}
 end
 
+---@param vehicle integer
+---@param deformation table[]
 Deformation.set = function (vehicle, deformation)
-
     local fDeformationDamageMult = GetVehicleHandlingFloat(vehicle, "CHandlingData", "fDeformationDamageMult")
     local damageMult = 20.0
     if (fDeformationDamageMult <= 0.55) then
@@ -87,6 +91,8 @@ Deformation.set = function (vehicle, deformation)
  
 end
 
+---@param vehicle integer
+---@return table
 Deformation.get = function ( vehicle )
     local data = {}
 	local offsets = GetVehicleOffsetsForDeformation(vehicle)
