@@ -26,12 +26,12 @@ end)
 
 lib.callback.register('rhd_garage:cb_server:getoutsideVehicleCoords', function(_, plate, garage)
     local vehicle = vehFuncS.govbp(plate)
-    local coords = vehicle and vehicle.exist and vehicle.coords or false
+    local coords = vehicle and vehicle.exist and vehicle.coords or nil
     if not coords and garage then
         local gz = GarageZone[garage]
         local gp = gz and #gz.zones.points
         local gc = gp and gz.zones.points[gp]
-        coords = gc or false
+        coords = gc and vec(gc.x, gc.y, gc.z) or nil
         
         if not coords then
             local hg = Config.HouseGarages
