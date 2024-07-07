@@ -1,7 +1,7 @@
 if not Config.UsePoliceImpound then return end
 
 local VehicleShow = nil
-local Deformation = lib.load('modules.deformation')
+local Deformation = require 'modules.deformation'
 
 PoliceImpound = {}
 
