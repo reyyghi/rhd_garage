@@ -1,7 +1,58 @@
+---@class OxZone
+---@field points vector3[]
+---@field thickness number
+
+---@class BlipData
+---@field type integer
+---@field color integer
+---@field label string
+
+---@class GarageData
+---@field type? string[]
+---@field blip? BlipData
+---@field impound? boolean
+---@field shared? boolean
+---@field interaction? string|{coords: vector4, model:string|integer}
+---@field job? table<string, number>
+---@field gang? table<string, number>
+---@field spawnPoint? vector4[]
+---@field zones? OxZone
+
+---@class CustomName
+---@field name? string
+
+---@class RadialData
+---@field id string
+---@field label string
+---@field icon string
+---@field event? string
+---@field args {garage: string, type: string[], impound: boolean, shared: boolean, spawnpoint: vector3[]}
+
+---@class GarageVehicleData
+---@field garage? string Garage Name
+---@field type? string[] Garage Class
+---@field impound? boolean Impound Garage|Insurance
+---@field shared? boolean Shared Garage
+---@field spawnpoint? vector3[] Garage Spawn Point
+---@field targetped? boolean Garage Using Ped
+---@field depotprice? number Depot Price
+---@field props? table Vehicle Properties
+---@field deformation? table Vehicle Deformation
+---@field body? number Vehicle BodyHealth
+---@field engine? number Vehicle EngineHealth
+---@field fuel? number Vehicle Fuel Level
+---@field plate? string Vehicle Plate
+---@field vehName? string Vehicle Name 1
+---@field vehicle_name? string Vehicle Name 2
+---@field model? string|integer Vehicle Model
+---@field coords? vector3|vector4 Vehicle Spawn Coords
+
+
 utils = {}
 
 local server = IsDuplicityVersion()
 
+---@param rot vector3
 local RotationToDirection = function(rot)
     local rotZ = math.rad(rot.z)
     local rotX = math.rad(rot.x)
@@ -16,11 +67,17 @@ string.trim = function ( string )
     return (string.gsub(string, '^%s*(.-)%s*$', '%1'))
 end
 
+---@param string string
+---@return string?
+string.isEmpty = function (string)
+    return string:match("^%s*$")
+end
+
 --- Raycast Camera
 ---@param distance number
 ---@return boolean|integer
 ---@return vector3
----@return integer
+---@return boolean
 ---@return vector3
 function utils.raycastCam(distance)
     local camRot = GetGameplayCamRot()
@@ -28,9 +85,10 @@ function utils.raycastCam(distance)
     local dir = RotationToDirection(camRot)
     local dest = camPos + (dir * distance)
     local ray = StartShapeTestRay(camPos, dest, 17, -1, 0)
-    local _, hit, endPos, surfaceNormal, entityHit = GetShapeTestResult(ray)
+    local _, hit, endPos = GetShapeTestResult(ray)
     if hit == 0 then endPos = dest end
-    return hit, endPos, entityHit, surfaceNormal
+    local inwater, watercoords = TestProbeAgainstWater(camPos.x, camPos.y, camPos.z, endPos.x, endPos.y, endPos.z)
+    return hit, endPos, inwater, watercoords
 end
 
 --- Send Notification
@@ -64,7 +122,7 @@ function utils.drawtext (type, text, icon)
 end
 
 --- Create context menu
----@param data table
+---@param data {id: string, title: string, options: table[]}
 function utils.createMenu( data )
     lib.registerContext(data)
     lib.showContext(data.id)
@@ -171,21 +229,6 @@ function utils.removeTargetPed(entity, label)
     end
 end
 
---- Debug Print
----@param type string
----@param string string
-function utils.print(type, string)
-
-    local printType = {
-        error = "^1[ERROR]^7",
-        success = "^2[SUCCESS]^7"
-    }
-    
-    if not type or not string then return end
-    if not printType[type] then return end
-    print(('%s %s'):format(printType[type], string))
-end
-
 --- Get progress color by level (for fuel, engine, body)
 ---@param level any
 ---@return string|false?
@@ -205,7 +248,7 @@ end
 --- Checking vehicle class
 ---@param vehType number
 ---@return string
-function utils.classCheck ( vehType )
+function utils.getCategoryByClass ( vehType )
     local class = {
         [8] = "motorcycle",
         [13] = "cycles",
@@ -216,26 +259,6 @@ function utils.classCheck ( vehType )
     return class[vehType] or "car"
 end
 
---- Get vehicle type by model
----@param model string | integer
----@return string?
-function utils.getVehicleTypeByModel( model )
-    model = type(model) == 'string' and joaat(model) or model
-    if not IsModelInCdimage(model) then return end
-    local vehicleType = GetVehicleClassFromName(model)
-
-    local types = {
-        [8] = "bike",
-        [11] = "trailer",
-        [13] = "bike",
-        [14] = "boat",
-        [15] = "heli",
-        [16] = "plane",
-        [21] = "train",
-    }
-
-    return types[vehicleType] or "automobile"
-end
 
 --- Set vehicle fuel level
 ---@param vehicle integer
@@ -285,37 +308,14 @@ function utils.createPlyVeh ( model, coords, cb, network )
 end
 
 --- Checking or Get garage type
----@param action string
----@param ... unknown
----@return boolean|string|unknown
-function utils.garageType ( action, ... )
-    local result
-    local args = {...}
-
-    if action == "getstring" then
-        result = ""
-        if args[1] then
-            for k, v in pairs(args[1]) do
-                result = result .. ("%s%s"):format(v, next(args[1], k) and ", " or "")
-            end
-        end
-    elseif action == "check" then
-        result = false
-        if args[1] and args[2] then
-            if type(args[1]) == "string" then
-                if args[1] == args[2] then
-                    result = true
-                end
-            elseif type(args[1]) == "table" then
-                for k, v in pairs(args[1]) do
-                    if v == args[2] then
-                        result = true
-                    end
-                end
-            end
-        end
+---@param data table[]
+---@return string
+function utils.garageType ( data )
+    local result = ""
+    for i=1, #data do
+        local class = data[i]
+        result = result .. ("%s%s"):format(class, data[i + 1] and ", " or "")
     end
-
     return result
 end
 
@@ -377,9 +377,9 @@ function utils.refreshTable(t)
 end
 
 --- Merge array tables
----@param o table
----@param n table
----@return table
+---@param o table[]
+---@param n table[]
+---@return table[]
 function utils.mergeArray(o, n)
     local results = {}
 
