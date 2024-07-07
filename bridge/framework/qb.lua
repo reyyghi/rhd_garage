@@ -500,14 +500,14 @@ if isServer then
         local src = player.PlayerData.source
         local idstr = tostring(src)
         xPlayer[idstr] = player.PlayerData
-        utils.print("success", ("Register new cache for %s"):format(GetPlayerName(src)))
+        lib.print.info(("Register new cache for %s"):format(GetPlayerName(src)))
     end)
 
     AddEventHandler("playerDropped", function ()
         local src = source
         local idstr = tostring(src)
         xPlayer[idstr] = nil
-        utils.print("success", ("Remove cache from %s"):format(GetPlayerName(src)))
+        lib.print.info(("Remove cache from %s"):format(GetPlayerName(src)))
     end)
 
     if Config.InDevelopment then
