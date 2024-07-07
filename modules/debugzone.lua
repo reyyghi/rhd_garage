@@ -1,27 +1,5 @@
 --- Source https://github.com/overextended/ox_lib/blob/master/imports/zones/client.lua
 
-local glm = require 'glm'
-
-local function nextFreePoint(points, b, len)
-    for i = 1, len do
-        local n = (i + b) % len
-
-        n = n ~= 0 and n or len
-
-        if points[n] then
-            return n
-        end
-    end
-end
-
-local function unableToSplit(polygon)
-    print('The following polygon is malformed and has failed to be split into triangles for debug')
-
-    for k, v in pairs(polygon) do
-        print(k, v)
-    end
-end
-
 local function getTriangles(polygon)
     local triangles = {}
 
@@ -33,53 +11,8 @@ local function getTriangles(polygon)
         return triangles
     end
 
-    if not polygon:isSimple() then
-        unableToSplit(polygon)
-
-        return triangles
-    end
-
-    local points = {}
-    local polygonN = #polygon
-
-    for i = 1, polygonN do
-        points[i] = polygon[i]
-    end
-
-    local a, b, c = 1, 2, 3
-    local zValue = polygon[1].z
-    local count = 0
-
-    while polygonN - #triangles > 2 do
-        local a2d = polygon[a].xy
-        local c2d = polygon[c].xy
-
-        if polygon:containsSegment(vec3(glm.segment2d.getPoint(a2d, c2d, 0.01), zValue), vec3(glm.segment2d.getPoint(a2d, c2d, 0.99), zValue)) then
-            triangles[#triangles + 1] = mat(polygon[a], polygon[b], polygon[c])
-            points[b] = false
-
-            b = c
-            c = nextFreePoint(points, b, polygonN)
-        else
-            a = b
-            b = c
-            c = nextFreePoint(points, b, polygonN)
-        end
-
-        count += 1
-
-        if count > polygonN and #triangles == 0 then
-            unableToSplit(polygon)
-
-            return triangles
-        end
-
-        Wait(0)
-    end
-
     return triangles
 end
-
 
 local DrawLine = DrawLine
 local DrawPoly = DrawPoly
@@ -109,17 +42,12 @@ local function debugPoly(self)
 end
 
 return {
-    start = function (polygon, thickness)
+    start = function (polygon, thickness, color)
         debugPoly({
             polygon = polygon,
             thickness = thickness,
             triangles = getTriangles(polygon),
-            debugColour = {
-                r = 240,
-                g = 229,
-                b = 5,
-                a = 50
-            }
+            debugColour = color
         })
     end
 }

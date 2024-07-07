@@ -3,34 +3,85 @@ local spawnPoint = {}
 local vehicleList = {
     'kuruma',
     'guardian',
+    'jetmax',
+    'swift2'
 }
+
+local vehCreated = {}
 
 local curVehicle = nil
 local busy = false
-local mode = 'raycast'
 local glm = require "glm"
+local glm_polygon_contains = glm.polygon.contains
 local debugzone = require 'modules.debugzone'
 
 local function CancelPlacement()
-    DeleteVehicle(curVehicle)
     busy = false
+    DeleteVehicle(curVehicle)
+
+    for i=1, #vehCreated do
+        local entity = vehCreated[i]
+        DeleteEntity(entity)
+    end
+
     curVehicle = nil
+end
+
+---@param table vector3[]
+local function tovec3(table)
+    local results = {}
+    for i=1, #table do
+        local c = table[i]
+        results[#results+1] = vec3(c.x, c.y, c.z)
+    end
+    return results
+end
+
+---@param coords vector3
+local function closestVP(coords)
+    local results = false
+    for i=1, #vehCreated do
+        local entity = vehCreated[i]
+        local vc = GetEntityCoords(entity)
+        local dist = #(coords - vc)
+        if dist < 3 then
+            results = true
+            break
+        end
+    end
+    return results
+end
+
+---@param model string|integer
+---@param coords vector4
+local function createPV(model, coords)
+    local vm = model
+    lib.requestModel(vm)
+    local pv = CreateVehicle(vm, coords.x, coords.y, coords.z, coords.w, false, false)
+    SetVehicleDoorsLocked(pv, 2)
+    SetEntityAlpha(pv, 150, true)
+    SetEntityCollision(pv, false, false)
+    FreezeEntityPosition(pv, true)
+    return pv
 end
 
 --- Create Spawn Points
 ---@param zone OxZone
 ---@param required boolean
 ---@return promise?
-function spawnPoint.create(zone, required)
+function spawnPoint.create(zone, required, existingPoint)
     if not zone then return end
     if busy then return end
     local vehIndex = 1
     local vehicle = vehicleList[vehIndex]
-    local polygon = glm.polygon.new(zone.points)
+    local points = tovec3(zone.points)
+
+    local polygon = glm.polygon.new(points)
 
     local text = [[
-    [X]: Confirm
-    [Enter]: Add Points
+    [X]: Close
+    [Enter]: Confirm
+    [Spacebar]: Add Points
     [Arrow Up/Down]: Height
     [Arrow Right/Left]: Rotate Vehicle
     [Mouse Scroll Up/Down]: Change Vehicle
@@ -43,6 +94,14 @@ function spawnPoint.create(zone, required)
     SetEntityCollision(curVehicle, false, false)
     FreezeEntityPosition(curVehicle, true)
 
+    if existingPoint and #existingPoint>0 then
+        for i=1, #existingPoint do
+            local vc = existingPoint[i]
+            local pv = createPV(vehicle, vc)
+            vehCreated[#vehCreated+1] = pv
+        end
+    end
+
     local vc = {}
     local heading = 0.0
     local prefixZ = 0.0
@@ -52,22 +111,18 @@ function spawnPoint.create(zone, required)
         busy = true
 
         while busy do
-            local hit, coords
+            local hit, coords, inwater, wcoords = utils.raycastCam(20.0)
 
             CurrentCoords = GetEntityCoords(curVehicle)
             
-            if mode == 'raycast' then
-                hit, coords = utils.raycastCam(20.0)
-            end
-           
-            local inZone = glm.polygon.contains(polygon, CurrentCoords, zone.thickness / 4)
-            local outlineColour = inZone and {255, 255, 255, 255} or {240, 5, 5, 1}
-            SetEntityDrawOutline(curVehicle, true)
-            SetEntityDrawOutlineColor(outlineColour[1], outlineColour[2], outlineColour[3], outlineColour[4])
-            debugzone.start(polygon, zone.thickness)
+            local inZone = glm_polygon_contains(polygon, CurrentCoords, zone.thickness / 4)
+            local debugColor = inZone and {r = 10, g = 244, b = 115, a = 50} or {r = 240, g = 5, b = 5, a = 50}
+            debugzone.start(polygon, zone.thickness, debugColor)
 
-            if hit == 1 then
-                SetEntityCoords(curVehicle, coords.x, coords.y, coords.z + prefixZ)
+            if hit == 1 and not inwater then
+                SetEntityCoords(curVehicle, coords.x, coords.y, coords.z + prefixZ, false, false, false, false)
+            elseif inwater then
+                SetEntityCoords(curVehicle, wcoords.x, wcoords.y, wcoords.z + prefixZ, false, false, false, false)
             end
 
             DisableControlAction(0, 174, true)
@@ -79,6 +134,7 @@ function spawnPoint.create(zone, required)
             DisableControlAction(0, 172, true)
             DisableControlAction(0, 173, true)
             DisableControlAction(0, 21, true)
+            DisableControlAction(0, 22, true)
             
             if IsDisabledControlPressed(0, 174) then
                 heading = heading + 0.5
@@ -103,11 +159,7 @@ function spawnPoint.create(zone, required)
                 local newModel = vehicleList[newIndex]
                 if newModel then
                     DeleteEntity(curVehicle)
-                    lib.requestModel(newModel)
-                    local veh = CreateVehicle(newModel, 1.0, 1.0, 1.0, 0, false, false)
-                    SetEntityAlpha(veh, 150, true)
-                    SetEntityCollision(veh, false, false)
-                    FreezeEntityPosition(veh, true)
+                    local veh = createPV(newModel, vec(1.0, 1.0, 1.0, 0))
                     curVehicle = veh
                     vehIndex = newIndex
                     object = newModel
@@ -121,11 +173,7 @@ function spawnPoint.create(zone, required)
                     local newModel = vehicleList[newIndex]
                     if newModel then
                         DeleteEntity(curVehicle)
-                        lib.requestModel(newModel)
-                        local veh = CreateVehicle(newModel, 1.0, 1.0, 1.0, 0, false, false)
-                        SetEntityAlpha(veh, 150, true)
-                        SetEntityCollision(veh, false, false)
-                        FreezeEntityPosition(veh, true)
+                        local veh = createPV(newModel, vec(1.0, 1.0, 1.0, 0))
                         curVehicle = veh
                         vehIndex = newIndex
                         object = newModel
@@ -134,35 +182,64 @@ function spawnPoint.create(zone, required)
             end
             
             if IsDisabledControlJustPressed(0, 73) then
-                if required and #vc < 1 then
-                    utils.notify("You must create at least x1 spawn points", "error", 8000)
-                else
-                    CancelPlacement()
-                end
+                vc = {}
+                CancelPlacement()
+                results:resolve(false)
+                utils.notify('Spawn point creation cancelled!', 'error', 8000)
             end
 
             SetEntityHeading(curVehicle, heading)
 
             if IsDisabledControlJustPressed(0, 176) then
+                if required and #vc < 1 then
+                    utils.notify("You must create at least x1 spawn points", "error", 8000)
+                else
+                    results:resolve(#vc > 0 and vc or false)
+                    CancelPlacement()
+                end
+            end
+
+            if IsDisabledControlJustPressed(0, 22) then
                 if hit == 1 then
+                    local closestVeh = closestVP(CurrentCoords.xyz)
+
+                    if closestVeh then
+                        utils.notify("Look for another place", "error", 8000)
+                        goto next
+                    end
 
                     if inZone then
-                        vc[#vc+1] = vec4(CurrentCoords.x, CurrentCoords.y, CurrentCoords.z, heading)
+                        local rc = vec4(CurrentCoords.x, CurrentCoords.y, CurrentCoords.z, heading)
+                        local vm = vehicleList[vehIndex]
+                        local pv = createPV(vm, rc)
+                        
+                        vc[#vc+1] = rc
+                        vehCreated[#vehCreated+1] = pv
                         utils.notify("location successfully created " .. #vc, "success", 8000)
                     else
                         utils.notify("cannot add spawn points outside the zone", "error", 8000)
                     end
+
+                    ::next::
                 end
             end
-            
             Wait(1)
         end
-
-        results:resolve(#vc > 0 and vc or false)
         utils.drawtext('hide')
     end)
 
-    return results
+    return Citizen.Await(results)
 end
+
+AddEventHandler('onResourceStop', function(resource)
+   if resource == GetCurrentResourceName() then
+    lib.hideTextUI()
+    DeleteVehicle(curVehicle)
+    for i=1, #vehCreated do
+        local entity = vehCreated[i]
+        DeleteEntity(entity)
+    end
+   end
+end)
 
 return spawnPoint

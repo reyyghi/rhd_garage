@@ -1,6 +1,6 @@
 local pedcreator = {}
 
-local pedlist = lib.load('data.pedlist')
+local pedlist = lib.loadJson('data.peds')
 
 local curPed = nil
 local busycreate = false
@@ -13,12 +13,25 @@ local function CancelPlacement()
     curPed = nil
 end
 
+
+---@param data table[]
+local function tovec3(data)
+    local results = {}
+    for i=1, #data do
+        local c = data[i]
+        results[#results+1] = vec(c.x, c.y, c.z)
+    end
+    return results
+end
+
+---@param zone {points: vector3[], thickness: number}
 function pedcreator.start(zone)
     if not zone then return end
     if busycreate then return end
     local pedIndex = 1
     local pedmodels = pedlist[pedIndex]
-    local polygon = glm.polygon.new(zone.points)
+    local points = tovec3(zone.points)
+    local polygon = glm.polygon.new(points)
 
     local text = [[
     [X]: Cancel
@@ -43,11 +56,12 @@ function pedcreator.start(zone)
         busycreate = true
 
         while busycreate do
-            local hit, coords, entity = utils.raycastCam(20.0)
+            local hit, coords = utils.raycastCam(20.0)
             CurrentCoords = GetEntityCoords(curPed)
             
             local inZone = glm.polygon.contains(polygon, CurrentCoords, zone.thickness / 4)
-            debugzone.start(polygon, zone.thickness)
+            local debugColor = inZone and {r = 10, g = 244, b = 115, a = 50} or {r = 240, g = 5, b = 5, a = 50}
+            debugzone.start(polygon, zone.thickness, debugColor)
 
             if hit == 1 then
                 SetEntityCoords(curPed, coords.x, coords.y, coords.z)
@@ -116,6 +130,7 @@ function pedcreator.start(zone)
                         }
                         utils.notify("Ped location successfully set", "success", 8000)
                         CancelPlacement()
+                        results:resolve(pc)
                         if notif then notif = false end
                     else
                         if not notif then
@@ -125,15 +140,12 @@ function pedcreator.start(zone)
                     end
                 end
             end
-            
             Wait(1)
         end
-
-        results:resolve(pc)
         utils.drawtext('hide')
     end)
 
-    return results
+    return Citizen.Await(results)
 end
 
 return pedcreator

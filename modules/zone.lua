@@ -23,7 +23,6 @@ local function updateText()
         locale("createzone.8"),
         locale("createzone.9"),
 	}
-
 	utils.drawtext('show',table.concat(text))
 end
 
@@ -42,7 +41,7 @@ local function closeCreator(cancel, data)
 	if not cancel then
 		points[#points + 1] = vec(xCoord, yCoord, zCoord)
         if data and data.onCreated then
-            local zoneData = {}
+            local zoneData ---@type OxZone
             zoneData.points = points
             zoneData.thickness = height
             data.onCreated(zoneData)
@@ -54,6 +53,7 @@ local function closeCreator(cancel, data)
 	utils.drawtext('hide')
 end
 
+---@param rec vector3[]
 local function drawRectangle(rec)
     DrawPoly(rec[1].x, rec[1].y, rec[1].z, rec[2].x, rec[2].y, rec[2].z, rec[3].x, rec[3].y, rec[3].z, 240, 229, 5, 120)
     DrawPoly(rec[2].x, rec[2].y, rec[2].z, rec[1].x, rec[1].y, rec[1].z, rec[3].x, rec[3].y, rec[3].z, 240, 229, 5, 120)
@@ -100,6 +100,9 @@ local function drawLines()
 	end
 end
 
+---@param origin vector2
+---@param point vector2
+---@param theta number
 local function getRelativePos(origin, point, theta)
     if theta == 0.0 then return point end
     local p = point - origin
@@ -118,6 +121,7 @@ local controls = {
     ['INPUT_MP_TEXT_CHAT_ALL'] = 245
 }
 
+---@param data? {onCreated:function}
 function Zones.startCreator( data )
 	creatorActive = true
     controlsActive = true
@@ -139,7 +143,6 @@ function Zones.startCreator( data )
 
     while creatorActive do
         Wait(0)
-
         if displayMode == 3 or displayMode == 4 then
             if alignMovementWithCamera then
                 local rightX, rightY = getRelativePos(vec2(xCoord, yCoord), vec2(xCoord + 2, yCoord), freecam:GetRotation(2).z)
