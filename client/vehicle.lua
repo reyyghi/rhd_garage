@@ -52,13 +52,6 @@ function vehFunc.svp(vehicle, props)
     return lib.setVehicleProperties(vehicle, props)
 end
 
----@param model string|integer
----@return string|nil
-local function getVehicleTypeByModel ( model )
-    return utils.getVehicleTypeByModel( model )
-end
-
 --- exports
 exports('trackveh', vehFunc.tvbp)
 exports('getvehForPhone', vehFunc.gpvfp)
-exports('getVehicleTypeByModel', getVehicleTypeByModel)
