@@ -41,7 +41,8 @@ local function closeCreator(cancel, data)
 	if not cancel then
 		points[#points + 1] = vec(xCoord, yCoord, zCoord)
         if data and data.onCreated then
-            local zoneData ---@type OxZone
+            ---@class OxZone
+            local zoneData = {}
             zoneData.points = points
             zoneData.thickness = height
             data.onCreated(zoneData)
