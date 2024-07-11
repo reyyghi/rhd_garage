@@ -67,12 +67,12 @@ local function createGarage ()
                 local gtype = input[2]
                 local blip = input[3] and blipInput(Impound, label) or nil
                 local shared = input[5]
-                local sp = input[6] and spawnPoint.create(zones, false) or nil
+                local sp = input[6] and spawnPoint.create(zones, false, nil, gtype) or nil
                 local interact = tPed and pedcreator.start(zones) or input[7]
 
                 if tPed and not sp then
                     Wait(1000)
-                    sp = spawnPoint.create(zones, true) or nil
+                    sp = spawnPoint.create(zones, true, nil, gtype) or nil
                 end
 
                 GarageZone[label] = {
@@ -225,7 +225,7 @@ local function setspawnpoint(garage)
         title = "Add Point",
         icon = "plus",
         onSelect = function ()
-            local pr = spawnPoint.create(garage.value.zones, true, asp)
+            local pr = spawnPoint.create(garage.value.zones, true, asp, garage.value.type)
             if not pr then return end
             GarageZone[garage.index].spawnPoint = utils.mergeArray(asp, pr)
             utils.notify("The spawn point has been successfully set", "success", 8000)
