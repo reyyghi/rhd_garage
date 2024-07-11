@@ -1,10 +1,12 @@
 local spawnPoint = {}
 
-local vehicleList = {
-    'kuruma',
-    'guardian',
-    'jetmax',
-    'swift2'
+local namedVehicleList = {
+    boat = "jetmax",
+    planes = "dodo",
+    helicopter = "frogger",
+    car = "kuruma",
+    motorcycle = "sanchez",
+    cycles = "bmx",
 }
 
 local vehCreated = {}
@@ -60,6 +62,7 @@ local function createPV(model, coords)
     local pv = CreateVehicle(vm, coords.x, coords.y, coords.z, coords.w, false, false)
     SetVehicleDoorsLocked(pv, 2)
     SetEntityAlpha(pv, 150, true)
+    SetEntityInvincible(pv, true)
     SetEntityCollision(pv, false, false)
     FreezeEntityPosition(pv, true)
     return pv
@@ -68,11 +71,17 @@ end
 --- Create Spawn Points
 ---@param zone OxZone
 ---@param required boolean
+---@param existingPoint any
+---@param vehicleTypes string[]
 ---@return promise?
-function spawnPoint.create(zone, required, existingPoint)
+function spawnPoint.create(zone, required, existingPoint, vehicleTypes)
     if not zone then return end
     if busy then return end
     local vehIndex = 1
+    local vehicleList = {}
+    for _, v in next, vehicleTypes do
+        table.insert(vehicleList, namedVehicleList[v])
+    end
     local vehicle = vehicleList[vehIndex]
     local points = tovec3(zone.points)
 
@@ -91,6 +100,7 @@ function spawnPoint.create(zone, required, existingPoint)
     lib.requestModel(vehicle, 1500)
     curVehicle = CreateVehicle(vehicle, 1.0, 1.0, 1.0, 0, false, false)
     SetEntityAlpha(curVehicle, 150, true)
+    SetEntityInvincible(curVehicle, true)
     SetEntityCollision(curVehicle, false, false)
     FreezeEntityPosition(curVehicle, true)
 
