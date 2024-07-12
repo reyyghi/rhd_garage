@@ -233,7 +233,7 @@ function spawnPoint.create(zone, required, existingPoint, vehicleTypes)
                     ::next::
                 end
             end
-            Wait(1)
+            Wait(0)
         end
         utils.drawtext('hide')
     end)
