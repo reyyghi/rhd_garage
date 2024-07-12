@@ -1,6 +1,12 @@
 Config = {}
 
+-- IF YOU WANT TO DATABASE GARAGES, UNCOMMENT THE TWO LINES BELOW AND COMMENT THE LINE BELOW THAT.
+
+-- Config.DefaultDatabaseGarage = 'default' -- This is where the vehicles will be moved to if the garage is deleted (Case Sensitive and only works for player_vehicles table)
+-- GarageZone = lib.callback.await('rhd_garage:server:fetchGarages') ---@type table<string, GarageData>
+
 GarageZone = lib.loadJson('data.garages') ---@type table<string, GarageData>
+
 CNV = lib.loadJson('data.vehiclesname') ---@type table<string, CustomName>
 
 Config.Target = 'ox' -- ox / qb
