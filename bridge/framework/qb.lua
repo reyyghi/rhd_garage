@@ -91,7 +91,29 @@ end)
 if Config.InDevelopment then
     RegisterCommand("loaded", function ()
         fw.playerLoaded = true
-    end, false)    
+    end, false)
+    
+    RegisterCommand("reloadcache", function ()
+        local PlayerData = QBCore.Functions.GetPlayerData()
+    
+        local Job = PlayerData.job
+        local Gang = PlayerData.gang
+        local Money = PlayerData.money
+    
+        fw.player.money = Money
+    
+        fw.player.job = {
+            name = Job.name,
+            grade = Job.grade.level
+        }
+
+        fw.player.gang = {
+            name = Gang.name,
+            grade = Gang.grade.level
+        }
+
+        TriggerServerEvent('reloadcache:server')
+    end, false)
 end
 
 if isServer then
@@ -489,6 +511,20 @@ if isServer then
         end
         return vehicles
     end
+    
+    --- Insert new vehicle to database
+    ---@param vehicle table
+    function fw.inv(vehicle)
+        MySQL.insert('INSERT INTO player_vehicles (license, citizenid, vehicle, hash, mods, plate, state) VALUES (?, ?, ?, ?, ?, ?, ?)', {
+            vehicle.license,
+            vehicle.citizenid,
+            vehicle.model,
+            joaat(vehicle.model),
+            json.encode(vehicle.props),
+            vehicle.plate,
+            0
+        })
+    end
 
     RegisterNetEvent('QBCore:Player:SetPlayerData', function(PlayerData)
         local src = PlayerData.source
@@ -511,11 +547,11 @@ if isServer then
     end)
 
     if Config.InDevelopment then
-        RegisterCommand("reloadcache", function (src)
-            local p = QBCore.Functions.GetPlayer(src)
+        RegisterNetEvent('reloadcache:server', function()
+            local p = QBCore.Functions.GetPlayer(source)
             if not p then return false end
-            local idstr = tostring(src)
+            local idstr = tostring(source)
             xPlayer[idstr] = p.PlayerData
-        end, false)
+        end)
     end
 end

@@ -87,6 +87,26 @@ if Config.InDevelopment then
     RegisterCommand("loaded", function ()
         fw.playerLoaded = true
     end, false)
+    
+    RegisterCommand("reloadcache", function ()
+        local pData = ESX.GetPlayerData()
+        for i=1, #pData.accounts do
+            local data = pData.accounts[i]
+            if data.name == "money" then
+                fw.player.money.cash = data.money
+            end
+    
+            if data.name == "bank" then
+                fw.player.money.bank = data.money
+            end
+        end
+        fw.player.job = {
+            name = pData.job.name,
+            grade = pData.job.grade
+        }
+
+        TriggerServerEvent('reloadcache:server')
+    end, false)
 end
 
 if isServer then
@@ -480,6 +500,18 @@ if isServer then
         return vehicles
     end
 
+    --- Insert new vehicle to database
+    ---@param vehicle table
+    function fw.inv(vehicle)
+        MySQL.insert('INSERT INTO owned_vehicles (owner, plate, vehicle, job, stored) VALUES (?, ?, ?, ?, ?)', {
+            vehicle.license,
+            vehicle.plate,
+            json.encode(vehicle.props),
+            vehicle.job,
+            0
+        })
+    end
+
     RegisterNetEvent('esx:playerLoaded', function(player, playerData)
         local src = playerData.source
         local idstr = tostring(src)
@@ -495,11 +527,11 @@ if isServer then
     end)
 
     if Config.InDevelopment then
-        RegisterCommand("reloadcache", function (src)
-            local p = ESX.GetPlayerFromId(src)
+        RegisterNetEvent('reloadcache:server', function()
+            local p = ESX.GetPlayerFromId(source)
             if not p then return false end
-            local idstr = tostring(src)
+            local idstr = tostring(source)
             xPlayer[idstr] = p
-        end, false)
+        end)
     end
 end
