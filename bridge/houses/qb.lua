@@ -4,65 +4,54 @@ local isServer = IsDuplicityVersion()
 
 local lasthouse = nil
 local houseZone = {}
+local isOwner = false
 
 
 --- for qb-houses or ps-housing
 if qbHousing or psHousing then
     RegisterNetEvent('qb-garages:client:setHouseGarage', function(house, hasKey)
-        if Config.HouseGarages[house] then
-            if lasthouse ~= house then
-                if lasthouse then
-                    houseZone[lasthouse]:remove()
-                end
-                if hasKey and Config.HouseGarages[house].takeVehicle.x then
-                    local coords = Config.HouseGarages[house].takeVehicle
-                    local label = Config.HouseGarages[house].label
-                    local vec4 = vec4(coords.x, coords.y, coords.z, coords.w)
-                    local vec3 = vec3(coords.x, coords.y, coords.z)
-                    houseZone[house] = lib.zones.sphere({
-                        coords = vec3,
-                        onEnter = function ()
-                            lib.callback('rhd_garage:cb_server:getOwnedHouse', false, function (key)
-                                if key then
-                                    radFunc.create({
-                                        id = "open_garage",
-                                        label = locale("rhd_garage:open_garage"),
-                                        icon = "warehouse",
-                                        event = "rhd_garage:radial:open",
-                                        args = {
-                                            garage = label,
-                                            impound = false,
-                                            shared = false,
-                                            type = "car"
-                                        }
-                                    })
-                    
-                                    radFunc.create({
-                                        id = "store_veh",
-                                        label = locale("rhd_garage:store_vehicle"),
-                                        icon = "parking",
-                                        event = "rhd_garage:radial:store",
-                                        args = {
-                                            garage = label,
-                                            impound = false,
-                                            shared = false,
-                                            type = "car"
-                                        }
-                                    })
+        local HG = Config.HouseGarages[house]
+        if not HG then return end
+        if lasthouse == house then return end
         
-                                    utils.drawtext('show', label:upper(), 'warehouse')
-                                end
-                            end, house)
-                        end,
-                        onExit = function ()
-                            utils.drawtext('hide')
-                            radFunc.remove("open_garage")
-                            radFunc.remove("store_veh")
+        if lasthouse then
+            houseZone[lasthouse]:remove()
+        end
+        
+        if hasKey and HG.takeVehicle?.x then
+            local coords = HG.takeVehicle
+            local label = HG.label
+            local spawnloc = vec4(coords.x, coords.y, coords.z, coords.w)
+            houseZone[house] = lib.zones.sphere({
+                coords = spawnloc.xyz,
+                inside = function ()
+                    if IsControlJustPressed(0, 38) and isOwner then
+    
+                        local args = {
+                            garage = label,
+                            type = {'car', 'motorcycle', 'cycles'},
+                            spawnpoint = spawnloc
+                        }
+    
+                        if cache.vehicle then
+                            return exports.rhd_garage:storeVehicle(args)
                         end
-                    })
-                    lasthouse = house
+    
+                        exports.rhd_garage:openMenu(args)
+                    end
+                end,
+                onEnter = function ()
+                    isOwner = lib.callback.await('rhd_garage:cb_server:getOwnedHouse', false, house)
+                    if not isOwner then return end
+                    local dl = ('[E] - %s'):format(label)
+                    utils.drawtext('show', dl:upper(), 'warehouse')
+                end,
+                onExit = function ()
+                    isOwner = false
+                    utils.drawtext('hide')
                 end
-            end
+            })
+            lasthouse = house
         end
     end)
     
