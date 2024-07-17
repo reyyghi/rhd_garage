@@ -11,7 +11,10 @@
             "swapgarage": "A problem occurred !",
             "player_offline" : "There is no player with id %s",
             "cannot_transfer_to_myself": "Cannot transfer to yourself!",
-            "no_available_policeimpound_location": "Garage locations for confiscated vehicles are not yet available! ask your server developer to make it."
+            "no_available_policeimpound_location": "Garage locations for confiscated vehicles are not yet available! ask your server developer to make it.",
+            "vehicleshop": {
+                "no_vehicle_available": "There are no vehicles available for your rank!"
+            }
         },
         "info":{
             "invalid_veh_classs": "Vehicles with this class cannot be stored at %s!"
@@ -23,7 +26,10 @@
                 "target":  "%s has just given you a vehicle, you can check it at %s",
                 "source": "The vehicle was successfully transferred to %s"
             },
-            "confiscate_vehicle": "%s's vehicle has been confiscated and stored in the %s."
+            "confiscate_vehicle": "%s's vehicle has been confiscated and stored in the %s.",
+            "vehicleshop": {
+                "buyVehicle": "You have purchased a %s vehicle for $%s"
+            }
         },
         "admin": {
             "success_create": "Successfully created a new garage with the label %s",
@@ -43,6 +49,10 @@
         "confiscate_veh": "Confiscate Vehicle"
     },
     "context": {
+        "vehicleshop": {
+            "menu_description_preview": "Click to preview the vehicle",
+            "menu_description_buy": "Click to preview the vehicle"
+        },
         "insurance": {
             "pay_methode_header" : "Select payment type",
             "pay_methode_cash_title" : "Use the money in your pocket",

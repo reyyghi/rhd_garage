@@ -7,8 +7,11 @@ Config.Target = 'ox' -- ox / qb
 Config.RadialMenu = 'rhd' --- ox / qb / rhd
 Config.FuelScript = 'rhd_fuel' --- rhd_fuel / ox_fuel / LegacyFuel / ps-fuel / cdn-fuel
 Config.changeNamePrice = 15000 --- price for changing the name of the vehicle in the garage
-Config.UsePoliceImpound = true --- change it to false if you don't want to use the police impound system from rhd
 Config.SpawnInVehicle = true --- change this to true if you want the player to immediately enter the vehicle when the vehicle is taken out of the garage
+
+--- Additional: (Requires ox_target or qb-target resource)
+Config.UseJobVechileShop = true --- Change this to false if you do not want to use the work vehicle shop system from rhd
+Config.UsePoliceImpound = true --- change it to false if you don't want to use the police impound system from rhd
 
 Config.InDevelopment = true --- Turn this off when you have finished setting up this garage
 
@@ -81,6 +84,40 @@ Config.PoliceImpound = {
                 thickness = 4.0,
             },
         }
+    }
+}
+
+Config.JobVehicleShop = {
+    {
+        job = 'police',
+        label = 'Police Vehicle Shop',
+        ped = {
+            model = 'csb_trafficwarden',
+            coords = vec(457.9160, -1026.4635, 28.4376, 57.2678)
+        },
+        spawn = vec(443.9391, -1021.4270, 28.2857, 92.6928),
+        vehicle = {
+            police = {
+                price = 500,
+                label = 'Police 1',
+                prefixPlate = 'POL', -- Don't have more than 3 letters
+                forRank = {
+                    [0] = true,
+                    [1] = true,
+                    [2] = true
+                }
+            },
+            police2 = {
+                price = 500,
+                label = 'Police 2',
+                prefixPlate = 'POL', -- Don't have more than 3 letters
+                forRank = {
+                    [0] = true,
+                    [1] = true,
+                    [2] = true
+                }
+            }
+        },
     }
 }
 

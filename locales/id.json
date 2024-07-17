@@ -11,7 +11,10 @@
             "swapgarage": "Terjadi masalah!",
             "player_offline" : "Tidak ada pemain dengan ID %s",
             "cannot_transfer_to_myself": "Tidak dapat mentransfer kepada diri sendiri!",
-            "no_available_policeimpound_location": "Garage locations for confiscated vehicles are not yet available! ask your server developer to make it."
+            "no_available_policeimpound_location": "Garage locations for confiscated vehicles are not yet available! ask your server developer to make it.",
+            "vehicleshop": {
+                "no_vehicle_available": "Tidak ada kendaraan yang tersedia untuk pangkatmu!"
+            }
         },
         "info":{
             "invalid_veh_classs": "Kendaraan dengan kelas ini tidak dapat disimpan di %s!"
@@ -23,7 +26,10 @@
                 "target":  "%s baru saja memberi Anda sebuah kendaraan, Anda bisa cek di %s",
                 "source": "Kendaraan berhasil ditransfer ke %s"
             },
-            "confiscate_vehicle": "Kendaraan milik %s telah disita dan disimpan di %s."
+            "confiscate_vehicle": "Kendaraan milik %s telah disita dan disimpan di %s.",
+            "vehicleshop": {
+                "buyVehicle": "Anda telah membeli kendaraan %s dengan harga $%s"
+            }
         },
         "admin": {
             "success_create": "Berhasil membuat garasi baru dengan label %s",
@@ -43,6 +49,10 @@
         "confiscate_veh": "Sita Kendaraan"
     },
     "context": {
+        "vehicleshop": {
+            "menu_description_preview": "Klik untuk melihat kendaraan",
+            "menu_description_buy": "Klik untuk membeli kendaraan"
+        },
         "insurance": {
             "pay_methode_header" : "Pilih jenis pembayaran",
             "pay_methode_cash_title" : "Gunakan uang di saku Anda",

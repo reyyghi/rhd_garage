@@ -186,14 +186,13 @@ function utils.createTargetPed(model, coords, options)
                 icon = data.icon,
             }
             if Config.Target == "ox" then
+                opt.groups = data.groups
                 opt.distance = data.distance
-                opt.onSelect = function (d)
-                    data.action(d)
-                end
+                opt.onSelect = data.action
             elseif Config.Target == "qb" then
-                opt.action = function (d)
-                    data.action(d)
-                end
+                opt.job = data.groups
+                opt.gang = data.groups
+                opt.action = data.action
             end
             qbtd = data.distance
             newoptions[#newoptions+1] = opt

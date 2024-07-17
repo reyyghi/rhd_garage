@@ -24,6 +24,7 @@ server_scripts {
     'server/vehicle.lua',
     'server/version.lua',
     'server/command.lua',
+    'server/jobvehshop.lua'
 }
 
 files {
