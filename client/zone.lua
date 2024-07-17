@@ -114,13 +114,7 @@ function gzf.refresh ()
                     label = v.impound and locale('garage.access_impound') or locale("garage.open"),
                     icon = "warehouse",
                     event = "rhd_garage:radial:open",
-                    args = {
-                        garage = k,
-                        impound = v.impound,
-                        shared = v.shared,
-                        type = v.type,
-                        spawnpoint = v.spawnPoint
-                    }
+                    args = args
                 })
 
                 if not v.impound then
@@ -129,12 +123,7 @@ function gzf.refresh ()
                         label = locale("garage.store"),
                         icon = "parking",
                         event = "rhd_garage:radial:store",
-                        args = {
-                            garage = k,
-                            impound = v.impound,
-                            shared = v.shared,
-                            type = v.type
-                        }
+                        args = args
                     })
                 end
             end
