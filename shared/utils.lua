@@ -16,6 +16,7 @@
 ---@field job? table<string, number>
 ---@field gang? table<string, number>
 ---@field spawnPoint? vector4[]
+---@field spawnPointVehicle? string[]
 ---@field zones? OxZone
 
 ---@class CustomName

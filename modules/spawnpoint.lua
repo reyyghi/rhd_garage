@@ -1,31 +1,70 @@
-local spawnPoint = {}
-
-local namedVehicleList = {
-    boat = "jetmax",
-    planes = "dodo",
-    helicopter = "frogger",
-    car = "kuruma",
-    motorcycle = "sanchez",
-    cycles = "bmx",
+---@class NamedVehicleList
+local NVL = {
+    boat = {
+        'jetmax',
+        'dinghy',
+        'seashark',
+        'tug'
+    },
+    planes = {
+        'luxor2',
+        'shamal',
+        'nimbus',
+        'vestra'
+    },
+    helicopter = {
+        'volatus',
+        'swift2',
+        'cargobob',
+    },
+    car = {
+        'kuruma',
+        'guardian',
+        'firetruk',
+        'pbus',
+        'flatbed',
+        'ambulance',
+    },
+    motorcycle = {
+        'sanchez',
+        'bagger',
+        'wolfsbane'
+    },
+    cycles = {
+        'bmx',
+        'cruiser',
+        'tribike'
+    },
 }
 
+local spawnPoint = {}
 local vehCreated = {}
-
 local curVehicle = nil
 local busy = false
 local glm = require "glm"
 local glm_polygon_contains = glm.polygon.contains
 local debugzone = require 'modules.debugzone'
+local function deletePV(pos)
 
-local function CancelPlacement()
-    busy = false
-    DeleteVehicle(curVehicle)
+    if pos and type(pos) == 'number' then
+        if vehCreated[pos] then
+            DeleteEntity(vehCreated[pos])
+            table.remove(vehCreated, pos)
+        end
+        return
+    end
 
     for i=1, #vehCreated do
         local entity = vehCreated[i]
         DeleteEntity(entity)
     end
+    vehCreated = {}
+end
 
+local function CancelPlacement()
+    busy = false
+    deletePV()
+    DeleteVehicle(curVehicle)
     curVehicle = nil
 end
 
@@ -40,7 +79,7 @@ local function tovec3(table)
 end
 
 ---@param coords vector3
-local function closestVP(coords)
+local function closestPV(coords)
     local results = false
     for i=1, #vehCreated do
         local entity = vehCreated[i]
@@ -71,20 +110,19 @@ end
 --- Create Spawn Points
 ---@param zone OxZone
 ---@param required boolean
----@param existingPoint any
+---@param existingPoint table<string, vector3[]|string[]>
 ---@param vehicleTypes string[]
 ---@return promise?
 function spawnPoint.create(zone, required, existingPoint, vehicleTypes)
+    if not vehicleTypes or type(vehicleTypes) ~= 'table' then return end
     if not zone then return end
     if busy then return end
-    local vehIndex = 1
-    local vehicleList = {}
-    for _, v in next, vehicleTypes do
-        table.insert(vehicleList, namedVehicleList[v])
-    end
-    local vehicle = vehicleList[vehIndex]
-    local points = tovec3(zone.points)
 
+    local typeIndex = 1
+    local vehIndex = 1
+    local vehType = vehicleTypes[typeIndex]
+    local vehicle = NVL[vehType][vehIndex]
+    local points = tovec3(zone.points)
     local polygon = glm.polygon.new(points)
 
     local text = [[
@@ -93,29 +131,32 @@ function spawnPoint.create(zone, required, existingPoint, vehicleTypes)
     [Spacebar]: Add Points
     [Arrow Up/Down]: Height
     [Arrow Right/Left]: Rotate Vehicle
-    [Mouse Scroll Up/Down]: Change Vehicle
+    [Backspace]: Delete Point
+    [Mouse Scroll Up/Down]: Change Type (Current Type: %s)
+    [LShift + Mouse Scroll Up/Down]: Change Model (Current Model: %s)
     ]]
 
-    utils.drawtext('show', text)
+    utils.drawtext('show', text:format(vehType, vehicle))
     lib.requestModel(vehicle, 1500)
-    curVehicle = CreateVehicle(vehicle, 1.0, 1.0, 1.0, 0, false, false)
-    SetEntityAlpha(curVehicle, 150, true)
-    SetEntityInvincible(curVehicle, true)
-    SetEntityCollision(curVehicle, false, false)
-    FreezeEntityPosition(curVehicle, true)
+    curVehicle = createPV(vehicle, vec(1.0, 1.0, 1.0, 0))
 
-    if existingPoint and #existingPoint>0 then
-        for i=1, #existingPoint do
-            local vc = existingPoint[i]
-            local pv = createPV(vehicle, vc)
-            vehCreated[#vehCreated+1] = pv
+    local vc = {}
+    local svp = {}
+    local heading = 0.0
+    local prefixZ = 0.0
+    local sp = {v = {}, c = {}}
+
+    if existingPoint and #existingPoint.c > 0 then
+        for i=1, #existingPoint.c do
+            local coords = existingPoint.c[i]
+            local vehModel = existingPoint.v[i] or vehicle
+            local pv = createPV(vehModel, coords)
+            vc[i] = coords
+            svp[i] = vehModel
+            vehCreated[i] = pv
         end
     end
 
-    local vc = {}
-    local heading = 0.0
-    local prefixZ = 0.0
-    
     local results = promise.new()
     CreateThread(function()
         busy = true
@@ -145,6 +186,7 @@ function spawnPoint.create(zone, required, existingPoint, vehicleTypes)
             DisableControlAction(0, 173, true)
             DisableControlAction(0, 21, true)
             DisableControlAction(0, 22, true)
+            DisableControlAction(0, 194, true)
             
             if IsDisabledControlPressed(0, 174) then
                 heading = heading + 0.5
@@ -164,35 +206,75 @@ function spawnPoint.create(zone, required, existingPoint, vehicleTypes)
                 prefixZ -= 0.1
             end
 
-            if IsDisabledControlJustPressed(0, 14) then
-                local newIndex = vehIndex+1
-                local newModel = vehicleList[newIndex]
-                if newModel then
-                    DeleteEntity(curVehicle)
-                    local veh = createPV(newModel, vec(1.0, 1.0, 1.0, 0))
-                    curVehicle = veh
-                    vehIndex = newIndex
-                    object = newModel
-                end
-            end
-
             if IsDisabledControlJustPressed(0, 15) then
-                local newIndex = vehIndex-1
-
-                if newIndex >= 1 then
-                    local newModel = vehicleList[newIndex]
+                if IsDisabledControlPressed(0, 21) then
+                    local newIndex = vehIndex+1
+                    local newModel = NVL[vehType][newIndex]
                     if newModel then
                         DeleteEntity(curVehicle)
                         local veh = createPV(newModel, vec(1.0, 1.0, 1.0, 0))
                         curVehicle = veh
                         vehIndex = newIndex
-                        object = newModel
+                        vehicle = newModel
+                    end
+                else
+                    local newIndex = typeIndex + 1
+                    local newType = vehicleTypes[newIndex]
+                    if newType and NVL[newType] then
+                        local newModel = NVL[newType][1]
+                        DeleteEntity(curVehicle)
+                        local veh = createPV(newModel, vec(1.0, 1.0, 1.0, 0))
+                        curVehicle = veh
+                        vehType = newType
+                        typeIndex = newIndex
+                        vehIndex = 1
+                        vehicle = newModel
                     end
                 end
+                utils.drawtext('show', text:format(vehType, vehicle))
+            end
+
+            if IsDisabledControlJustPressed(0, 14) then
+                if IsDisabledControlPressed(0, 21) then
+                    local newIndex = vehIndex-1
+                    local newModel = NVL[vehType][newIndex]
+                    if newModel then
+                        DeleteEntity(curVehicle)
+                        local veh = createPV(newModel, vec(1.0, 1.0, 1.0, 0))
+                        curVehicle = veh
+                        vehIndex = newIndex
+                        vehicle = newModel
+                    end
+                else
+                    local newIndex = typeIndex - 1
+                    local newType = vehicleTypes[newIndex]
+                    if newType and NVL[newType] then
+                        local newModel = NVL[newType][1]
+                        DeleteEntity(curVehicle)
+                        local veh = createPV(newModel, vec(1.0, 1.0, 1.0, 0))
+                        curVehicle = veh
+                        vehType = newType
+                        typeIndex = newIndex
+                        vehIndex = 1
+                        vehicle = newModel
+                    end
+                end
+                utils.drawtext('show', text:format(vehType, vehicle))
             end
             
+            if IsDisabledControlJustPressed(0, 194) then
+                if #vc > 0 then
+                    local lastPos = #vc
+                    deletePV(lastPos)
+                    table.remove(svp, lastPos)
+                    table.remove(vc, lastPos)
+                    utils.notify('Spawn point ' .. lastPos .. ' has been removed.')
+                else
+                    utils.notify('No spawn point has been created yet!', 'error', 8000)
+                end
+            end
+
             if IsDisabledControlJustPressed(0, 73) then
-                vc = {}
                 CancelPlacement()
                 results:resolve(false)
                 utils.notify('Spawn point creation cancelled!', 'error', 8000)
@@ -204,14 +286,20 @@ function spawnPoint.create(zone, required, existingPoint, vehicleTypes)
                 if required and #vc < 1 then
                     utils.notify("You must create at least x1 spawn points", "error", 8000)
                 else
-                    results:resolve(#vc > 0 and vc or false)
+                    if #vc > 0 then
+                        sp.c = vc
+                        sp.v = svp
+                    else
+                        sp = nil
+                    end
+                    results:resolve(sp or false)
                     CancelPlacement()
                 end
             end
 
             if IsDisabledControlJustPressed(0, 22) then
                 if hit == 1 then
-                    local closestVeh = closestVP(CurrentCoords.xyz)
+                    local closestVeh = closestPV(CurrentCoords.xyz)
 
                     if closestVeh then
                         utils.notify("Look for another place", "error", 8000)
@@ -220,10 +308,12 @@ function spawnPoint.create(zone, required, existingPoint, vehicleTypes)
 
                     if inZone then
                         local rc = vec4(CurrentCoords.x, CurrentCoords.y, CurrentCoords.z, heading)
-                        local vm = vehicleList[vehIndex]
+                        local vm = NVL[vehType][vehIndex]
                         local pv = createPV(vm, rc)
                         
                         vc[#vc+1] = rc
+                        svp[#vc] = vm
+                        
                         vehCreated[#vehCreated+1] = pv
                         utils.notify("location successfully created " .. #vc, "success", 8000)
                     else
