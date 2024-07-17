@@ -14,7 +14,15 @@ function vehFunc.govbp(plate)
     local Vehicles = GetGamePool("CVehicle")
     for i=1, #Vehicles do
         local entity = Vehicles[i]
-        if DoesEntityExist(entity) then
+        local Exist = DoesEntityExist(entity)
+        local Dead = IsEntityDead(entity)
+        
+        if Dead then
+            SetEntityAsMissionEntity(entity, true, true)
+            DeleteEntity(entity)
+        end
+
+        if Exist and not Dead then
             local vP = utils.getPlate(entity)
             if vP == plate then
                 return entity
