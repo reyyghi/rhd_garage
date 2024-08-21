@@ -1,0 +1,19 @@
+{
+	"name": "name",
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
+		"build": "node ./prod.build.js",
+		"watch": "esbuild --watch --bundle --minify --platform=browser --target=es2020 --outdir=build ./client/*.ts ./server/*.ts"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@citizenfx/client": "^2.0.6947-1",
+		"@citizenfx/server": "^2.0.6947-1",
+		"@types/node": "^20.8.9",
+		"esbuild": "^0.19.5",
+		"typescript": "^5.2.2"
+	}
+}
