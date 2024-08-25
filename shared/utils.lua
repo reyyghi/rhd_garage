@@ -1,15 +1,13 @@
 utils = {}
 utils.string = {}
+utils.vehicle = {}
+utils.context = {}
+
+local getmakeNameFromVehicleModel = GetMakeNameFromVehicleModel
+local getDisplayNameFromVehicleModel = GetDisplayNameFromVehicleModel
+local getVehicleClassFromName = GetVehicleClassFromName
 
 local server = IsDuplicityVersion()
-
----@param rot vector3
-local RotationToDirection = function(rot)
-    local rotZ = math.rad(rot.z)
-    local rotX = math.rad(rot.x)
-    local cosOfRotX = math.abs(math.cos(rotX))
-    return vector3(-math.sin(rotZ) * cosOfRotX, math.cos(rotZ) * cosOfRotX, math.sin(rotX))
-end
 
 function utils.string.trim(s)
     if not s or type(s) ~= 'string' then return end
@@ -21,167 +19,29 @@ function utils.string.isEmpty(s)
     return s:match("^%s*$")
 end
 
-function utils.raycastCam(distance)
-    local camRot = GetGameplayCamRot()
-    local camPos = GetGameplayCamCoord()
-    local dir = RotationToDirection(camRot)
-    local dest = camPos + (dir * distance)
-    local ray = StartShapeTestRay(camPos, dest, 17, -1, 0)
-    local _, hit, endPos = GetShapeTestResult(ray)
-    if hit == 0 then endPos = dest end
-    local inwater, watercoords = TestProbeAgainstWater(camPos.x, camPos.y, camPos.z, endPos.x, endPos.y, endPos.z)
-    return hit, endPos, inwater, watercoords
-end
-
-function utils.notify(msg, type, duration)
-    lib.notify({
-        description = msg,
-        type = type,
-        duration = duration or 5000
-    })
-end
-
-function utils.drawtext (type, text, icon)
-    if type == 'show' then
-        lib.showTextUI(text,{
-            position = "left-center",
-            icon = icon or '',
-            style = {
-                borderRadius= 5,
-            }
-        })
-    elseif type == 'hide' then
-        lib.hideTextUI()
-    end
-end
-
-function utils.createMenu( data )
-    lib.registerContext(data)
-    lib.showContext(data.id)
-end
-
-function utils.createPreviewCam(vehicle)
-    if not DoesEntityExist(vehicle) then return end
-    local cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
-    RenderScriptCams(true, true, 1500,  true,  true)
-    local vehpos = GetEntityCoords(vehicle)
-    local pos = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, 15.0, 1.0)
-    local camF = GetGameplayCamFov()
-    SetCamCoord(cam, pos.x, pos.y, pos.z + 4.2)
-    PointCamAtCoord(cam, vehpos.x,vehpos.y,vehpos.z + 0.2)
-    SetCamFov(cam, camF - 20)
-end
-
-function utils.destroyPreviewCam(vehicle, enterVehicle)
-    if not DoesEntityExist(vehicle) then return end
-    local cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
-    local vehpos = GetEntityCoords(vehicle)
-    local pos = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, 5.0, 1.0)
-    SetCamCoord(cam, pos.x, pos.y, pos.z + 0.4)
-    PointCamAtCoord(cam, vehpos.x,vehpos.y,vehpos.z + 0.2)
-    
-    if enterVehicle then
-        DoScreenFadeOut(500)
-        Wait(1000)
-        DoScreenFadeIn(500)
-        RenderScriptCams(false, true, 1500,  false,  false)
-    else
-        RenderScriptCams(false, true, 1500,  false,  false)
-    end
-end
-
-function utils.createTargetPed(model, coords, options)
-    local newoptions = {}
-    local qbtd = nil --- qb-target distance options
-    
-    lib.requestModel(model, 1500)
-    local ped = CreatePed(0, model, coords.x, coords.y, coords.z - 1, coords.w, false, false)
-    SetEntityInvincible(ped, true)
-    SetBlockingOfNonTemporaryEvents(ped, true)
-    FreezeEntityPosition(ped, true)
-
-    if type(options) == "table" and #options > 0 then
-        for i=1, #options do
-            local data = options[i]
-            local opt = {
-                name = data.name,
-                label = data.label,
-                icon = data.icon,
-            }
-            if Config.Target == "ox" then
-                opt.groups = data.groups
-                opt.distance = data.distance
-                opt.onSelect = data.action
-            elseif Config.Target == "qb" then
-                opt.job = data.groups
-                opt.gang = data.groups
-                opt.action = data.action
-            end
-            qbtd = data.distance
-            newoptions[#newoptions+1] = opt
-        end
-    end
-
-    if #newoptions > 0 then
-        if Config.Target == "ox" then
-            exports.ox_target:addLocalEntity(ped, newoptions)
-        elseif Config.Target == "qb" then
-            local param = {
-                options = newoptions,
-                distance = qbtd
-            }
-            exports['qb-target']:AddTargetEntity(ped, param)
-        end
-    end
-
-    return ped
-end
-
-function utils.removeTargetPed(entity, label)
-    if DoesEntityExist(entity) then
-        if Config.Target == "ox" then
-            exports.ox_target:removeLocalEntity(entity, label)
-            DeleteEntity(entity)
-        elseif Config.Target == "qb" then
-            exports['qb-target']:RemoveTargetEntity(entity, label)
-            DeleteEntity(entity)
-        end
-    end
-end
-
-function utils.getColorLevel(level)
-    if not level then return end
-    return level < 25 and "red" or level >= 25 and level < 50 and  "#E86405" or level >= 50 and level < 75 and "#E8AC05" or level >= 75 and "green"
-end
-
-function utils.getPlate ( vehicle )
+function utils.vehicle.getPlate( vehicle )
     if not DoesEntityExist(vehicle) then return end
     local vehPlate = GetVehicleNumberPlateText(vehicle)
     return utils.string.trim(vehPlate)
 end
 
-function utils.getCategoryByClass ( vehType )
-    local class = {
-        [8] = "motorcycle",
-        [13] = "cycles",
-        [14] = "boat",
-        [15] = "helicopter",
-        [16] = "planes",
-    }
-    return class[vehType] or "car"
+function utils.vehicle.getVehicleLabel(model)
+    local brand = getmakeNameFromVehicleModel(model)
+    local displayName = getDisplayNameFromVehicleModel(model)
+    return ('%s %s'):format(brand, displayName)
 end
 
-
-function utils.setFuel(vehicle, fuel)
-    Wait(100)
-    if Config.FuelScript == "ox_fuel" then
-        Entity(vehicle).state.fuel = fuel or 100
-    else
-        exports[Config.FuelScript]:SetFuel(vehicle, fuel or 100)
-    end
+function utils.vehicle.setFuel(vehicle, value)
+    SetTimeout(150, function ()
+        if Config.FuelScript == "ox_fuel" then
+            Entity(vehicle).state.fuel = value or 100
+        else
+            exports[Config.FuelScript]:SetFuel(vehicle, value or 100)
+        end
+    end)
 end
 
-function utils.getFuel(vehicle)
+function utils.vehicle.getFuel(vehicle)
     local fuelLevel = 0
     if Config.FuelScript == "ox_fuel" then
         fuelLevel = Entity(vehicle).state?.fuel or 100 
@@ -191,60 +51,34 @@ function utils.getFuel(vehicle)
     return fuelLevel
 end
 
-function utils.createPlyVeh ( model, coords, cb, network )
-    network = network == nil and true or network
-    lib.requestModel(model, 1500)
-    local veh = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, network, false)
-    if network then
-        local id = NetworkGetNetworkIdFromEntity(veh)
-        SetNetworkIdCanMigrate(id, true)
-        SetEntityAsMissionEntity(veh, true, true)
-    end
-    SetVehicleHasBeenOwnedByPlayer(veh, true)
-    SetVehicleNeedsToBeHotwired(veh, false)
-    SetVehRadioStation(veh, 'OFF')
-    SetModelAsNoLongerNeeded(model)
-    if cb then cb(veh) else return veh end
+function utils.context.getVehicleIcon(model)
+    local icon = {
+        [8] = "motorcycle",  --- Icon for motorcycles
+        [13] = "bicycle",    --- Icon for bicycles
+        [14] = "sailboat",   --- Icon for sailboats
+        [15] = "helicopter", --- Icon for helicopters
+        [16] = "plane",      --- Icon for planes
+    }
+    local class = getVehicleClassFromName(model)
+    return icon[class] or 'car'
 end
 
-function utils.garageType ( data )
-    local result = ""
-    for i=1, #data do
-        local class = data[i]
-        result = result .. ("%s%s"):format(class, data[i + 1] and ", " or "")
-    end
-    return result
+function utils.context.openMenu(context)
+    lib.registerContext(context)
+    lib.showContext(context.id)
 end
 
-function utils.GangCheck ( data )
-    local configGang = data.gang
-    local playergang = fw.player.gang
-    local allowed = false
-    if type(configGang) == 'table' then
-        local grade = configGang[playergang.name]
-        allowed = grade and playergang.grade >= grade
-    elseif type(configGang) == 'string' then
-        if playergang.name == configGang then
-            allowed = true
-        end
-    end
-    return allowed
+function utils.context.getColourScheme(val)
+    if not val then return end
+    return val < 25 and "red" or val >= 25 and val < 50 and  "#E86405" or val >= 50 and val < 75 and "#E8AC05" or val >= 75 and "green"
 end
 
-function utils.JobCheck ( data )
-    local configJob = data.job
-    local playerjob = fw.player.job
-    local allowed = false
-
-    if type(configJob) == 'table' then
-        local grade = configJob[playerjob.name]
-        allowed = grade and playerjob.grade >= grade
-    elseif type(configJob) == 'string' then
-        if playerjob.name == configJob then
-            allowed = true
-        end
-    end
-    return allowed
+function utils.notify(msg, type, duration)
+    lib.notify({
+        description = msg,
+        type = type,
+        duration = duration or 5000
+    })
 end
 
 if server then

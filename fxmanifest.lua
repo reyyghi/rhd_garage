@@ -8,16 +8,18 @@ shared_scripts {
     '@ox_lib/init.lua',
     'shared/*.lua',
     'bridge/houses/*.lua',
-    'bridge/framework/*.lua'
 }
 
 client_scripts {
+    'bridge/framework/esx/cl_*.lua',
     'bridge/radialmenu/*.lua',
-    'client/*.lua',
+    'client/garage.lua',
+    'client/main.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    'bridge/framework/esx/sv_*.lua',
     'server/main.lua',
     'server/police_impound.lua',
     'server/storage.lua',
@@ -32,6 +34,9 @@ files {
     'data/peds.json',
     'data/garages.json',
     'data/vehiclesname.json',
+
+    'bridge/framework/esx/storage/main.lua',
+    'modules/garage/*.lua',
 
     'modules/debugzone.lua',
     'modules/zone.lua',

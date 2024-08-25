@@ -489,18 +489,16 @@ local function listGarage ()
 end
 
 CreateThread(function ()
-    while not fw.playerLoaded do
+    while not PLAYER.loaded do
         lib.print.warn("Wait for the garage data to finish loading")
         if Config.InDevelopment then
-            lib.print.info('Use the /loaded and /reloadcache commands to load garage and player data')
+            lib.print.info('Use the /reloadgarage commands to load garage and player data')
         end
         Wait(1000)
     end
     
-    if fw.playerLoaded then
-        gzf.refresh()
-        lib.print.info("Garage data has been successfully loaded")
-    end
+    gzf.refresh()
+    lib.print.info("Garage data has been successfully loaded")
 end)
 
 RegisterNetEvent('rhd_garage:client:syncConfig', function(newconfig)

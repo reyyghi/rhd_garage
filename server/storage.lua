@@ -5,7 +5,7 @@ storage = {}
 function storage.SaveGarage(garageData)
     GarageZone = garageData
     TriggerClientEvent('rhd_garage:client:syncConfig', -1, GarageZone)
-    SaveResourceFile(GetCurrentResourceName(), 'data/garages.json', json.encode(GarageZone), -1)
+    SaveResourceFile(GetCurrentResourceName(), 'data/garages.json', json.encode(GarageZone, {indent = true}), -1)
 end
 
 --- Save custom vehicle name data

@@ -1,70 +1,67 @@
 if not lib.checkDependency('ox_lib', '3.23.1') then error('This resource requires ox_lib version 3.23.1') end
 
---- callback
-lib.callback.register('rhd_garage:cb_server:removeMoney', function(src, type, amount)
-    return fw.rm(src, type, amount)
-end)
+local zones = lib.loadJson('data.garages')
 
-lib.callback.register('rhd_garage:cb_server:getvehowner', function (src, plate, shared, pleaseUpdate)
-    return fw.gvobp(src, plate, {
-        owner = shared
-    }, pleaseUpdate)
-end)
-
-lib.callback.register('rhd_garage:cb_server:getvehiclePropByPlate', function (_, plate)
-    return fw.gpvbp(plate)
-end)
-
-lib.callback.register('rhd_garage:cb_server:getVehicleList', function(src, garage, impound, shared)
-    return fw.gpvbg(src, garage, {
-        impound = impound,
-        shared = shared
-    })
-end)
-
-lib.callback.register("rhd_garage:cb_server:swapGarage", function (source, clientData)
-    return fw.svg(clientData.newgarage, clientData.plate)
-end)
-
-lib.callback.register("rhd_garage:cb_server:transferVehicle", function (src, clientData)
-    if src == clientData.targetSrc then
-        return false, locale("notify.error.cannot_transfer_to_myself")
+lib.callback.register('rhd_garage:server:changeVehicleName', function (src, data)
+    local player = PLAYERs[src]
+    if not player then return end
+    if player.removeMoney('bank', data.price) then
+        local success = vehStorage.updatePlayerVehicles({
+            filter = {
+                identifier = player.identifier,
+                plate = data.plate
+            },
+            update = {
+                vehicle_name = data.name
+            }
+        }, 'update')
+        return success
     end
+    return false
+end)
 
-    local tid = clientData.targetSrc
+lib.callback.register('rhd_garage:server:getVehicles', function(src, data)
+    local player = PLAYERs[src]
+    if not player then return end
 
-    if fw.rm(src, "cash", clientData.price) then
-        return false, locale("notify.error.need_money", lib.math.groupdigits(clientData.price, '.'))
-    end
+    local stored = data.impound and 0 or 1
+    local identifier = not data.shared and player.identifier
+
+    local vehicles = vehStorage.fetchPlayerVehicles({
+        filter = {
+            identifier = identifier,
+            stored = stored,
+            garage = data.garage
+        },
+        ownerData = data.shared
+    }, 'select')
+
+    return vehicles
+end)
+
+lib.callback.register('rhd_garage:server:getVehicleLocationByPlate', function (src, plate)
+    local vehCoords
+    local allvehicles = GetAllVehicles()
     
-    local success = fw.uvo(src, tid, clientData.plate)
-    if success then utils.notify(tid, locale("notify.success.transferveh.target", fw.gn(src), clientData.garage), "success") end
-    return success, locale("notify.success.transferveh.source", fw.gn(tid))
+    lib.array.forEach(allvehicles, function (entity)
+        local entityPlate = utils.vehicle.getPlate(entity)
+        if entityPlate == plate then
+            vehCoords = GetEntityCoords(entity)
+        end
+    end)
+
+    if not vehCoords then
+        local garage = vehStorage.getGarageByPlate(plate)
+        local notifyText = 'Your vehicle is in the ' .. garage
+
+        if garage == 'impounded' then
+            notifyText = 'Your vehicle is at the depot'
+        end
+        
+        utils.notify(src, notifyText)
+        return false
+    end
+
+    return vehCoords
 end)
 
-lib.callback.register('rhd_garage:cb_server:getVehicleInfoByPlate', function (_, plate)
-    return fw.gpvbp(plate)
-end)
-
---- Event
-RegisterNetEvent("rhd_garage:server:updateState", function ( data )
-    if GetInvokingResource() then return end
-    fw.uvs(data.plate, data.state, data.garage)
-end)
-
-RegisterNetEvent("rhd_garage:server:saveGarageZone", function(fileData)
-    if GetInvokingResource() then return end
-    if type(fileData) ~= "table" or type(fileData) == "nil" then return end
-    return storage.SaveGarage(fileData)
-end)
-
-RegisterNetEvent("rhd_garage:server:saveCustomVehicleName", function (fileData)
-    if GetInvokingResource() then return end
-    if type(fileData) ~= "table" or type(fileData) == "nil" then return end
-    return storage.SaveVehicleName(fileData)
-end)
-
---- exports
-exports("Garage", function ()
-    return GarageZone
-end)

@@ -1,21 +1,25 @@
 Config = {}
 
--- Load garage and vehicle data from JSON files
-GarageZone = lib.loadJson('data.garages') ---@type table<string, GarageData>
-CNV = lib.loadJson('data.vehiclesname') ---@type table<string, CustomName>
-
 -- Configuration settings
-Config.Target = 'ox' -- Specifies the targeting system to use: 'ox', 'qb'
-Config.RadialMenu = 'ox' --- Specifies the radial menu system to use: 'ox', 'qb', 'rhd'
 Config.FuelScript = 'rhd_fuel' --- Specifies the fuel script to use: 'rhd_fuel', 'ox_fuel', 'LegacyFuel', 'ps-fuel', 'cdn-fuel'
 Config.changeNamePrice = 15000 --- Price for changing the name of the vehicle in the garage
 Config.SpawnInVehicle = true --- Set to true if the player should immediately enter the vehicle when taken out of the garage
+
+Config.interact = {
+    target = 'interact',--- Specifies the interactions system to use: 'ox', 'qb', 'interact (https://github.com/darktrovx/interact)'
+    radialMenu = 'ox' --- Specifies the radial menu system to use: 'ox', 'qb', 'rhd'
+}
 
 -- Additional settings (Requires ox_target or qb-target resource)
 Config.UseJobVechileShop = true --- Set to false if you do not want to use the work vehicle shop system from rhd
 Config.UsePoliceImpound = true --- Set to false if you do not want to use the police impound system from rhd
 
 Config.InDevelopment = true --- Set to false when you have finished setting up this garage
+
+Config.ChangeVehicleName = {
+    enable = true,
+    price = 10
+}
 
 -- Vehicle transfer settings
 Config.TransferVehicle = {
@@ -28,108 +32,3 @@ Config.SwapGarage = {
     enable = true,  --- Enable or disable garage swapping functionality
     price = 500     --- Price for swapping garages
 }
-
--- Icon animation settings
-Config.IconAnimation = "fade" --- Animation type for icons
-
--- Icons for different vehicle types
-Config.Icons = {
-    [8] = "motorcycle",  --- Icon for motorcycles
-    [13] = "bicycle",    --- Icon for bicycles
-    [14] = "sailboat",   --- Icon for sailboats
-    [15] = "helicopter", --- Icon for helicopters
-    [16] = "plane",      --- Icon for planes
-}
-
--- Prices for impounding different vehicle types
-Config.ImpoundPrice = {
-    [0] = 15000,  --- Price for compact cars
-    [1] = 15000,  --- Price for sedans
-    [2] = 15000,  --- Price for SUVs
-    [3] = 15000,  --- Price for coupes
-    [4] = 15000,  --- Price for muscle cars
-    [5] = 15000,  --- Price for sports classics
-    [6] = 15000,  --- Price for sports cars
-    [7] = 15000,  --- Price for super cars
-    [8] = 15000,  --- Price for motorcycles
-    [9] = 15000,  --- Price for off-road vehicles
-    [10] = 15000, --- Price for industrial vehicles
-    [11] = 15000, --- Price for utility vehicles
-    [12] = 15000, --- Price for vans
-    [13] = 15000, --- Price for cycles
-    [14] = 15000, --- Price for boats
-    [15] = 15000, --- Price for helicopters
-    [16] = 15000, --- Price for planes
-    [17] = 15000, --- Price for service vehicles
-    [18] = 0,     --- Price for emergency vehicles
-    [19] = 15000, --- Price for military vehicles
-    [20] = 15000, --- Price for commercial vehicles
-    [21] = 0      --- Price for trains (not applicable)
-}
-
--- Police impound settings
-Config.PoliceImpound = {
-    Target = {
-        groups = {
-            police = 0  --- Groups allowed to access police impound
-        }
-    },
-    location = {
-        [1] = {
-            blip = {
-                enable = true,       --- Enable or disable the blip on the map
-                sprite = 473,        --- Sprite ID for the blip
-                colour = 40          --- Colour ID for the blip
-            },
-            label = "Police Impound 1",  --- Label for the police impound location
-            zones = {
-                points = {
-                    vec3(824.69000244141, -1334.0200195312, 26.0),  --- Coordinates for the impound zone
-                    vec3(831.70001220703, -1337.2700195312, 26.0),
-                    vec3(831.73999023438, -1354.0300292969, 26.0),
-                    vec3(832.10998535156, -1355.4799804688, 26.0),
-                    vec3(824.72998046875, -1352.0400390625, 26.0),
-                },
-                thickness = 4.0,  --- Thickness of the zone boundaries
-            },
-        }
-    }
-}
-
--- Job vehicle shop settings
-Config.JobVehicleShop = {
-    {
-        job = 'police',  --- Job associated with the vehicle shop
-        label = 'Police Vehicle Shop',  --- Label for the vehicle shop
-        ped = {
-            model = 'csb_trafficwarden',  --- Pedestrian model for the shop
-            coords = vec(457.9160, -1026.4635, 28.4376, 57.2678)  --- Coordinates for the shop
-        },
-        spawn = vec(443.9391, -1021.4270, 28.2857, 92.6928),  --- Coordinates where vehicles spawn
-        vehicle = {
-            police = {
-                price = 500,  --- Price for the police vehicle
-                label = 'Police 1',  --- Label for the vehicle
-                prefixPlate = 'POL',  --- Prefix for the vehicle plate
-                forRank = {
-                    [0] = true,  --- Rank 0 can access this vehicle
-                    [1] = true,  --- Rank 1 can access this vehicle
-                    [2] = true   --- Rank 2 can access this vehicle
-                }
-            },
-            police2 = {
-                price = 500,  --- Price for the second police vehicle
-                label = 'Police 2',  --- Label for the second vehicle
-                prefixPlate = 'POL',  --- Prefix for the vehicle plate
-                forRank = {
-                    [0] = true,  --- Rank 0 can access this vehicle
-                    [1] = true,  --- Rank 1 can access this vehicle
-                    [2] = true   --- Rank 2 can access this vehicle
-                }
-            }
-        },
-    }
-}
-
---- Do not modify this section
-Config.HouseGarages = {}
