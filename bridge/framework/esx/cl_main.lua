@@ -68,10 +68,6 @@ end
 
 PLAYER = {}
 
-RegisterNetEvent("esx:playerLoaded", function(xPlayer)
-    PLAYER = client:new(xPlayer)
-end)
-
 RegisterNetEvent("esx:setAccountMoney")
 AddEventHandler("esx:setAccountMoney", function(account)
     if type(account) ~= "table" then return end

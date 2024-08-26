@@ -65,6 +65,60 @@ lib.callback.register('rhd_garage:server:getVehicleLocationByPlate', function (s
     return vehCoords
 end)
 
+lib.callback.register('rhd_garage:server:SaveVehicle', function(src, saveData)
+    local player = PLAYERs[src]
+    if not player then return end
+
+    local mods = json.encode(saveData.props)
+    local deformation = saveData.deformation and json.encode(saveData.deformation) or {}
+
+    local netId = saveData.netId
+    local garage = saveData.garage
+    local plate = utils.string.trim(mods.plate)
+
+    local sharedGarage = false
+    lib.array.forEach(zones, function (data)
+        if data.name == garage and data.type == 'shared' then
+            sharedGarage = true
+            return
+        end
+    end)
+
+    local identifier = not sharedGarage and player.identifier
+
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+
+    local vehicles = vehStorage.fetchPlayerVehicles({
+        filter = {
+            identifier = identifier,
+            garage = garage,
+            plate = plate --[[@as string]]
+        },
+    }, 'select')
+
+    if vehicles then
+        vehStorage.updatePlayerVehicles({
+            update = {
+                vehicle = mods,
+                stored = 1,
+                garage = garage,
+                fuel = mods.fuelLevel --[[@as number]],
+                engine = mods.engineHealth --[[@as number]],
+                body = mods.bodyHealth --[[@as number]],
+                deformation = deformation
+            },
+            filter = {
+                plate = plate,
+                identifier = identifier,
+            }
+        }, 'update')
+
+        DeleteEntity(vehicle)
+    end
+
+    return vehicles
+end)
+
 lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnData)
     local ped = GetPlayerPed(source)
     local entityOwner = NetworkGetEntityOwner(ped)
@@ -72,6 +126,17 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
     local warp = spawnData.warp
     local model = spawnData.model
     local plate = spawnData.plate
+    local impound = spawnData.impound
+
+    local Player = PLAYERs[source]
+    if not Player then return end
+
+    if impound then
+        if not Framework.removeMoney('bank', impound) then
+            utils.notify('You don\'t have money to pay the depot fee', 'error')
+            return
+        end
+    end
 
     local vehEntity = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, true, false)
 
@@ -118,6 +183,18 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
     if props then
         TriggerClientEvent('ox_lib:setVehicleProperties', entityOwner, netId, props)
     end
+
+   local success = vehStorage.updatePlayerVehicles({
+        filter = {
+            identifier = Player.identifier,
+            plate = utils.string.trim(props.plate)
+        },
+        update = {
+            stored = 0
+        }
+    }, 'update')
+
+    print('update' , success)
 
     return netId, deformation
 end)

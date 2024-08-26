@@ -72,10 +72,11 @@ local function generateQuery(request, queryType)
         for column, value in pairs(request.update) do
             updateClause[clausePos] = ('ov.%s = ?'):format(column)
             placeHolders[placeholderPos] = value
+            clausePos += 1
+            placeholderPos += 1
         end
 
         clausePos = 1
-        placeholderPos += 1
         query = query:format(table.concat(updateClause, ', '), '%s')
     end
 

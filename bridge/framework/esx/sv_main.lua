@@ -56,6 +56,7 @@ AddEventHandler("esx:playerLoaded", function(_, xPlayer)
     if PLAYERs[xPlayer.source] then return end
 
     PLAYERs[xPlayer.source] = server:new(xPlayer)
+    xPlayer.triggerEvent('rhd_garage:reloadgarage', xPlayer)
 end)
 
 AddEventHandler('playerDropped', function (reason)

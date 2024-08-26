@@ -229,6 +229,10 @@ function GARAGE:insideZone()
             if self.groups and not PLAYER:checkGroups(self.groups) then
                 return
             end
+            if cache.vehicle then
+                self:saveVehicle()
+                return
+            end
             self:getVehicles()
         end
     end
@@ -253,7 +257,7 @@ function GARAGE:enterZone()
             distance = 1.5
         })
     elseif self.interaction == 'keypressed' then
-        textUI = 'E - Access ' .. self.label
+        textUI = 'E - Store/Access ' .. self.label
     elseif self.interaction == 'radialmenu' then
         self.interactionData = radialmenu:new({
             {
@@ -292,8 +296,18 @@ function GARAGE:exitZone()
     lib.hideTextUI()
 end
 
+function GARAGE:saveVehicle()
+    local netId = NetworkGetNetworkIdFromEntity(cache.vehicle)
+    local props = lib.getVehicleProperties(cache.vehicle)
+    lib.callback.await('rhd_garage:server:SaveVehicle', false, {
+        garage = self.label,
+        props = props,
+        netId = netId,
+        deformation = {}
+    })
+end
+
 function GARAGE:takeoutVehicle(veh)
-    print(json.encode(self.spawnPoint))
     local spawnLoc = getFreeLocation(self.spawnPoint)
     
     if not spawnLoc then
@@ -306,7 +320,8 @@ function GARAGE:takeoutVehicle(veh)
         model = veh.model,
         warp = Config.SpawnInVehicle,
         coords = spawnLoc,
-        props = veh.mods
+        props = veh.mods,
+        impound = veh.impound
     })
 
     if not netId or netId < 1 then
@@ -314,8 +329,6 @@ function GARAGE:takeoutVehicle(veh)
     end
 
     local vehicle = NetToVeh(netId)
-
-    print(utils.vehicle.getPlate(vehicle))
 end
 
 function GARAGE:createVehicleMenu(veh)
@@ -334,6 +347,7 @@ function GARAGE:createVehicleMenu(veh)
         local class = GetVehicleClassFromName(veh.model)
         desc = ('Fee: $%s   \nPlate: %s | Status: %s'):format(
         lib.math.groupdigits(impoundFee[class]), veh.plate, status)
+        veh.impound = impoundFee[class]
     end
 
     local context = {
@@ -379,6 +393,7 @@ function GARAGE:createVehicleMenu(veh)
 end
 
 function GARAGE:getVehicles()
+    if cache.vehicle then return end
     local vehicles = lib.callback.await('rhd_garage:server:getVehicles', false, {
         garage = self.label,
         impound = self.type == 'impound',
