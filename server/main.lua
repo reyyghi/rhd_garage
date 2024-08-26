@@ -65,3 +65,59 @@ lib.callback.register('rhd_garage:server:getVehicleLocationByPlate', function (s
     return vehCoords
 end)
 
+lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnData)
+    local ped = GetPlayerPed(source)
+    local entityOwner = NetworkGetEntityOwner(ped)
+    local coords = spawnData.coords
+    local warp = spawnData.warp
+    local model = spawnData.model
+    local plate = spawnData.plate
+
+    local vehEntity = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, true, false)
+
+    Wait(100)
+    while GetVehicleNumberPlateText(vehEntity) == '' do
+        Wait(0)
+    end
+
+    while not DoesEntityExist(vehEntity) do
+        Wait(50)
+    end
+
+    if warp then
+        SetPedIntoVehicle(ped, vehEntity, -1)
+    end
+
+    ---@source https://github.com/Qbox-project/qbx_core/blob/19c4ce3054811110cf1c4670fb1263cdf8f5841a/modules/lib.lua#L270
+    local owner = pcall(function()
+        lib.waitFor(function()
+            local owner = NetworkGetEntityOwner(vehEntity)
+            if owner == entityOwner then
+                return true
+            end
+        end, 'client never set as owner', 5000)
+    end)
+
+    if not owner then
+        DeleteEntity(vehEntity)
+        error('Deleting vehicle which timed out finding an owner')
+    end
+
+    for i = -1, 0 do
+        local pedInVehicle = GetPedInVehicleSeat(vehEntity, i)
+        if pedInVehicle ~= ped then
+            DeleteEntity(pedInVehicle)
+        end
+    end
+
+    local props, deformation = vehStorage.getProperties(plate)
+    local netId = NetworkGetNetworkIdFromEntity(vehEntity)
+
+    TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
+    
+    if props then
+        TriggerClientEvent('ox_lib:setVehicleProperties', entityOwner, netId, props)
+    end
+
+    return netId, deformation
+end)

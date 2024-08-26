@@ -52,7 +52,7 @@
             "thickness": 4.0
         },
         "spawnPointVehicle": [
-            "kuruma",
+            "kuruma"
         ],
         "type": "default",
         "class": [1, 2, 3, 4]

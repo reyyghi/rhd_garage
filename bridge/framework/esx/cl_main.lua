@@ -30,14 +30,24 @@ function client:getMoney(type)
     return self.money[type]
 end
 
-function client:checkJob(name, grade)
-    if self.groups[name] then
-        if grade then
-            return self.groups[name].rank >= grade
+function client:checkGroups(groups)
+    local isTable = lib.array.isArray(groups)
+    
+    if isTable then
+        lib.array.forEach(groups, function (name)
+            if self.groups[name] then
+                return true
+            end
+        end)
+        for name, grade in pairs(groups) do
+            if self.groups[name] then
+                return self.groups[name].rank >= grade
+            end
         end
-        return true
+        return false
     end
-    return false
+
+    return self.groups[groups]
 end
 
 function client:updateMoney(account)

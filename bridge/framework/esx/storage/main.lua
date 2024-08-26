@@ -44,10 +44,10 @@ local function generateQuery(request, queryType)
     end
 
     local query = ''
-    local stringPos = 1
     local filter = request.filter
     local whereClause = {} local updateClause = {} local placeHolders = {}
 
+    local clausePos, placeholderPos = 1, 1
 
     if queryType == 'select' then
         query = [[
@@ -70,36 +70,36 @@ local function generateQuery(request, queryType)
         ]]
 
         for column, value in pairs(request.update) do
-            updateClause[stringPos] = ('ov.%s = ?'):format(column)
-            placeHolders[stringPos] = value
-            stringPos += 1
+            updateClause[clausePos] = ('ov.%s = ?'):format(column)
+            placeHolders[placeholderPos] = value
         end
 
-        stringPos = 1
+        clausePos = 1
+        placeholderPos += 1
         query = query:format(table.concat(updateClause, ', '), '%s')
     end
 
     if filter.identifier then
-        whereClause[stringPos] = 'ov.owner = ?'
-        placeHolders[stringPos] = filter.identifier
-        stringPos += 1
+        whereClause[clausePos] = 'ov.owner = ?'
+        placeHolders[placeholderPos] = filter.identifier
+        clausePos += 1 placeholderPos += 1
     end
 
     if filter.plate then
-        whereClause[stringPos] = 'ov.plate = ?'
-        placeHolders[stringPos] = filter.plate
-        stringPos += 1
+        whereClause[clausePos] = 'ov.plate = ?'
+        placeHolders[placeholderPos] = filter.plate
+        clausePos += 1 placeholderPos += 1
     end
 
     if filter.garage then
-        whereClause[stringPos] = 'ov.garage = ?'
-        placeHolders[stringPos] = filter.garage
-        stringPos += 1
+        whereClause[clausePos] = 'ov.garage = ?'
+        placeHolders[placeholderPos] = filter.garage
+        clausePos += 1 placeholderPos += 1
     end
     
     if filter.stored then
-        whereClause[stringPos] = 'ov.stored = ?'
-        placeHolders[stringPos] = filter.stored
+        whereClause[clausePos] = 'ov.stored = ?'
+        placeHolders[placeholderPos] = filter.stored
     end
 
     return {
@@ -126,7 +126,6 @@ function vehStorage.updatePlayerVehicles(request, queryType)
         return
     end
 
-    print(results.query, json.encode(results.placeholder, {indent = true}))
     local success = MySQL.update.await(results.query, results.placeholder)
     return success > 0
 end
@@ -134,6 +133,11 @@ end
 function vehStorage.getGarageByPlate(plate)
     local results = MySQL.single.await('SELECT stored, garage FROM owned_vehicles WHERE plate = ?', {plate})
     return results and results.stored > 0 and results.garage or 'impounded'
+end
+
+function vehStorage.getProperties(plate)
+    local results = MySQL.single.await('SELECT vehicle, deformation FROM owned_vehicles WHERE plate = ?', {plate})
+    return results and json.decode(results.vehicle), json.decode(results.deformation)
 end
 
 _ENV.vehStorage = vehStorage

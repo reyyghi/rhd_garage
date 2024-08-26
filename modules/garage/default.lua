@@ -20,10 +20,48 @@ local GARAGE = lib.class('GARAGE')
 ---@field label string
 ---@field zones garageZonePoints
 ---@field interaction string|garageTargetPed
+---@field spawnpoint vector4[]
 ---@field blip? garageZoneBlip
 ---@field groups? string|string[]|table<string, number>
 
+--- @class InputData
+--- @field engine number
+--- @field body number
+--- @field fuel number
+
+--- @class MetadataEntry
+--- @field label string
+--- @field value number
+--- @field progress number
+--- @field colorScheme string
+
+local impoundFee = {
+    [0] = 15000,  --- Price for compact cars
+    [1] = 15000,  --- Price for sedans
+    [2] = 15000,  --- Price for SUVs
+    [3] = 15000,  --- Price for coupes
+    [4] = 15000,  --- Price for muscle cars
+    [5] = 15000,  --- Price for sports classics
+    [6] = 15000,  --- Price for sports cars
+    [7] = 15000,  --- Price for super cars
+    [8] = 15000,  --- Price for motorcycles
+    [9] = 15000,  --- Price for off-road vehicles
+    [10] = 15000, --- Price for industrial vehicles
+    [11] = 15000, --- Price for utility vehicles
+    [12] = 15000, --- Price for vans
+    [13] = 15000, --- Price for cycles
+    [14] = 15000, --- Price for boats
+    [15] = 15000, --- Price for helicopters
+    [16] = 15000, --- Price for planes
+    [17] = 15000, --- Price for service vehicles
+    [18] = 0,     --- Price for emergency vehicles
+    [19] = 15000, --- Price for military vehicles
+    [20] = 15000, --- Price for commercial vehicles
+    [21] = 0      --- Price for trains (not applicable)
+}
+
 local interact = require 'modules.garage.interact'
+local radialmenu = require 'modules.garage.radialmenu'
 
 ---@param blip garageZoneBlip
 local function createBlip(blip)
@@ -39,6 +77,16 @@ local function createBlip(blip)
     return entity
 end
 
+local function getFreeLocation(spawnpoint)
+    local result
+    lib.array.forEach(spawnpoint, function (c)
+        local sp = vec(c.x, c.y, c.z, c.w)
+        local vehEntity = lib.getClosestVehicle(sp.xyz, 3.0, true)
+        if not vehEntity then result = sp return end
+    end)
+    return result
+end
+
 local function searchVehicleMenu()
 
     local input = lib.inputDialog(('%s\'s Vehicles'):format(PLAYER.name), {
@@ -46,10 +94,7 @@ local function searchVehicleMenu()
     })
 
     local plate = input and input[1]
-
-    if not plate then
-        return
-    end
+    if not plate then return end
 
     if utils.string.isEmpty(plate) then
         return
@@ -68,10 +113,7 @@ local function changeVehicleName(plate)
     })
 
     local vehicleName = input and input[1]
-
-    if not vehicleName then
-        return
-    end
+    if not vehicleName then return end
 
     local question = 'Are you sure you want to change the vehicle name to "%s"? If confirmed, you will be charged $%s.'
 
@@ -88,9 +130,15 @@ local function changeVehicleName(plate)
             plate = plate,
             price = Config.ChangeVehicleName.price
         })
+        
+        if success then
+            utils.notify(('Vehicle name successfully changed to %s'):format(vehicleName), 'success')
+        end
     end
 end
 
+--- @param data InputData
+--- @return MetadataEntry[]
 local function generateMetadata(data)
     local results = {}
 
@@ -138,6 +186,7 @@ function GARAGE:constructor(zoneData)
 
     self.type = zoneData.type
     self.groups = zoneData.groups
+    self.spawnPoint = zoneData.spawnPoint
 
     self.zones = lib.zones.poly({
         points = zoneData.zones.points,
@@ -175,19 +224,62 @@ function GARAGE:removeBlip()
 end
 
 function GARAGE:insideZone()
-    -- print('masuk zona')
+    if self.interaction == 'keypressed' then
+        if IsControlJustPressed(0, 38) then
+            if self.groups and not PLAYER:checkGroups(self.groups) then
+                return
+            end
+            self:getVehicles()
+        end
+    end
 end
 
 function GARAGE:enterZone()
-    self.interactionData = interact:new('targetped', {
-        model = 'mp_m_freemode_01',
-        coords = vec(279.3975, -342.1094, 44.9199, 44.8222),
+    local textUI = self.label
+
+    if self.groups and not PLAYER:checkGroups(self.groups) then
+        return
+    end
+
+    if type(self.interaction) == 'table' then
+        self.interactionData = interact:new('targetped', {
+            model = 'mp_m_freemode_01',
+            coords = vec(279.3975, -342.1094, 44.9199, 44.8222),
+            icon = 'warehouse',
+            label = 'Access ' .. self.label,
+            onSelect = function ()
+                self:getVehicles()
+            end,
+            distance = 1.5
+        })
+    elseif self.interaction == 'keypressed' then
+        textUI = 'E - Access ' .. self.label
+    elseif self.interaction == 'radialmenu' then
+        self.interactionData = radialmenu:new({
+            {
+                id = ('access_%s'):format(self.label:gsub("%s+", "")),
+                label = ('Access %s'):format(self.label),
+                icon = 'warehouse',
+                onSelect = function ()
+                    self:getVehicles()
+                end
+            },
+            {
+                id = ('store_%s'):format(self.label:gsub("%s+", "")),
+                label = 'Save Vehicle',
+                icon = 'parking',
+                onSelect = function ()
+                    print('storred')
+                end
+            }
+        })
+    end
+
+    lib.showTextUI(textUI, {
         icon = 'warehouse',
-        label = 'Access ' .. self.label,
-        onSelect = function ()
-            self:getVehicles()
-        end,
-        distance = 1.5
+        style = {
+            borderRadius = 2,
+        }
     })
 end
 
@@ -196,6 +288,34 @@ function GARAGE:exitZone()
         self.interactionData:remove()
         self.interactionData = nil
     end
+
+    lib.hideTextUI()
+end
+
+function GARAGE:takeoutVehicle(veh)
+    print(json.encode(self.spawnPoint))
+    local spawnLoc = getFreeLocation(self.spawnPoint)
+    
+    if not spawnLoc then
+        return utils.notify('There is no available space to retrieve the vehicle from the garage.', 'error')
+    end
+
+    lib.requestModel(veh.model, 1500)
+    local netId = lib.callback.await('rhd_garage:server:SpawnVehicle', false, {
+        plate = veh.plate,
+        model = veh.model,
+        warp = Config.SpawnInVehicle,
+        coords = spawnLoc,
+        props = veh.mods
+    })
+
+    if not netId or netId < 1 then
+        return
+    end
+
+    local vehicle = NetToVeh(netId)
+
+    print(utils.vehicle.getPlate(vehicle))
 end
 
 function GARAGE:createVehicleMenu(veh)
@@ -204,6 +324,17 @@ function GARAGE:createVehicleMenu(veh)
     local label = veh.label or originalName
     local status = veh.engine < 80 and 'Need repair' or 'Good'
     local desc = ('Plate: %s | Status: %s'):format(veh.plate, status)
+
+    local shared = self.type == 'shared'
+    local impound = self.type == 'impound'
+    
+    if shared then
+        desc = ('Owner: %s  \nPlate: %s | Status: %s'):format(veh.owner.name, veh.plate, status)
+    elseif impound then
+        local class = GetVehicleClassFromName(veh.model)
+        desc = ('Fee: $%s   \nPlate: %s | Status: %s'):format(
+        lib.math.groupdigits(impoundFee[class]), veh.plate, status)
+    end
 
     local context = {
         id = self.label .. 2,
@@ -221,7 +352,7 @@ function GARAGE:createVehicleMenu(veh)
         }
     }
 
-    if Config.ChangeVehicleName.enable then
+    if not shared and not impound then
         context.options[#context.options+1] = {
             title = 'Change Vehicle Name',
             icon = 'pen-to-square',
@@ -234,6 +365,15 @@ function GARAGE:createVehicleMenu(veh)
             end
         }
     end
+
+    context.options[#context.options+1] = {
+        title = 'Take Out Vehicle',
+        icon = 'car-rear',
+        description = 'Retrieve a vehicle from the garage.',
+        onSelect = function ()
+            self:takeoutVehicle(veh)
+        end
+    }
 
     utils.context.openMenu(context)
 end
@@ -258,32 +398,34 @@ function GARAGE:getVehicles()
         }
     }
 
-    if vehicles then
-        lib.array.forEach(vehicles, function (veh)
-            local icon = utils.context.getVehicleIcon(veh.model)
-            local originalName = utils.vehicle.getVehicleLabel(veh.model)
-            local label = veh.label or originalName
-            local status = veh.engine < 80 and 'Need repair' or 'Good'
-            local desc = ('Plate: %s | Status: %s'):format(veh.plate, status)
-
-            context.options[#context.options+1] = {
-                title = label,
-                icon = icon,
-                description = desc,
-                metadata = generateMetadata(veh),
-                onSelect = function ()
-                    self:createVehicleMenu(veh)
-                end
-            }
-        end)
-    end
-
-    if #context.options < 1 then
+    if not vehicles then
         context.options[#context.options+1] = {
             title = 'No Vehicles',
             disabled = true
         }
+        return utils.context.openMenu(context)
     end
+
+    lib.array.forEach(vehicles, function (veh)
+        local icon = utils.context.getVehicleIcon(veh.model)
+        local originalName = utils.vehicle.getVehicleLabel(veh.model)
+        local label = veh.label or originalName
+        local status = veh.engine < 80 and 'Need repair' or 'Good'
+        
+        local desc = ('Plate: %s | Status: %s'):format(
+            veh.plate, status
+        )
+
+        context.options[#context.options+1] = {
+            title = label,
+            icon = icon,
+            description = desc,
+            metadata = generateMetadata(veh),
+            onSelect = function ()
+                self:createVehicleMenu(veh)
+            end
+        }
+    end)
 
     utils.context.openMenu(context)
 end

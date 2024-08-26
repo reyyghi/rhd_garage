@@ -16,7 +16,7 @@ local interact = lib.class('interact')
 ---@field distance number
 ---@field onSelect fun()
 
-local interactUsed = Config.interact.target
+local interactUsed = Config.interact
 
 ---@param targetData targetData
 local function createTargetPed(targetData)

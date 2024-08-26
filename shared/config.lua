@@ -5,10 +5,8 @@ Config.FuelScript = 'rhd_fuel' --- Specifies the fuel script to use: 'rhd_fuel',
 Config.changeNamePrice = 15000 --- Price for changing the name of the vehicle in the garage
 Config.SpawnInVehicle = true --- Set to true if the player should immediately enter the vehicle when taken out of the garage
 
-Config.interact = {
-    target = 'interact',--- Specifies the interactions system to use: 'ox', 'qb', 'interact (https://github.com/darktrovx/interact)'
-    radialMenu = 'ox' --- Specifies the radial menu system to use: 'ox', 'qb', 'rhd'
-}
+Config.interact = 'interact' --- Specifies the interactions system to use: 'ox', 'qb', 'interact (https://github.com/darktrovx/interact)'
+Config.radialMenu = 'ox' --- Specifies the radial menu system to use: 'ox', 'qb', 'rhd'
 
 -- Additional settings (Requires ox_target or qb-target resource)
 Config.UseJobVechileShop = true --- Set to false if you do not want to use the work vehicle shop system from rhd
