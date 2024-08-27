@@ -1,5 +1,4 @@
 [
-    
     {
         "label": "Motel Parking",
         "blip": {
@@ -14,6 +13,12 @@
                 "x": 277.72705078125,
                 "w": 70.0,
                 "z": 44.64749526977539
+            },
+            {
+                "x": 278.4923,
+                "y":  -336.6564,
+                "z":  44.9199,
+                "w":  72.8365
             }
         ],
         "zones": {
@@ -54,7 +59,7 @@
         "spawnPointVehicle": [
             "kuruma"
         ],
-        "type": "default",
-        "class": [1, 2, 3, 4]
+        "type": "shared",
+        "class": ["car", "truck", "motorcycle", "bicycle"]
     }
 ]

@@ -10,10 +10,13 @@ function client:constructor(xPlayer)
     self.money = {}
     self.loaded = true
 
-    self.groups[playerJob.name] = {
-        label = playerJob.label,
-        rank = playerJob.grade,
-        rankLabel = playerJob.grade_label
+    self.groups = {
+        job = {
+            name = playerJob.name,
+            label = playerJob.label,
+            rank = playerJob.grade,
+            rankLabel = playerJob.grade_label
+        }
     }
     
     self.name = xPlayer.name
@@ -31,23 +34,29 @@ function client:getMoney(type)
 end
 
 function client:checkGroups(groups)
-    local isTable = lib.array.isArray(groups)
-    
-    if isTable then
-        lib.array.forEach(groups, function (name)
-            if self.groups[name] then
-                return true
-            end
-        end)
-        for name, grade in pairs(groups) do
-            if self.groups[name] then
-                return self.groups[name].rank >= grade
+    local _type = type(groups)
+
+    for _, data in pairs(self.groups) do
+        if _type == "string" then
+            return data.name == groups
+        elseif _type == "table" then
+            local _tabletype = table.type(groups)
+
+            if _tabletype == 'hash' then
+                return groups[data.name] and data.rank >= groups[data.name]
+            elseif _tabletype == 'array' then
+                local match = false
+                lib.array.forEach(groups, function (name)
+                    if data.name == name then
+                        match = true
+                        return
+                    end
+                end)
+                return match
             end
         end
-        return false
     end
 
-    return self.groups[groups]
 end
 
 function client:updateMoney(account)
@@ -55,7 +64,8 @@ function client:updateMoney(account)
 end
 
 function client:updateJob(newjob)
-    self.groups[newjob.name] = {
+    self.groups.job = {
+        name = newjob.name,
         label = newjob.label,
         rank = newjob.grade,
         rankLabel = newjob.grade_label

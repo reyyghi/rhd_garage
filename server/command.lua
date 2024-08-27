@@ -1,6 +1,13 @@
-lib.addCommand(locale("command.admin.garagelist"), {
-    help = locale("command.admin.garagelistHelp"),
-    restricted = 'group.admin'
-}, function(source, args, raw)
-    TriggerClientEvent("rhd_garage:client:garagelist", source)
-end)
+-- lib.addCommand('garagesetting', {
+--     help = 'Use this to set up a garage/job vehicle shop/police impound',
+--     params = {
+--         {
+--             name = 'type',
+--             type = 'string',
+--             help = 'available types (garage/jobvehshop/policeimpound)',
+--         },
+--     },
+--     restricted = 'group.admin'
+-- }, function(source, args, raw)
+    
+-- end)

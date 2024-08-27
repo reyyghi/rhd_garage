@@ -12,7 +12,7 @@ function server:constructor(xPlayer)
     
     self.source = xPlayer.source
     self.identifier = xPlayer.identifier
-    self.getName = xPlayer.getName
+    self.name = xPlayer.name
     self.removeMoney = xPlayer.removeAccountMoney
 
     self.getMoney = function (type)
@@ -77,20 +77,3 @@ if Config.InDevelopment then
         xPlayer.triggerEvent('rhd_garage:reloadgarage', xPlayer)
     end)
 end
-
--- RegisterCommand('testaja', function (src)
---     local player = PLAYERs[src]
---     local okontol = player.identifier
-    
---     local vehicles = player.getVehicles({
---         identifier = okontol,
---         stored = 1,
---         garage = 'Motel Parking',
---     })
-
---     if lib.array.isArray(vehicles) then
---         lib.array.forEach(vehicles, function (veh)
---             print(json.encode(veh, {indent = true}))
---         end)
---     end
--- end, false)

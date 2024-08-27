@@ -51,6 +51,16 @@ function utils.vehicle.getFuel(vehicle)
     return fuelLevel
 end
 
+function utils.vehicle.getType(model)
+    lib.requestModel(model, 1500)
+    local vehicle = CreateVehicle(model, -5013.0049, -4318.3643, 510.5311, 308.5861, false, false)
+    FreezeEntityPosition(vehicle, true)
+    SetEntityCollision(vehicle, false, false)
+    SetEntityAlpha(vehicle, 0, false)
+    local vehicleType = GetVehicleType(vehicle)
+    return vehicleType
+end
+
 function utils.context.getVehicleIcon(model)
     local icon = {
         [8] = "motorcycle",  --- Icon for motorcycles

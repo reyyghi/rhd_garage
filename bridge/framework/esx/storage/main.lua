@@ -31,14 +31,41 @@ local function generateVehicleData(t)
                 identifier = veh.identifier,
             }
         end
+        pos += 1
     end)
     
     return results
 end
 
+---@class updateRequest
+---@field owner? string
+---@field plate? string
+---@field vehicle? table[]
+---@field vehicle_name? string
+---@field type? string
+---@field job? string
+---@field stored? number
+---@field garage? string
+---@field fuel? number
+---@field engine? number
+---@field body? number
+
+---@class filterRequest
+---@field identifier string|boolean
+---@field plate string
+---@field garage string
+---@field stored number
+
+---@class requestData
+---@field update updateRequest
+---@field filter filterRequest
+---@field ownerData boolean
+
 ---@param request requestData
+---@param queryType string ``select`` | ``update``
 ---@return table?
 local function generateQuery(request, queryType)
+    
     if not request then
         return
     end

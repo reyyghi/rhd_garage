@@ -2,6 +2,45 @@ if not lib.checkDependency('ox_lib', '3.23.1') then error('This resource require
 
 local zones = lib.loadJson('data.garages')
 
+local addonGarage = {}
+
+---@param garageData garageZone
+local function registerGarage(garageData)
+    assert(not addonGarage[garageData.label], 'A garage with this label '..garageData.label..' already exists.')
+    addonGarage[garageData.label] = garageData
+    TriggerClientEvent('rhd_garage:client:registerGarage', -1, garageData)
+end
+
+exports('AddGarage', registerGarage)
+
+---@param label string
+local function removeGarage(label)
+    if not addonGarage[label] then
+        return
+    end
+    addonGarage[label] = nil
+    TriggerClientEvent('rhd_garage:client:removeGarage', -1, label)
+end
+
+exports('RemoveGarage', removeGarage)
+
+lib.callback.register('rhd_garage:server:checkAccess', function (src, garage)
+    local player = PLAYERs[src]
+    if not player then return end
+
+    local data = addonGarage[garage]
+
+    if not data then
+        return 'gak ada'
+    end
+
+    return data.canAccess({
+        playerId = src,
+        name = player.name,
+        identifier = player.identifier
+    })
+end)
+
 lib.callback.register('rhd_garage:server:changeVehicleName', function (src, data)
     local player = PLAYERs[src]
     if not player then return end
@@ -69,16 +108,17 @@ lib.callback.register('rhd_garage:server:SaveVehicle', function(src, saveData)
     local player = PLAYERs[src]
     if not player then return end
 
-    local mods = json.encode(saveData.props)
-    local deformation = saveData.deformation and json.encode(saveData.deformation) or {}
+
+    local mods = saveData.props
+    local deformation = saveData.deformation or {}
 
     local netId = saveData.netId
     local garage = saveData.garage
-    local plate = utils.string.trim(mods.plate)
+    local plate = utils.string.trim(mods.plate --[[@as string]])
 
     local sharedGarage = false
     lib.array.forEach(zones, function (data)
-        if data.name == garage and data.type == 'shared' then
+        if data.label == garage and data.type == 'shared' then
             sharedGarage = true
             return
         end
@@ -91,32 +131,36 @@ lib.callback.register('rhd_garage:server:SaveVehicle', function(src, saveData)
     local vehicles = vehStorage.fetchPlayerVehicles({
         filter = {
             identifier = identifier,
-            garage = garage,
             plate = plate --[[@as string]]
         },
     }, 'select')
 
     if vehicles then
-        vehStorage.updatePlayerVehicles({
+        local success = vehStorage.updatePlayerVehicles({
             update = {
-                vehicle = mods,
+                vehicle = json.encode(mods),
                 stored = 1,
                 garage = garage,
                 fuel = mods.fuelLevel --[[@as number]],
                 engine = mods.engineHealth --[[@as number]],
                 body = mods.bodyHealth --[[@as number]],
-                deformation = deformation
+                deformation = json.encode(deformation)
             },
             filter = {
-                plate = plate,
                 identifier = identifier,
+                plate = plate,
             }
         }, 'update')
 
+        if not success then
+            return
+        end
+
         DeleteEntity(vehicle)
+        return true
     end
 
-    return vehicles
+    return false
 end)
 
 lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnData)
@@ -127,20 +171,21 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
     local model = spawnData.model
     local plate = spawnData.plate
     local impound = spawnData.impound
+    local vehicleType = spawnData.class
 
     local Player = PLAYERs[source]
     if not Player then return end
 
     if impound then
-        if not Framework.removeMoney('bank', impound) then
-            utils.notify('You don\'t have money to pay the depot fee', 'error')
+        if not Player.removeMoney('bank', impound) then
+            utils.notify(source, 'You don\'t have money to pay the depot fee', 'error')
             return
         end
     end
 
-    local vehEntity = CreateVehicle(model, coords.x, coords.y, coords.z, coords.w, true, false)
+    local vehEntity = CreateVehicleServerSetter(model, vehicleType, coords.x, coords.y, coords.z, coords.w)
 
-    Wait(100)
+    Wait(500)
     while GetVehicleNumberPlateText(vehEntity) == '' do
         Wait(0)
     end
@@ -181,12 +226,11 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
     TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
     
     if props then
-        TriggerClientEvent('ox_lib:setVehicleProperties', entityOwner, netId, props)
+        Entity(vehEntity).state:set('ox_lib:setVehicleProperties', props, true)
     end
 
    local success = vehStorage.updatePlayerVehicles({
         filter = {
-            identifier = Player.identifier,
             plate = utils.string.trim(props.plate)
         },
         update = {
@@ -194,7 +238,36 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
         }
     }, 'update')
 
-    print('update' , success)
+    if not success then
+        DeleteEntity(vehEntity)
+        error('Failed to update database')
+    end
 
-    return netId, deformation
+    return netId, props.fuelLevel, deformation
 end)
+
+-- RegisterCommand('addgarage', function (source)
+--     registerGarage({
+--         label = 'Test Aja',
+--         type = 'default',
+--         class = {'car', 'motorcycle'},
+--         canAccess = function (data)
+--             return true
+--         end,
+--         blip = {
+--             label = "Parkiran Hafizh",
+--             sprite = 357,
+--             colour = 7
+--         },
+--         points = {
+--             take = vec(294.3668, -346.2071, 44.9199, 72.5447),
+--             save  = vec(296.0357, -343.1743, 44.9199, 79.6206),
+--             useMarker = true
+--         }
+
+--     })
+-- end, false)
+
+-- RegisterCommand('removeGarage', function ()
+--     removeGarage('Test Aja')
+-- end, false)
