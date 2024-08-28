@@ -7,6 +7,7 @@ local getmakeNameFromVehicleModel = GetMakeNameFromVehicleModel
 local getDisplayNameFromVehicleModel = GetDisplayNameFromVehicleModel
 local getVehicleClassFromName = GetVehicleClassFromName
 
+local config = require 'config.client'
 local server = IsDuplicityVersion()
 
 function utils.string.trim(s)
@@ -33,20 +34,21 @@ end
 
 function utils.vehicle.setFuel(vehicle, value)
     SetTimeout(150, function ()
-        if Config.FuelScript == "ox_fuel" then
+        if config.fuelScript == "ox_fuel" then
             Entity(vehicle).state.fuel = value or 100
         else
-            exports[Config.FuelScript]:SetFuel(vehicle, value or 100)
+            print(vehicle, value)
+            exports[config.fuelScript]:SetFuel(vehicle, value or 100)
         end
     end)
 end
 
 function utils.vehicle.getFuel(vehicle)
     local fuelLevel = 0
-    if Config.FuelScript == "ox_fuel" then
+    if config.fuelScript == "ox_fuel" then
         fuelLevel = Entity(vehicle).state?.fuel or 100 
     else
-        fuelLevel = exports[Config.FuelScript]:GetFuel(vehicle)
+        fuelLevel = exports[config.fuelScript]:GetFuel(vehicle)
     end
     return fuelLevel
 end

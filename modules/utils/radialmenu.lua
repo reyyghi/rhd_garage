@@ -1,7 +1,8 @@
 ---@class RadialMenu: OxClass
 local RadialMenu = lib.class('RadialMenu')
 
-local radialUsed = Config.radialMenu
+local config = require 'config.client'
+local radialUsed = config.radialMenu
 
 function RadialMenu:constructor(radialData)
     local context1 = radialData[1]

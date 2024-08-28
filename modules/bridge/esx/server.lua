@@ -5,6 +5,8 @@ local ESX = exports["es_extended"]:getSharedObject()
 PLAYERs = {}
 Framework = {}
 
+local config = require 'config.client'
+
 ---@class server : OxClass
 local server = lib.class('server')
 
@@ -33,8 +35,6 @@ function server:constructor(xPlayer)
     return self
 end
 
-lib.load('bridge.framework.esx.storage.main')
-
 function Framework.getPlayerByIdentifier(identifier)
     for _, xPlayer in pairs(PLAYERs) do
         if xPlayer.identifier == identifier then
@@ -42,14 +42,6 @@ function Framework.getPlayerByIdentifier(identifier)
         end
     end
     return false
-end
-
-function Framework.getVehicles(filter, ownerData)
-    local vehicles = vehStorage.fetchPlayerVehicles({
-        filter = filter,
-        ownerData = ownerData
-    })
-    return vehicles
 end
 
 AddEventHandler("esx:playerLoaded", function(_, xPlayer)
@@ -66,7 +58,7 @@ AddEventHandler('playerDropped', function (reason)
     end
 end)
 
-if Config.InDevelopment then
+if config.InDevelopment then
     lib.addCommand('reloadgarage', {
         help = 'Use this command if you have finished restarting this resource.',
         restricted = 'group.admin'

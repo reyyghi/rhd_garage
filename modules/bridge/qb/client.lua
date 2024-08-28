@@ -1,29 +1,33 @@
-if GetResourceState('es_extended') == "missing" then return end
+if GetResourceState('qbx_core') == "missing" then return end
 
 ---@class client : OxClass
 local client = lib.class('client')
 
 function client:constructor(xPlayer)
-    local playerJob = xPlayer.job
+    local playerData = xPlayer.PlayerData
+    local playerJob = playerData.job
+    local playerGang = playerData.gang
 
     self.groups = {}
-    self.money = {}
+    self.money = playerData.money
     self.loaded = true
 
     self.groups = {
         job = {
             name = playerJob.name,
             label = playerJob.label,
-            rank = playerJob.grade,
-            rankLabel = playerJob.grade_label
+            rank = playerJob.grade.level,
+            rankLabel = playerJob.grade.name
+        },
+        gang = {
+            name = playerGang.name,
+            label = playerGang.label,
+            rank = playerGang.grade.level,
+            rankLabel = playerGang.grade.name
         }
     }
-    
-    self.name = xPlayer.name
 
-    lib.array.forEach(xPlayer.accounts, function (account)
-        self.money[account.name == 'money' and 'cash' or account.name] = account.money
-    end)
+    self.name = ('%s %s'):format(playerData.charinfo.firstname, playerData.charinfo.lastname)
 
     return self
 end
@@ -45,18 +49,14 @@ function client:checkGroups(groups)
             if _tabletype == 'hash' then
                 return groups[data.name] and data.rank >= groups[data.name]
             elseif _tabletype == 'array' then
-                local match = false
-                lib.array.forEach(groups, function (name)
+                return lib.array.find(groups, function (name)
                     if data.name == name then
-                        match = true
-                        return
+                        return true
                     end
                 end)
-                return match
             end
         end
     end
-
 end
 
 function client:updateMoney(account)
@@ -67,8 +67,17 @@ function client:updateJob(newjob)
     self.groups.job = {
         name = newjob.name,
         label = newjob.label,
-        rank = newjob.grade,
-        rankLabel = newjob.grade_label
+        rank = newjob.grade.level,
+        rankLabel = newjob.grade.name
+    }
+end
+
+function client:updateGang(newgang)
+    self.groups.gang = {
+        name = newgang.name,
+        label = newgang.label,
+        rank = newgang.grade.level,
+        rankLabel = newgang.grade.name
     }
 end
 
@@ -78,18 +87,18 @@ end
 
 PLAYER = {}
 
-RegisterNetEvent("esx:setAccountMoney")
-AddEventHandler("esx:setAccountMoney", function(account)
-    if type(account) ~= "table" then return end
-    
-    PLAYER:updateMoney(account)
+RegisterNetEvent('QBCore:Client:OnMoneyChange', function(moneytype, amount)
+    PLAYER:updateMoney({name = moneytype, money = amount})
 end)
 
-RegisterNetEvent("esx:setJob", function(newJob)
-    if type(newJob) ~= "table" then return end
-
-    PLAYER:updateJob(newJob)
+RegisterNetEvent('QBCore:Client:OnJobUpdate', function(job)
+    PLAYER:updateJob(job)
 end)
+
+RegisterNetEvent('QBCore:Client:OnGangUpdate', function(gang)
+    PLAYER:updateGang(gang)
+end)
+
 
 RegisterNetEvent('rhd_garage:reloadgarage', function(xPlayer)
     if GetInvokingResource() then return end

@@ -1,54 +1,7 @@
 ---@class GARAGE : OxClass
 local GARAGE = lib.class('GARAGE')
 
----@class garageZoneBlip
----@field label string     -- The label or name that will appear on the map for this blip.
----@field sprite number    -- The icon or sprite ID used for the blip (e.g., car icon, house icon).
----@field colour number    -- The color ID for the blip, as defined in the game (e.g., blue, red).
----@field coords vector3   -- The 3D coordinates where the blip will be placed on the map (x, y, z).
-
----@class garageZonePoints
----@field points vector3[]
----@field thickness number
-
----@class garagePoints
----@field coords vector3
----@field distance number
----@field useMarker boolean
-
----@class garageTargetPed
----@field model string
----@field coords vector4
-
----@class cbData
----@field playerId number
----@field playerName string
----@field playerJob string
----@field playerGang string
----@field playerIdentifier string
-
----@class garageZone
----@field type string
----@field class string|string[]
----@field label string
----@field zones? garageZonePoints
----@field points? table<string, garagePoints>
----@field interaction? string|garageTargetPed
----@field spawnPoint? vector4[]
----@field blip? garageZoneBlip
----@field groups? string|string[]|table<string, number>
----@field canAccess? fun(data?:cbData): boolean
-
---- @class InputData
---- @field engine number
---- @field body number
---- @field fuel number
-
---- @class MetadataEntry
---- @field label string
---- @field value number
---- @field progress number
---- @field colorScheme string
+local config = require 'config.client'
 
 local markerColour = {
     {255, 255, 255, 255},  -- White color with full opacity (RGBA: Red, Green, Blue, Alpha)
@@ -63,7 +16,7 @@ local CLASS_CATEGORY = {
     plane = {16},                          -- Vehicle class included in the group 'plane'
     helicopter = {15},                     -- Vehicle class included in the group 'helicopter'
     boat = {14},                           -- Vehicle class included in the group 'boat'
-    train = {21}                           -- Vehicle class included in the group 'train'
+    train = {21},                           -- Vehicle class included in the group 'train'
 }
 
 local VEH_CLASS = {}
@@ -98,8 +51,8 @@ local impoundFee = {
     [21] = 0      --- Price for trains (not applicable)
 }
 
-local interact = require 'modules.garage.interact'
-local radialmenu = require 'modules.garage.radialmenu'
+local interact = require 'modules.utils.interact'
+local radialmenu = require 'modules.utils.radialmenu'
 
 --- Creates a blip on the map with the specified properties.
 --- This function places a blip at the given coordinates, sets its appearance (sprite, scale, color), 
@@ -139,7 +92,7 @@ local function allowedClass(category, vehicle)
     end
 
     return lib.array.find(category, function (garageClass)
-        if garageClass == vehcategory then
+        if garageClass == 'all' or garageClass == vehcategory then
             return true
         end
     end)
@@ -148,11 +101,12 @@ end
 ---@param spawnpoint vector4[]  -- An array of vector4 coordinates to check for a free location.
 ---@return vector4?        -- Returns a vector4 if a free location is found, otherwise returns nil.
 local function getFreeLocation(spawnpoint)
-    local result
-    lib.array.forEach(spawnpoint, function (c)
+    local result = lib.array.find(spawnpoint, function (c)
         local sp = vec(c.x, c.y, c.z, c.w)
         local vehEntity = lib.getClosestVehicle(sp.xyz, 3.0, true)
-        if not vehEntity then result = sp return end
+        if not vehEntity then
+            return sp
+        end
     end)
     return result
 end
@@ -195,7 +149,7 @@ local function changeVehicleName(plate)
 
     local alert = lib.alertDialog({
         header = 'Confirm Vehicle Name Change',
-        content = question:format(vehicleName, lib.math.groupdigits(Config.ChangeVehicleName.price)),
+        content = question:format(vehicleName, lib.math.groupdigits(config.ChangeVehicleName.price)),
         centered = true,
         cancel = true,
     })
@@ -204,7 +158,7 @@ local function changeVehicleName(plate)
         local success = lib.callback.await('rhd_garage:server:changeVehicleName', false, {
             name = vehicleName,
             plate = plate,
-            price = Config.ChangeVehicleName.price
+            price = config.ChangeVehicleName.price
         })
         
         if success then
@@ -264,18 +218,13 @@ function GARAGE:constructor(zoneData)
     local points = zoneData.points
 
     self.blip = zoneData.blip and createBlip({
-        label = zoneData.label,
+        label = zoneData.blip.label or zoneData.label,
         sprite = zoneData.blip.sprite,
         colour = zoneData.blip.colour,
         coords = zone and zone.points[1] or points and points.take or nil
     })
 
-    self.canAccess = zoneData.canAccess and function ()
-        return lib.callback.await('rhd_garage:server:checkAccess', 1500, self.label)
-    end or function ()
-        return true
-    end
-
+    self.hasAccess = true
     self.class = zoneData.class
     self.type = zoneData.type
     self.groups = zoneData.groups
@@ -286,6 +235,13 @@ function GARAGE:constructor(zoneData)
             points = zoneData.zones.points,
             thickness = zoneData.zones.thickness,
             onEnter = function ()
+                self.hasAccess = zoneData.canAccess and pcall(function ()
+                    return lib.callback.await('rhd_garage:server:checkAccess', 1500, self.label)
+                end)
+
+                if self.groups then
+                    self.hasAccess = PLAYER:checkGroups(self.groups)
+                end
                 self:enterZone()
             end,
             inside = function ()
@@ -306,26 +262,51 @@ function GARAGE:constructor(zoneData)
                     end
 
                     self.pointsType = 'take'
-                    self.spawnPoint = {points.take}
+                    self.spawnPoint = {points.save}
+                    self.hasAccess = zoneData.canAccess and pcall(function ()
+                        return lib.callback.await('rhd_garage:server:checkAccess', 1500, self.label)
+                    end)
+
+                    if self.groups then
+                        self.hasAccess = PLAYER:checkGroups(self.groups)
+                    end
                 end,
                 nearby = function (pointsData)
                     self:insideTakePoints(pointsData)
                 end,
+                onExit = function ()
+                    lib.hideTextUI()
+                end
             }),
-            save = lib.points.new({
+        }
+
+        if self.type ~= 'impound' then
+            self.points.save = lib.points.new({
                 coords = points.save,
                 distance = 2.5,
                 onEnter = function ()
                     if points.useMarker then
                         self.useMarker = true
                     end
+                    
                     self.pointsType = 'save'
+                    self.hasAccess = zoneData.canAccess and pcall(function ()
+                        return lib.callback.await('rhd_garage:server:checkAccess', 1500, self.label)
+                    end)
+
+                    if self.groups then
+                        self.hasAccess = PLAYER:checkGroups(self.groups)
+                    end
                 end,
                 nearby = function (pointsData)
                     self:insideSavePoints(pointsData)
                 end,
-            }),
-        }
+                onExit = function ()
+                    lib.hideTextUI()
+                end
+            })
+        end
+
         if points.useMarker then
             self.useMarker = true
             self.merkerPos = {
@@ -368,6 +349,11 @@ end
 
 --- @param pointsData table
 function GARAGE:insideTakePoints(pointsData)
+
+    if not self.hasAccess then
+        return
+    end
+
     if self.useMarker then
         DrawMarker(20,
             pointsData.coords.x,
@@ -392,7 +378,7 @@ function GARAGE:insideTakePoints(pointsData)
                 }
             })
         end
-        if IsControlJustPressed(0, 38) and self.canAccess() then
+        if IsControlJustPressed(0, 38) then
             self:getVehicles()
         end
     else
@@ -404,6 +390,11 @@ end
 
 --- @param pointsData table
 function GARAGE:insideSavePoints(pointsData)
+
+    if not self.hasAccess then
+        return
+    end
+
     if self.useMarker then
         DrawMarker(20,
             pointsData.coords.x,
@@ -428,7 +419,7 @@ function GARAGE:insideSavePoints(pointsData)
                 }
             })
         end
-        if IsControlJustPressed(0, 38) and self.canAccess() then
+        if IsControlJustPressed(0, 38) then
             self:saveVehicle()
         end
     else
@@ -439,11 +430,13 @@ function GARAGE:insideSavePoints(pointsData)
 end
 
 function GARAGE:insideZone()
+
+    if not self.hasAccess then
+        return
+    end
+
     if type(self.interaction) == 'table' or self.interaction == 'keypressed' then
-        if IsControlJustPressed(0, 38) and self.canAccess() then
-            if self.groups and not PLAYER:checkGroups(self.groups) then
-                return
-            end
+        if IsControlJustPressed(0, 38) then
             if cache.vehicle and self.type ~= 'impound' then
                 self:saveVehicle()
                 return
@@ -457,8 +450,9 @@ end
 function GARAGE:enterZone()
     local textUI = self.label
     
-    if not self.canAccess() then return end
-    if self.groups and not PLAYER:checkGroups(self.groups) then return end
+    if not self.hasAccess then
+        return
+    end
 
     if type(self.interaction) == 'table' then
         self.interactionData = interact:new('targetped', {
@@ -510,6 +504,11 @@ function GARAGE:enterZone()
 end
 
 function GARAGE:exitZone()
+
+    if not self.hasAccess then
+        return
+    end
+
     if self.interactionData then
         self.interactionData:remove()
         self.interactionData = nil
@@ -528,18 +527,20 @@ function GARAGE:saveVehicle()
         return utils.notify('Vehicles of this class cannot be stored here.', 'error')
     end
 
-    local deformation = Config.saveDeformation and exports.VehicleDeformation:GetVehicleDeformation(vehicle)
+    local deformation = config.saveDeformation and exports.VehicleDeformation:GetVehicleDeformation(vehicle)
 
     TaskLeaveVehicle(cache.ped, vehicle, 0)
     Wait(1500)
 
     local netId = NetworkGetNetworkIdFromEntity(vehicle)
     local props = lib.getVehicleProperties(vehicle)
+    local label = Entity(vehicle).state.label or utils.vehicle.getVehicleLabel(props.model)
     local success = lib.callback.await('rhd_garage:server:SaveVehicle', false, {
         garage = self.label,
         props = props,
         netId = netId,
-        deformation = deformation
+        deformation = deformation,
+        label = label
     })
 
     if success then
@@ -560,7 +561,7 @@ function GARAGE:takeoutVehicle(veh)
     local netId, fuel, deformation = lib.callback.await('rhd_garage:server:SpawnVehicle', false, {
         plate = veh.plate,
         model = veh.model,
-        warp = Config.SpawnInVehicle,
+        warp = config.spawnInVehicle,
         coords = spawnLoc,
         props = veh.mods,
         impound = veh.impound,
@@ -574,7 +575,7 @@ function GARAGE:takeoutVehicle(veh)
     local vehicle = NetToVeh(netId)
     
     if DoesEntityExist(vehicle) then
-        if DoesEntityExist(vehicle) and Config.saveDeformation and deformation then
+        if DoesEntityExist(vehicle) and config.saveDeformation and deformation then
             exports.VehicleDeformation:SetVehicleDeformation(vehicle, deformation)
         end
         utils.vehicle.setFuel(vehicle, fuel)
@@ -623,7 +624,7 @@ function GARAGE:createVehicleMenu(veh)
             icon = 'pen-to-square',
             description = 'Allows you to rename your vehicle to a custom name.',
             metadata = {
-                price = '$' .. lib.math.groupdigits(Config.ChangeVehicleName.price)
+                price = '$' .. lib.math.groupdigits(config.ChangeVehicleName.price)
             },
             onSelect = function ()
                 changeVehicleName(veh.plate)
@@ -634,12 +635,11 @@ function GARAGE:createVehicleMenu(veh)
     context.options[#context.options+1] = {
         title = 'Take Out Vehicle',
         icon = 'car-rear',
-        description = 'Retrieve a vehicle from the garage.',
+        description = ('Retrieve a vehicle from the %s.'):format(impound and 'depot' or 'garage'),
         onSelect = function ()
             self:takeoutVehicle(veh)
         end
     }
-
     utils.context.openMenu(context)
 end
 

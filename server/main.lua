@@ -1,12 +1,19 @@
 if not lib.checkDependency('ox_lib', '3.23.1') then error('This resource requires ox_lib version 3.23.1') end
 
 local zones = lib.loadJson('data.garages')
+local storage = require 'modules.core.storage'
 
 local addonGarage = {}
+local _invoking = GetInvokingResource
+
+---@param garageData garageZone[]
+local function saveData(garageData)
+    GarageZone = garageData
+    SaveResourceFile(GetCurrentResourceName(), 'data/garages.json', json.encode(GarageZone, {indent = true}), -1)
+end
 
 ---@param garageData garageZone
 local function registerGarage(garageData)
-    assert(not addonGarage[garageData.label], 'A garage with this label '..garageData.label..' already exists.')
     addonGarage[garageData.label] = garageData
     TriggerClientEvent('rhd_garage:client:registerGarage', -1, garageData)
 end
@@ -45,15 +52,15 @@ lib.callback.register('rhd_garage:server:changeVehicleName', function (src, data
     local player = PLAYERs[src]
     if not player then return end
     if player.removeMoney('bank', data.price) then
-        local success = vehStorage.updatePlayerVehicles({
+        local success = storage.updateVehicle({
             filter = {
                 identifier = player.identifier,
                 plate = data.plate
             },
             update = {
-                vehicle_name = data.name
+                label = data.name
             }
-        }, 'update')
+        })
         return success
     end
     return false
@@ -63,17 +70,17 @@ lib.callback.register('rhd_garage:server:getVehicles', function(src, data)
     local player = PLAYERs[src]
     if not player then return end
 
-    local stored = data.impound and 0 or 1
+    local state = data.impound and 0 or 1
     local identifier = not data.shared and player.identifier
 
-    local vehicles = vehStorage.fetchPlayerVehicles({
+    local vehicles = storage.getVehicles({
+        select = '*',
         filter = {
             identifier = identifier,
-            stored = stored,
+            state = state,
             garage = data.garage
         },
-        ownerData = data.shared
-    }, 'select')
+    })
 
     return vehicles
 end)
@@ -90,10 +97,17 @@ lib.callback.register('rhd_garage:server:getVehicleLocationByPlate', function (s
     end)
 
     if not vehCoords then
-        local garage = vehStorage.getGarageByPlate(plate)
-        local notifyText = 'Your vehicle is in the ' .. garage
+        local vehicleData = storage.getVehicleData({
+            select = {
+                'garage'
+            },
+            filter = {
+                plate = plate
+            }
+        })
+        local notifyText = 'Your vehicle is in the ' .. vehicleData.garage
 
-        if garage == 'impounded' then
+        if vehicleData.garage == 'impounded' then
             notifyText = 'Your vehicle is at the depot'
         end
         
@@ -104,53 +118,51 @@ lib.callback.register('rhd_garage:server:getVehicleLocationByPlate', function (s
     return vehCoords
 end)
 
-lib.callback.register('rhd_garage:server:SaveVehicle', function(src, saveData)
+lib.callback.register('rhd_garage:server:SaveVehicle', function(src, vehData)
     local player = PLAYERs[src]
     if not player then return end
 
-
-    local mods = saveData.props
-    local deformation = saveData.deformation or {}
-
-    local netId = saveData.netId
-    local garage = saveData.garage
+    local mods = vehData.props
+    local netId = vehData.netId
+    local label = vehData.label
+    local garage = vehData.garage
+    local deformation = vehData.deformation or {}
     local plate = utils.string.trim(mods.plate --[[@as string]])
-
-    local sharedGarage = false
-    lib.array.forEach(zones, function (data)
+    
+    local sharedGarage = lib.array.find(zones, function (data)
         if data.label == garage and data.type == 'shared' then
-            sharedGarage = true
-            return
+            return true
         end
     end)
 
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
     local identifier = not sharedGarage and player.identifier
 
-    local vehicle = NetworkGetEntityFromNetworkId(netId)
-
-    local vehicles = vehStorage.fetchPlayerVehicles({
+    local vehicleData = storage.getVehicleData({
+        select = '1',
         filter = {
             identifier = identifier,
             plate = plate --[[@as string]]
         },
-    }, 'select')
+    })
 
-    if vehicles then
-        local success = vehStorage.updatePlayerVehicles({
+    if vehicleData then
+        local success = storage.updateVehicle({
             update = {
-                vehicle = json.encode(mods),
-                stored = 1,
+                label = label,
                 garage = garage,
+                state = 1,
                 fuel = mods.fuelLevel --[[@as number]],
                 engine = mods.engineHealth --[[@as number]],
                 body = mods.bodyHealth --[[@as number]],
+                properties = json.encode(mods),
                 deformation = json.encode(deformation)
             },
             filter = {
                 identifier = identifier,
                 plate = plate,
             }
-        }, 'update')
+        })
 
         if not success then
             return
@@ -220,23 +232,43 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
         end
     end
 
-    local props, deformation = vehStorage.getProperties(plate)
+    local vehicleData = storage.getVehicleData({
+        select = {
+            'identifier',
+            'owner_name',
+            'label',
+            'plate',
+            'properties',
+            'deformation',
+        },
+        filter = {
+            plate = plate
+        }
+    })
+
+    local vState = Entity(vehEntity).state
+    vState:set('owner', vehicleData.owner, true)
+    vState:set('label', vehicleData.label, true)
+    vState:set('plate', utils.string.trim(vehicleData.plate), true)
+    vState:set('owner_identifier', vehicleData.identifier, true)
+
+    local props, deformation = json.decode(vehicleData.properties), json.decode(vehicleData.deformation)
     local netId = NetworkGetNetworkIdFromEntity(vehEntity)
 
     TriggerClientEvent('vehiclekeys:client:SetOwner', source, plate)
     
     if props then
-        Entity(vehEntity).state:set('ox_lib:setVehicleProperties', props, true)
+        vState:set('ox_lib:setVehicleProperties', props, true)
     end
 
-   local success = vehStorage.updatePlayerVehicles({
+   local success = storage.updateVehicle({
         filter = {
             plate = utils.string.trim(props.plate)
         },
         update = {
-            stored = 0
+            state = 0
         }
-    }, 'update')
+    })
 
     if not success then
         DeleteEntity(vehEntity)
@@ -246,28 +278,22 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
     return netId, props.fuelLevel, deformation
 end)
 
--- RegisterCommand('addgarage', function (source)
---     registerGarage({
---         label = 'Test Aja',
---         type = 'default',
---         class = {'car', 'motorcycle'},
---         canAccess = function (data)
---             return true
---         end,
---         blip = {
---             label = "Parkiran Hafizh",
---             sprite = 357,
---             colour = 7
---         },
---         points = {
---             take = vec(294.3668, -346.2071, 44.9199, 72.5447),
---             save  = vec(296.0357, -343.1743, 44.9199, 79.6206),
---             useMarker = true
---         }
+RegisterNetEvent('rhd_garage:server:registerGarage', function(garageData)
+    if _invoking() then return end
+    
+    local duplicateLabel = lib.array.find(zones, function (data)
+        if data.label == garageData.label then
+            return true
+        end
+    end)
 
---     })
--- end, false)
-
--- RegisterCommand('removeGarage', function ()
---     removeGarage('Test Aja')
--- end, false)
+    assert(not duplicateLabel or addonGarage[garageData.label], (
+        'A garage with the label "%s" already exists. Please choose a different label.'):format(garageData.label)
+    )
+    
+    zones[#zones+1] = garageData
+    registerGarage(garageData)
+    SetTimeout(5000, function ()
+        saveData(zones)
+    end)
+end)
