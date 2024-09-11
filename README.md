@@ -11,8 +11,6 @@
 - Aircraft Garage
 - Shared Garage
 - Save Deformation Damage
-- Garage Creator (In Game) ```/garagelist (Admin Only)```
-- Garage Editor (In Game) ```/garagelist (Admin Only)```
 - Using spawn points ```(option)```
 - Interaction ```(radialmenu, target, key pressed)```
 - Custom Vehicle Name
