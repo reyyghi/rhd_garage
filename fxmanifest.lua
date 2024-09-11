@@ -2,48 +2,43 @@ fx_version 'cerulean'
 game 'gta5'
 version '1.4.1'
 author 'Reyghita Hafizh Firmanda'
-description 'Garage system for ESX & QBCore made by RHD Team'
+description 'Garage system for ESX & QB made by RHD Team'
+
+ui_page 'web/build/index.html'
 
 shared_scripts {
     '@ox_lib/init.lua',
     'shared/*.lua',
-    'bridge/houses/*.lua',
-    'bridge/framework/*.lua'
+    'modules/bridge/init.lua'
 }
 
 client_scripts {
-    'bridge/radialmenu/*.lua',
-    'client/*.lua',
+    'bridge/framework/esx/cl_*.lua',
+    'client/creator.lua',
+    'client/main.lua',
+    'client/ui.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    'bridge/framework/esx/sv_*.lua',
     'server/main.lua',
-    'server/police_impound.lua',
-    'server/storage.lua',
-    'server/vehicle.lua',
     'server/version.lua',
-    'server/command.lua',
-    'server/jobvehshop.lua'
 }
 
 files {
-    'locales/*.json',
-    'data/peds.json',
-    'data/garages.json',
-    'data/vehiclesname.json',
+	'web/build/index.html',
+	'web/build/**/*',
 
-    'modules/debugzone.lua',
-    'modules/zone.lua',
-    'modules/deformation.lua',
-    'modules/spawnpoint.lua',
-    'modules/pedcreator.lua',
+    'config/*.lua',
+    'modules/bridge/**/*.lua',
+    'modules/core/*.lua',
+    'modules/utils/*.lua',
 }
 
-ox_lib "locale"
 
 dependencies {
-    'ox_lib'
+    'ox_lib',
 }
 
 lua54 'yes'
