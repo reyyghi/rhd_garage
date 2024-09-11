@@ -47,7 +47,8 @@ AddEventHandler("esx:playerLoaded", function(_, xPlayer)
     if PLAYERs[xPlayer.source] then return end
 
     PLAYERs[xPlayer.source] = server:new(xPlayer)
-    xPlayer.triggerEvent('rhd_garage:reloadgarage', xPlayer)
+    xPlayer.triggerEvent('rhd_garage:loadPlayer', xPlayer)
+    PrepareGarage(xPlayer.source)
 end)
 
 AddEventHandler('playerDropped', function (reason)
@@ -65,6 +66,7 @@ if config.InDevelopment then
         local xPlayer = ESX.GetPlayerFromId(source)
 
         PLAYERs[xPlayer.source] = server:new(xPlayer)
-        xPlayer.triggerEvent('rhd_garage:reloadgarage', xPlayer)
+        xPlayer.triggerEvent('rhd_garage:loadPlayer', xPlayer)
+        PrepareGarage(xPlayer.source)
     end)
 end

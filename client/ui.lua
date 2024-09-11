@@ -7,7 +7,9 @@ local zones = lib.load('config.garages')
 RegisterNUICallback('getGarageList', function (_, cb)
     local garageList = {}
     Array.forEach(zones, function (data)
-        garageList[#garageList+1] = data.label
+        if data.type ~= 'depot' and data.type ~= 'shared' then
+            garageList[#garageList+1] = data.label
+        end
     end)
     cb(garageList)
 end)

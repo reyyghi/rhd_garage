@@ -43,7 +43,8 @@ RegisterNetEvent('QBCore:Server:OnPlayerLoaded', function()
     if PLAYERs[xPlayer.PlayerData.source] then return end
 
     PLAYERs[xPlayer.PlayerData.source] = server:new(xPlayer)
-    xPlayer.triggerEvent('rhd_garage:reloadgarage', xPlayer)
+    TriggerClientEvent('rhd_garage:loadPlayer', xPlayer.PlayerData.source, xPlayer)
+    PrepareGarage(xPlayer.PlayerData.source)
 end)
 
 AddEventHandler('playerDropped', function (reason)
@@ -60,7 +61,9 @@ if config.InDevelopment then
     }, function(source, args, raw)
         local xPlayer = QBCore.Functions.GetPlayer(source)
         if PLAYERs[xPlayer.PlayerData.source] then return end
+
         PLAYERs[xPlayer.PlayerData.source] = server:new(xPlayer)
-        xPlayer.triggerEvent('rhd_garage:reloadgarage', xPlayer)
+        TriggerClientEvent('rhd_garage:loadPlayer', xPlayer.PlayerData.source, xPlayer)
+        PrepareGarage(xPlayer.PlayerData.source)
     end)
 end

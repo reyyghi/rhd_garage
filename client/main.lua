@@ -1,25 +1,17 @@
 
 local playerGarage = {}
 
-local config = require 'config.client'
+local _invoking = GetInvokingResource
 local garage = require 'modules.core.garage'
 
-local _invoking = GetInvokingResource
-
-CreateThread(function()
-    repeat
-        if config.InDevelopment then
-            lib.print.info('Use the /reloadgarage command to reload the garage data.')
-        end
-        Wait(500)
-    until PLAYER.loaded
-
-    local garageList = lib.callback.await('rhd_garage:server:getGarageList', 1500)
-
+RegisterNetEvent('rhd_garage:client:loadGarage', function(garageList)
+    if _invoking() then return end
     if Array.isArray(garageList) then
-        Array.forEach(garageList, function (data)
+        for i=1, #garageList do
+            local data = garageList[i]
+            if not data.index then data.index = i end
             playerGarage[data.label] = garage:new(data)
-        end)
+        end
     end
 end)
 

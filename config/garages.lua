@@ -19,8 +19,8 @@ return {
         class = {"car", "motorcycle", "bicycle"},
         label = "San Andreas Parking",
         points = {
-            save = vector4(-330.67, -781.12, 33.96, 40.46),
-            take = vector4(-337.11, -775.34, 33.56, 132.09),
+            take = vector4(-330.67, -781.12, 33.96, 40.46),
+            save = vector4(-337.11, -775.34, 33.56, 132.09),
             useMarker = true
         },
         blip = {

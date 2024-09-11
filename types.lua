@@ -35,6 +35,7 @@
 ---@field blip? garageZoneBlip
 ---@field groups? string|string[]|table<string, number>
 ---@field canAccess? fun(data?:cbData): boolean
+---@field index number
 
 --- @class InputData
 --- @field engine number
@@ -45,4 +46,11 @@
 --- @field label string
 --- @field value number
 --- @field progress number
---- @field colorScheme string
+--- @field colorScheme string 
+
+---@class vehicleLogs
+---@field whodo string
+---@field status string
+---@field date string
+---@field garage string
+

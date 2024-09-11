@@ -88,7 +88,7 @@ RegisterNetEvent("esx:setJob", function(newJob)
     PLAYER:updateJob(newJob)
 end)
 
-RegisterNetEvent('rhd_garage:reloadgarage', function(xPlayer)
+RegisterNetEvent('rhd_garage:loadPlayer', function(xPlayer)
     if GetInvokingResource() then return end
 
     PLAYER = client:new(xPlayer)

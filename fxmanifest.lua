@@ -1,6 +1,6 @@
 fx_version 'cerulean'
 game 'gta5'
-version '1.4.1'
+version '1.4.2'
 author 'Reyghita Hafizh Firmanda'
 description 'Garage system for ESX & QB made by RHD Team'
 
@@ -13,15 +13,12 @@ shared_scripts {
 }
 
 client_scripts {
-    'bridge/framework/esx/cl_*.lua',
-    'client/creator.lua',
     'client/main.lua',
     'client/ui.lua',
 }
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    'bridge/framework/esx/sv_*.lua',
     'server/main.lua',
     'server/version.lua',
 }

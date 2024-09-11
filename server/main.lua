@@ -3,7 +3,44 @@ if not lib.checkDependency('ox_lib', '3.23.1') then error('This resource require
 local zones = lib.load('config.garages')
 local storage = require 'modules.core.storage'
 
-local _invoking = GetInvokingResource
+function PrepareGarage(source)
+    TriggerClientEvent('rhd_garage:client:loadGarage', source, zones)
+end
+
+---@param logs vehicleLogs[]
+---@param newlogs vehicleLogs
+local function insertLogs(logs, newlogs)
+    if Array.isArray(logs) then
+        if #logs > 50 then
+            for i=1, 25 do
+                table.remove(logs, i)
+                Wait(500)
+            end
+        end
+        logs[#logs+1] = newlogs
+    end
+end
+
+---@param garage garageZone
+local function getSpawnLocation(garage)
+    if garage.spawnPoint then
+        return Array.find(garage.spawnPoint, function (coords)
+            local sp = vec(coords.x, coords.y, coords.z, coords.w)
+            local vehEntity = lib.getClosestVehicle(sp.xyz, 3.0, true)
+            if not vehEntity then
+                return sp
+            end
+        end)
+    elseif garage.points?.save then
+        local coords = garage.points?.save
+        local sp = vec(coords.x, coords.y, coords.z, coords.w)
+        local vehEntity = lib.getClosestVehicle(sp.xyz, 3.0, true)
+        if not vehEntity then
+            return sp
+        end
+    end
+    return false
+end
 
 ---@param garageData garageZone
 local function registerGarage(garageData)
@@ -17,7 +54,9 @@ local function registerGarage(garageData)
         'A garage with the label "%s" already exists. Please choose a different label.'):format(garageData.label)
     )
 
-    zones[#zones+1] = garageData
+    local index = #zones + 1
+    garageData.index = index
+    zones[index] = garageData
     TriggerClientEvent('rhd_garage:client:registerGarage', -1, garageData)
 end
 
@@ -46,13 +85,12 @@ lib.callback.register('rhd_garage:server:checkAccess', function (src, garage)
     local player = PLAYERs[src]
     if not player then return end
 
-    local data = addonGarage[garage]
-
-    if not data then
-        return 'gak ada'
+    local garageData = zones[garage]
+    if not garageData then
+        return
     end
 
-    return data.canAccess({
+    return garageData.canAccess({
         playerId = src,
         name = player.name,
         identifier = player.identifier
@@ -152,41 +190,53 @@ lib.callback.register('rhd_garage:server:SaveVehicle', function(src, vehData)
     local player = PLAYERs[src]
     if not player then return end
 
+    local garageData = zones[vehData.garage]
+    if not garageData then return end
+
     local mods = vehData.props
     local netId = vehData.netId
     local label = vehData.label
-    local garage = vehData.garage
+    
     local deformation = vehData.deformation or {}
     local plate = utils.string.trim(mods.plate --[[@as string]])
     
-    local sharedGarage = Array.find(zones, function (data)
-        if data.label == garage and data.type == 'shared' then
-            return true
-        end
-    end)
+    local sharedGarage = garageData.type == 'shared'
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
     local identifier = not sharedGarage and player.identifier
 
     local vehicleData = storage.getVehicleData({
-        select = '1',
+        select = {
+            'logs',
+        },
         filter = {
             identifier = identifier,
             plate = plate --[[@as string]]
         },
     })
 
+    
     if vehicleData then
+        local logs = json.decode(vehicleData.logs)
+
+        insertLogs(logs, {
+            whodo = player.name,
+            status = 'Stored',
+            date = os.date("%d-%m-%Y %H:%M:%S"),
+            garage = garageData.label .. ' ('..garageData.type..')'
+        })
+
         local success = storage.updateVehicle({
             update = {
                 label = label,
-                garage = garage,
+                garage = garageData.label,
                 state = 1,
                 fuel = mods.fuelLevel --[[@as number]],
                 engine = mods.engineHealth --[[@as number]],
                 body = mods.bodyHealth --[[@as number]],
                 properties = json.encode(mods),
-                deformation = json.encode(deformation)
+                deformation = json.encode(deformation),
+                logs = json.encode(logs)
             },
             filter = {
                 identifier = identifier,
@@ -208,24 +258,41 @@ end)
 lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnData)
     local ped = GetPlayerPed(source)
     local entityOwner = NetworkGetEntityOwner(ped)
-    local coords = spawnData.coords
+    
+    local garage = spawnData.garage
+    local garageData = zones[garage]
+
+    if not garageData then
+        return
+    end
+
     local warp = spawnData.warp
     local model = spawnData.model
     local plate = spawnData.plate
-    local depotPayment = spawnData.depot
-    local vehicleType = spawnData.class
+    local depotPayment = spawnData.payment
+    local vehicleType = spawnData.vehicleType
+    local vehicleClass = spawnData.vehicleClass
 
     local Player = PLAYERs[source]
     if not Player then return end
 
+    local logGarage = garageData.label .. ' ('..garageData.type..')'
+
     if depotPayment then
-        if not Player.removeMoney(depotPayment.type, depotPayment.count) then
+        local depotPrice = DepotPriceByClass[vehicleClass]
+        if not Player.removeMoney(depotPayment, depotPrice) then
             utils.notify(source, 'You don\'t have money to pay the depot fee', 'error')
             return
         end
     end
 
-    local vehEntity = CreateVehicleServerSetter(model, vehicleType, coords.x, coords.y, coords.z, coords.w)
+    local spanCoords = getSpawnLocation(garageData)
+
+    if not spanCoords then
+        return utils.notify(source, 'There is no available space to retrieve the vehicle from the garage.', 'error')
+    end
+
+    local vehEntity = CreateVehicleServerSetter(model, vehicleType, spanCoords.x, spanCoords.y, spanCoords.z, spanCoords.w)
 
     Wait(500)
     while GetVehicleNumberPlateText(vehEntity) == '' do
@@ -270,6 +337,7 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
             'plate',
             'properties',
             'deformation',
+            'logs'
         },
         filter = {
             plate = plate
@@ -277,11 +345,12 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
     })
 
     local vState = Entity(vehEntity).state
-    vState:set('owner', vehicleData.owner, true)
+    vState:set('owner', vehicleData.owner_name, true)
     vState:set('label', vehicleData.label, true)
     vState:set('plate', utils.string.trim(vehicleData.plate), true)
     vState:set('owner_identifier', vehicleData.identifier, true)
 
+    local logs = json.decode(vehicleData.logs)
     local props, deformation = json.decode(vehicleData.properties), json.decode(vehicleData.deformation)
     local netId = NetworkGetNetworkIdFromEntity(vehEntity)
 
@@ -291,12 +360,20 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
         vState:set('ox_lib:setVehicleProperties', props, true)
     end
 
-   local success = storage.updateVehicle({
+    insertLogs(logs, {
+        whodo = Player.name,
+        status = 'Take Out',
+        date = os.date("%d-%m-%Y %H:%M:%S"),
+        garage = logGarage
+    })
+
+    local success = storage.updateVehicle({
         filter = {
             plate = utils.string.trim(props.plate)
         },
         update = {
-            state = 0
+            state = 0,
+            logs = json.encode(logs)
         }
     })
 
@@ -306,9 +383,4 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
     end
 
     return netId, props.fuelLevel, deformation
-end)
-
-RegisterNetEvent('rhd_garage:server:registerGarage', function(garageData)
-    if _invoking() then return end
-    registerGarage(garageData)
 end)

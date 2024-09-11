@@ -55,25 +55,13 @@ local function allowedClass(category, vehicle)
     end)
 end
 
----@param spawnpoint vector4[]  -- An array of vector4 coordinates to check for a free location.
----@return vector4?        -- Returns a vector4 if a free location is found, otherwise returns nil.
-local function getFreeLocation(spawnpoint)
-    local result = Array.find(spawnpoint, function (c)
-        local sp = vec(c.x, c.y, c.z, c.w)
-        local vehEntity = lib.getClosestVehicle(sp.xyz, 3.0, true)
-        if not vehEntity then
-            return sp
-        end
-    end)
-    return result
-end
-
 --- Constructs a `GARAGE` instance using the provided zone data.
 --- Initializes various properties of the garage including label, blip, access control, class, type, groups, spawn points, and interaction settings.
 --- Sets up zones or points for the garage based on the provided data and configures the corresponding interactions.
 ---
 --- @param zoneData garageZone  -- The data used to configure the garage, including label, zones, points, blip, access control, class, type, groups, and spawn points
 function GARAGE:constructor(zoneData)
+    self.index = zoneData.index
     self.label = zoneData.label
 
     local zone = zoneData.zones
@@ -98,7 +86,7 @@ function GARAGE:constructor(zoneData)
             thickness = zoneData.zones.thickness,
             onEnter = function ()
                 if zoneData.canAccess then
-                    self.hasAccess = lib.callback.await('rhd_garage:server:checkAccess', 1500, self.label)
+                    self.hasAccess = lib.callback.await('rhd_garage:server:checkAccess', 1500, self.index)
                 end
 
                 if self.groups then
@@ -128,7 +116,7 @@ function GARAGE:constructor(zoneData)
                     self.spawnPoint = {points.save}
                     
                     if zoneData.canAccess then
-                        self.hasAccess = lib.callback.await('rhd_garage:server:checkAccess', 1500, self.label)
+                        self.hasAccess = lib.callback.await('rhd_garage:server:checkAccess', 1500, self.index)
                     end
     
                     if self.groups then
@@ -155,7 +143,7 @@ function GARAGE:constructor(zoneData)
                     
                     self.pointsType = 'save'
                     if zoneData.canAccess then
-                        self.hasAccess = lib.callback.await('rhd_garage:server:checkAccess', 1500, self.label)
+                        self.hasAccess = lib.callback.await('rhd_garage:server:checkAccess', 1500, self.index)
                     end
     
                     if self.groups then
@@ -404,7 +392,7 @@ function GARAGE:saveVehicle()
     local props = lib.getVehicleProperties(vehicle)
     local label = Entity(vehicle).state.label or utils.vehicle.getVehicleLabel(props.model)
     local success = lib.callback.await('rhd_garage:server:SaveVehicle', false, {
-        garage = self.label,
+        garage = self.index,
         props = props,
         netId = netId,
         deformation = deformation,
@@ -417,22 +405,18 @@ function GARAGE:saveVehicle()
 end
 
 function GARAGE:takeoutVehicle(veh, payment)
-    local spawnLoc = getFreeLocation(self.spawnPoint)
-
-    if not spawnLoc then
-        return utils.notify('There is no available space to retrieve the vehicle from the garage.', 'error')
-    end
-
     lib.requestModel(veh.model, 1500)
     local vehicleType = utils.vehicle.getType(veh.model)
+    local vehicleClass = GetVehicleClassFromName(veh.model)
 
     local netId, fuel, deformation = lib.callback.await('rhd_garage:server:SpawnVehicle', false, {
+        warp = config.spawnInVehicle,
         plate = veh.plate,
         model = veh.model,
-        warp = config.spawnInVehicle,
-        coords = spawnLoc,
-        depot = payment,
-        class = vehicleType
+        payment = payment,
+        garage = self.index,
+        vehicleType = vehicleType,
+        vehicleClass = vehicleClass
     })
 
     if not netId or netId < 1 then
