@@ -1,5 +1,3 @@
-if GetResourceState('es_extended') == "missing" then return end
-
 ---@class client : OxClass
 local client = lib.class('client')
 

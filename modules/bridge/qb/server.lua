@@ -1,5 +1,3 @@
-if GetResourceState('qb-core') == "missing" then return end
-
 local QBCore = exports['qb-core']:GetCoreObject()
 
 local config = require 'config.client'

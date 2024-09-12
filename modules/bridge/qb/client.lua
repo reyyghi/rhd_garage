@@ -1,5 +1,3 @@
-if GetResourceState('qbx_core') == "missing" then return end
-
 ---@class client : OxClass
 local client = lib.class('client')
 
@@ -101,6 +99,8 @@ end)
 
 
 RegisterNetEvent('rhd_garage:loadPlayer', function(xPlayer)
+
+    print('awdawwda')
     if GetInvokingResource() then return end
 
     PLAYER = client:new(xPlayer)

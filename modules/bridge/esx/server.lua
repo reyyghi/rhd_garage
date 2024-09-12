@@ -1,5 +1,3 @@
-if GetResourceState('es_extended') == "missing" then return end
-
 local ESX = exports["es_extended"]:getSharedObject()
 
 PLAYERs = {}
