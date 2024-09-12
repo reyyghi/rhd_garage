@@ -8,7 +8,7 @@ return {
 --- [LegacyFuel](https://github.com/InZidiuZ/LegacyFuel.git) | 
 --- [ps-fuel](https://github.com/project-sloth/ps-fuel/releases) | 
 --- [cdn-fuel](https://github.com/CodineDev/cdn-fuel/releases)
-    fuelScript = 'rhd_fuel',
+    fuelScript = 'LegacyFuel',
 
 --- Specifies the interactions system to use:
 --- [ox](https://github.com/overextended/ox_target/releases) |
@@ -26,5 +26,5 @@ return {
 --- [VehicleDeformation](https://github.com/Kiminaze/VehicleDeformation/releases).
 --- This setting enables saving vehicle deformation data, which requires 
 --- the VehicleDeformation resource to properly function.
-    saveDeformation = true,
+    saveDeformation = false,
 }
