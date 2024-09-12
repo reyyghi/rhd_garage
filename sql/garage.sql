@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `user_vehicles` (
   `body` float DEFAULT 1000,
   `properties` longtext NOT NULL,
   `deformation` longtext DEFAULT NULL,
+  `logs` longtext NULL DEFAULT '[]',
   UNIQUE KEY `Index 2` (`plate`(100)),
   KEY `Index 1` (`identifier`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
