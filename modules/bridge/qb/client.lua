@@ -45,7 +45,9 @@ function client:checkGroups(groups)
             local _tabletype = table.type(groups)
 
             if _tabletype == 'hash' then
-                return groups[data.name] and data.rank >= groups[data.name]
+                if groups[data.name] and data.rank >= groups[data.name] then
+                    return true
+                end
             elseif _tabletype == 'array' then
                 return Array.find(groups, function (name)
                     if data.name == name then
