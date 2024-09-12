@@ -11,11 +11,8 @@ end
 ---@param newlogs vehicleLogs
 local function insertLogs(logs, newlogs)
     if Array.isArray(logs) then
-        if #logs > 50 then
-            for i=1, 25 do
-                table.remove(logs, i)
-                Wait(500)
-            end
+        if #logs > 25 then
+            table.remove(logs, 1)
         end
         logs[#logs+1] = newlogs
     end
