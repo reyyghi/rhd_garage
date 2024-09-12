@@ -1,4 +1,4 @@
-if not lib.checkDependency('ox_lib', '3.23.1') then error('This resource requires ox_lib version 3.23.1') end
+if not lib.checkDependency('ox_lib', '3.24.0') then error('This resource requires ox_lib version 3.24.0') end
 
 local zones = lib.load('config.garages')
 local storage = require 'modules.core.storage'

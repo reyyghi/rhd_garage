@@ -1,13 +1,14 @@
+if not lib.checkDependency('ox_lib', '3.24.0') then error('This resource requires ox_lib version 3.24.0') end
+
 ---@class GARAGE : OxClass
 local GARAGE = lib.class('GARAGE')
-
-local config = require 'config.client'
 
 local markerColour = {
     {255, 255, 255, 255},
     {200, 20, 20, 255}
 }
 
+local config = require 'config.client'
 local interact = require 'modules.utils.interact'
 local radialmenu = require 'modules.utils.radialmenu'
 
