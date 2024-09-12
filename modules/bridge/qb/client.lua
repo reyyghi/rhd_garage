@@ -100,7 +100,6 @@ end)
 
 RegisterNetEvent('rhd_garage:loadPlayer', function(xPlayer)
 
-    print('awdawwda')
     if GetInvokingResource() then return end
 
     PLAYER = client:new(xPlayer)
