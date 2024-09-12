@@ -28,5 +28,3 @@ The RHD team welcomes contributions from the community! If you have suggestions,
 
 # Dependencies 
 - **[ox_lib](https://github.com/overextended/ox_lib/releases)**
-
-- **[fivem-freecam](https://github.com/Deltanic/fivem-freecam)**
