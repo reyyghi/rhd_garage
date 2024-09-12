@@ -309,8 +309,8 @@ function GARAGE:enterZone()
 
     if type(self.interaction) == 'table' then
         self.interactionData = interact:new('targetped', {
-            model = 'mp_m_freemode_01',
-            coords = vec(279.3975, -342.1094, 44.9199, 44.8222),
+            model = self.interaction.model,
+            coords = self.interaction.coords,
             icon = 'warehouse',
             label = 'Access ' .. self.label,
             onSelect = function ()
