@@ -494,7 +494,8 @@ function GARAGE:getVehicles()
                 depotPrice = depotPrice,
                 metadata = metadata,
                 outside = outside,
-                logs = veh.logs
+                logs = veh.logs,
+                properties = veh.properties
             }
 
             UI.Action[veh.plate] = {
