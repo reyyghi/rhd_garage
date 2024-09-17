@@ -10,12 +10,12 @@ local function generateVehicleData(t)
 
     Array.forEach(t, function (veh)
         local plate = veh.plate and utils.string.trim(veh.plate)
-        local mods = veh.properties and json.decode(veh.properties) or {}
+        local properties = veh.properties and json.decode(veh.properties) or {}
         local logs = veh.logs and json.decode(veh.logs) or {}
 
         results[pos] = {
             label = veh.label,
-            mods = mods,
+            properties = properties,
             model = tonumber(veh.model),
             plate = plate,
             garage = veh.garage,
