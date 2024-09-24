@@ -57,8 +57,6 @@ local function registerGarage(garageData)
     TriggerClientEvent('rhd_garage:client:registerGarage', -1, garageData)
 end
 
-exports('AddGarage', registerGarage)
-
 ---@param label string
 local function removeGarage(label)
     local index = Array.findIndex(zones, function (data)
@@ -71,8 +69,6 @@ local function removeGarage(label)
     table.remove(zones, index)
     TriggerClientEvent('rhd_garage:client:removeGarage', -1, label)
 end
-
-exports('RemoveGarage', removeGarage)
 
 lib.callback.register('rhd_garage:server:getGarageList', function ()
     return zones
@@ -381,3 +377,9 @@ lib.callback.register('rhd_garage:server:SpawnVehicle', function(source, spawnDa
 
     return netId, props.fuelLevel, deformation
 end)
+
+exports('getAllGarage', function ()
+    return zones
+end)
+exports('AddGarage', registerGarage)
+exports('RemoveGarage', removeGarage)
